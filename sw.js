@@ -1,4 +1,4 @@
-const CACHE_NAME = 'zambiacash-v2';
+const CACHE_NAME = 'zambiacash-v3'; // Change this from v2 to v3
 const ASSETS = ['./', './index.html', './manifest.json', './icon.png'];
 
 self.addEventListener('install', (e) => {
