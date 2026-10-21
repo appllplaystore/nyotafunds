@@ -490,6 +490,16 @@
             postInstallContent.classList.remove('hide');
         }
 
+        // Function to switch UI to the "Install" state
+        function showInstallState() {
+            postInstallButtons.classList.add('hide');
+            postInstallContent.classList.add('hide');
+            fakeDownloadArea.classList.add('hide');
+            
+            preInstallButtons.classList.remove('hide');
+            preInstallContent.classList.remove('hide');
+        }
+
         if (isStandalone) {
             playStoreGate.classList.add('hide');
             appContent.classList.remove('hide');
@@ -497,12 +507,9 @@
         } else if (isInApp) {
             browserWarning.classList.remove('hide');
         } else {
-            // If opened in a normal browser (not standalone), always show the Play Store
+            // If opened in a normal browser, always show the Play Store
             playStoreGate.classList.remove('hide');
-            preInstallButtons.classList.remove('hide');
-            preInstallContent.classList.remove('hide');
-            postInstallButtons.classList.add('hide');
-            postInstallContent.classList.add('hide');
+            showInstallState();
         }
 
         window.addEventListener('beforeinstallprompt', (e) => {
@@ -580,7 +587,10 @@
 
         // UNINSTALL BUTTON
         window.mockUninstall = function() {
-            alert("To uninstall ZambiaCash:\n1. Close this tab.\n2. Long-press the ZambiaCash icon on your home screen.\n3. Select 'Uninstall' or drag it to the trash bin.");
+            alert("To uninstall ZambiaCash:\n1. Long-press the ZambiaCash icon on your home screen.\n2. Select 'Uninstall' or drag it to the trash bin.\n\nYou can also uninstall it from your phone's Settings > Apps.");
+            
+            // Reset the UI back to the Install state
+            showInstallState();
         };
 
         window.addEventListener('appinstalled', () => {
