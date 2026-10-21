@@ -44,17 +44,6 @@
             display: flex; align-items: center; justify-content: center;
             color: white; font-weight: bold; font-size: 14px;
         }
-        @keyframes arrowBounce {
-            0%, 100% { transform: translateY(0); }
-            50% { transform: translateY(-12px); }
-        }
-        .arrow-bounce { animation: arrowBounce 1.6s ease-in-out infinite; }
-        @keyframes iconPop {
-            0% { transform: scale(0.8); opacity: 0; }
-            60% { transform: scale(1.1); }
-            100% { transform: scale(1); opacity: 1; }
-        }
-        .icon-pop { animation: iconPop 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
     </style>
 </head>
 <body class="bg-white font-roboto text-slate-900 antialiased overflow-x-hidden">
@@ -66,11 +55,11 @@
         </div>
         <h2 class="text-2xl font-bold text-white mb-2 font-sans">No Internet Connection</h2>
         <p class="text-gray-400 mb-8 text-sm leading-relaxed max-w-xs mx-auto font-sans">
-            ZambiaCash requires an active internet connection to work. Please turn on mobile data or Wi-Fi.
+            ZambiaCash requires an active internet connection. Please turn on mobile data or Wi-Fi.
         </p>
         <button onclick="retryConnection()" class="w-full max-w-xs bg-brandYellow text-gray-900 font-bold py-3.5 rounded-xl shadow-lg active:scale-95 transition-transform flex items-center justify-center gap-2">
             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path></svg>
-            Retry Connection
+            Retry
         </button>
     </div>
 
@@ -113,7 +102,7 @@
 
             <!-- POST-INSTALL BUTTONS (Uninstall / Open) -->
             <div class="flex gap-3 mb-6 hide" id="post-install-buttons">
-                <button class="flex-1 bg-white text-playBlue font-medium text-lg py-3 rounded-full border border-gray-300 active:scale-95 transition-transform">Uninstall</button>
+                <button onclick="mockUninstall()" class="flex-1 bg-white text-playBlue font-medium text-lg py-3 rounded-full border border-gray-300 active:scale-95 transition-transform">Uninstall</button>
                 <button id="btn-open-app" class="flex-1 bg-playBlue text-white font-medium text-lg py-3 rounded-full shadow-sm active:scale-95 transition-transform">Open</button>
             </div>
 
@@ -282,40 +271,6 @@
                 </div>
                 <span class="text-[10px] font-bold">Search</span>
             </div>
-        </div>
-    </div>
-
-    <!-- 3. FIND-ON-HOME-SCREEN EDUCATION SCREEN -->
-    <div id="find-on-home-screen" class="hide fixed inset-0 z-[9998] gradient-bg flex flex-col justify-between p-6 text-center">
-        <div class="flex-1 flex flex-col items-center justify-center max-w-sm mx-auto w-full">
-            <div class="relative mb-6">
-                <img src="icon.png" class="w-28 h-28 rounded-3xl shadow-2xl icon-pop border-4 border-white/20" alt="ZambiaCash">
-                <div class="absolute -top-2 -right-2 w-10 h-10 bg-green-500 rounded-full flex items-center justify-center shadow-lg">
-                    <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path></svg>
-                </div>
-            </div>
-
-            <h1 class="text-2xl font-extrabold text-white mb-2">App Downloaded Successfully!</h1>
-            <p class="text-blue-100 text-sm mb-8 max-w-xs leading-relaxed">
-                ZambiaCash is now installed on your phone.
-            </p>
-
-            <div class="text-5xl mb-4 arrow-bounce text-brandYellow">↑</div>
-
-            <p class="text-white text-base font-bold mb-2">Look for ZambiaCash on your home screen</p>
-            <p class="text-blue-200 text-sm mb-8 max-w-xs leading-relaxed">
-                Close this browser tab, then tap the ZambiaCash icon on your phone's home screen to launch the app.
-            </p>
-        </div>
-
-        <div class="max-w-sm mx-auto w-full mb-6">
-            <button id="btn-close-tab" class="w-full bg-brandYellow text-gray-900 font-extrabold text-base py-4 rounded-full shadow-2xl active:scale-95 transition-transform mb-3 flex items-center justify-center gap-2">
-                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12"></path></svg>
-                Close Tab
-            </button>
-            <button id="btn-use-browser" class="w-full bg-white/20 backdrop-blur text-white font-medium text-sm py-3 rounded-full border border-white/30 active:scale-95 transition-transform">
-                Continue in Browser
-            </button>
         </div>
     </div>
 
@@ -505,7 +460,6 @@
         const playStoreGate = document.getElementById('play-store-gate');
         const browserWarning = document.getElementById('browser-warning');
         const appContent = document.getElementById('app-content');
-        const findOnHomeScreen = document.getElementById('find-on-home-screen');
         const btnStoreInstall = document.getElementById('btn-store-install');
         
         // Containers
@@ -521,7 +475,6 @@
         const downloadSize = document.getElementById('download-size');
 
         const isStandalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone;
-        const wasInstalled = localStorage.getItem('pwa_installed') === 'true';
         const ua = navigator.userAgent || navigator.vendor || window.opera;
         const isInApp = /musical_ly|BytedanceWebview|FBAN|FBAV|Instagram|WebView|Twitter/i.test(ua);
 
@@ -543,10 +496,8 @@
             checkSession();
         } else if (isInApp) {
             browserWarning.classList.remove('hide');
-        } else if (wasInstalled) {
-            playStoreGate.classList.remove('hide');
-            showInstalledState();
         } else {
+            // If opened in a normal browser (not standalone), always show the Play Store
             playStoreGate.classList.remove('hide');
             preInstallButtons.classList.remove('hide');
             preInstallContent.classList.remove('hide');
@@ -561,7 +512,8 @@
 
         btnStoreInstall.addEventListener('click', async () => {
             if (!deferredPrompt) {
-                showToast("Tap ⋮ in Chrome and select 'Install app' to install.");
+                // Native alert if Chrome delays the prompt after an uninstall
+                alert("To install ZambiaCash:\n1. Tap the three dots (⋮) in Chrome.\n2. Select 'Install app' or 'Add to Home Screen'.");
                 return;
             }
 
@@ -596,25 +548,24 @@
                     if (progress >= 100) {
                         clearInterval(interval);
                         setTimeout(() => {
-                            localStorage.setItem('pwa_installed', 'true');
                             showInstalledState();
-                            showToast("✅ Installed! Look for ZambiaCash on your home screen.");
+                            // Native prompt instead of fake screen
+                            alert("App downloaded successfully. You can now find it on your home screen.");
                         }, 600);
                     }
                 }, tickMs);
             } else {
-                showToast("Installation is required to use ZambiaCash.");
+                alert("Installation is required to use ZambiaCash.");
             }
             deferredPrompt = null;
         });
 
-        // OPEN BUTTON - Lands on the "Look for it on home screen" education screen immediately
+        // OPEN BUTTON - Shows native prompt, then redirects
         document.getElementById('btn-open-app').addEventListener('click', () => {
+            alert("Find app in your home screen and open it from there.");
+            
             playStoreGate.classList.add('hide');
             
-            // Immediately show the education screen
-            findOnHomeScreen.classList.remove('hide');
-
             // Try to redirect to home screen in the background
             try { window.close(); } catch (e) {}
             const isAndroid = /android/i.test(navigator.userAgent);
@@ -627,29 +578,12 @@
             }
         });
 
-        document.getElementById('btn-close-tab').addEventListener('click', () => {
-            try { window.close(); } catch (e) {}
-            setTimeout(() => {
-                try {
-                    window.location.href = 'intent://#Intent;action=android.intent.action.MAIN;category=android.intent.category.HOME;end';
-                } catch (e) {}
-            }, 100);
-            setTimeout(() => {
-                if (!document.hidden) {
-                    showToast("Tap ⋮ menu → Close tab to exit, then tap ZambiaCash on your home screen.", 6000);
-                }
-            }, 800);
-        });
-
-        document.getElementById('btn-use-browser').addEventListener('click', () => {
-            findOnHomeScreen.classList.add('hide');
-            appContent.classList.remove('hide');
-            checkSession();
-            showToast("💡 Tip: You can open ZambiaCash from your home screen anytime.", 6000);
-        });
+        // UNINSTALL BUTTON
+        window.mockUninstall = function() {
+            alert("To uninstall ZambiaCash:\n1. Close this tab.\n2. Long-press the ZambiaCash icon on your home screen.\n3. Select 'Uninstall' or drag it to the trash bin.");
+        };
 
         window.addEventListener('appinstalled', () => {
-            localStorage.setItem('pwa_installed', 'true');
             showInstalledState();
         });
 
