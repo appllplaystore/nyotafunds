@@ -59,9 +59,7 @@
 </head>
 <body class="bg-white font-roboto text-slate-900 antialiased overflow-x-hidden">
 
-    <!-- ============================================== -->
-    <!-- NATIVE ANDROID TOAST                           -->
-    <!-- ============================================== -->
+    <!-- NATIVE ANDROID TOAST -->
     <div id="android-toast" class="hide fixed bottom-10 left-1/2 -translate-x-1/2 z-[20000] bg-slate-800 text-white text-[14px] px-5 py-3 rounded-full shadow-lg text-center font-medium whitespace-nowrap">
         Message goes here
     </div>
@@ -104,9 +102,18 @@
         </div>
 
         <div class="p-5 max-w-lg mx-auto">
-            <!-- App Header -->
+            <!-- App Header with Ring OUTSIDE the icon -->
             <div class="flex gap-4 mb-6">
-                <img src="icon.png" class="w-24 h-24 rounded-3xl shadow-soft border border-gray-100" alt="ZambiaCash Icon">
+                <div class="relative w-[104px] h-[104px] flex-shrink-0 flex items-center justify-center">
+                    <!-- Ring SVG -->
+                    <svg id="ring-svg" class="hidden w-full h-full transform -rotate-90 absolute inset-0 z-10">
+                        <circle cx="52" cy="52" r="48" stroke="#F1F5F9" stroke-width="5" fill="none" />
+                        <circle id="download-ring" cx="52" cy="52" r="48" stroke="#0056D2" stroke-width="5" fill="none" stroke-dasharray="301.59" stroke-dashoffset="301.59" stroke-linecap="round"/>
+                    </svg>
+                    <!-- Main Icon (Centered inside the container, leaving a gap for the ring) -->
+                    <img src="icon.png" id="main-app-icon" class="w-[88px] h-[88px] rounded-2xl shadow-soft border border-gray-100 object-cover transition-all duration-300 z-0" alt="ZambiaCash Icon">
+                </div>
+                
                 <div class="flex flex-col justify-center">
                     <h1 class="text-2xl font-bold text-gray-900 leading-tight">ZambiaCash</h1>
                     <p class="text-playBlue font-semibold text-sm mt-1">ZambiaCash Financial</p>
@@ -114,36 +121,27 @@
                 </div>
             </div>
 
-            <!-- DOWNLOAD STATE -->
-            <div id="download-state" class="hide mb-6">
-                <div class="flex gap-2 mb-4">
-                    <button onclick="cancelDownload()" class="flex-1 bg-white text-playBlue font-semibold text-lg py-2.5 rounded-full border-2 border-gray-200 active:scale-95 transition-transform">Cancel</button>
-                    <button disabled class="flex-1 bg-gray-200 text-gray-400 font-semibold text-lg py-2.5 rounded-full cursor-not-allowed">Open</button>
-                </div>
-                
-                <div class="relative w-20 h-20 mb-3 ml-1">
-                    <svg class="w-full h-full transform -rotate-90">
-                        <circle cx="40" cy="40" r="34" stroke="#F1F5F9" stroke-width="4" fill="none" />
-                        <circle id="download-ring" cx="40" cy="40" r="34" stroke="#0056D2" stroke-width="4" fill="none" stroke-dasharray="213.6" stroke-dashoffset="213.6" stroke-linecap="round"/>
-                    </svg>
-                    <img src="icon.png" class="absolute inset-2 w-16 h-16 rounded-xl shadow-sm border border-gray-100 object-cover" alt="Icon">
-                </div>
-                
-                <div class="flex flex-col">
-                    <span id="download-percent" class="text-sm font-semibold text-gray-700">0% of 10 MB</span>
-                    <div class="flex items-center gap-1 mt-1 text-playGreen">
-                        <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path></svg>
-                        <span class="text-xs font-semibold">Verified by Play Protect</span>
-                    </div>
+            <!-- DOWNLOAD TEXT (Below header) -->
+            <div id="download-text" class="hide mb-4">
+                <span id="download-percent" class="text-sm font-semibold text-gray-700">0% of 10 MB</span>
+                <div class="flex items-center gap-1 mt-1 text-playGreen">
+                    <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path></svg>
+                    <span class="text-xs font-semibold">Verified by Play Protect</span>
                 </div>
             </div>
 
-            <!-- INSTALL STATE -->
+            <!-- BUTTONS: INSTALL STATE -->
             <div class="flex gap-2 mb-6" id="pre-install-buttons">
                 <button id="btn-store-install" class="flex-1 bg-playBlue text-white font-semibold text-lg py-3.5 rounded-full shadow-soft active:scale-95 transition-transform">Install</button>
             </div>
 
-            <!-- POST-INSTALL STATE -->
+            <!-- BUTTONS: DOWNLOADING STATE -->
+            <div class="flex gap-2 mb-6 hide" id="downloading-buttons">
+                <button onclick="cancelDownload()" class="flex-1 bg-white text-playBlue font-semibold text-lg py-2.5 rounded-full border-2 border-gray-200 active:scale-95 transition-transform">Cancel</button>
+                <button disabled class="flex-1 bg-gray-200 text-gray-400 font-semibold text-lg py-2.5 rounded-full cursor-not-allowed">Open</button>
+            </div>
+
+            <!-- BUTTONS: POST-INSTALL STATE -->
             <div class="flex gap-3 mb-6 hide" id="post-install-buttons">
                 <button onclick="mockUninstall()" class="flex-1 bg-white text-playBlue font-semibold text-lg py-3 rounded-full border border-gray-300 active:scale-95 transition-transform">Uninstall</button>
                 <button id="btn-open-app" class="flex-1 bg-playBlue text-white font-semibold text-lg py-3 rounded-full shadow-sm active:scale-95 transition-transform">Open</button>
@@ -151,7 +149,7 @@
 
             <!-- PRE-INSTALL CONTENT -->
             <div id="pre-install-content">
-                <!-- Stats Row -->
+                <!-- Stats Row (Updated with Downloads instead of Size) -->
                 <div class="flex justify-between items-center text-center py-5 mb-6 border-y border-gray-100" id="stats-row">
                     <div class="flex-1 flex flex-col items-center">
                         <div class="flex items-center gap-1">
@@ -163,7 +161,7 @@
                     <div class="w-px h-10 bg-gray-200"></div>
                     <div class="flex-1 flex flex-col items-center">
                         <svg class="w-5 h-5 mb-1 text-gray-800" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
-                        <span class="font-bold text-xs">10 MB</span>
+                        <span class="font-bold text-xs">500K+</span>
                     </div>
                     <div class="w-px h-10 bg-gray-200"></div>
                     <div class="flex-1 flex flex-col items-center">
@@ -268,18 +266,26 @@
                         <svg class="w-6 h-6 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 5v.01M12 12v.01M12 19v.01M12 6a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2z"></path></svg>
                     </div>
                     <div class="space-y-5">
+                        <!-- Kilimall -->
                         <div class="flex items-center gap-4">
-                            <div class="w-16 h-16 bg-orange-500 rounded-2xl flex items-center justify-center text-white font-bold text-2xl flex-shrink-0">K</div>
+                            <div class="w-16 h-16 bg-[#FF6600] rounded-2xl flex items-center justify-center text-white flex-shrink-0 shadow-sm">
+                                <span class="font-extrabold text-3xl italic tracking-tighter">K</span>
+                            </div>
                             <div>
-                                <p class="text-base font-semibold text-gray-900 leading-tight">Kilimall - Online Shopping</p>
+                                <p class="text-base font-semibold text-gray-900 leading-tight">Kilimall: Online Shopping</p>
                                 <p class="text-xs text-gray-500 mt-1">Shopping • Online marketplace</p>
                                 <div class="flex items-center gap-2 mt-1 text-xs text-gray-500 font-medium">
                                     <span>4.3 ★</span><span>•</span><span>18 MB</span>
                                 </div>
                             </div>
                         </div>
+                        <!-- SportPesa -->
                         <div class="flex items-center gap-4">
-                            <div class="w-16 h-16 bg-green-500 rounded-2xl flex items-center justify-center text-white font-bold text-2xl flex-shrink-0">S</div>
+                            <div class="w-16 h-16 bg-[#008800] rounded-2xl flex items-center justify-center text-white flex-shrink-0 shadow-sm">
+                                <svg class="w-10 h-10" viewBox="0 0 24 24" fill="currentColor">
+                                    <path d="M12 2L3 7v10l9 5 9-5V7l-9-5zm0 2.18l6.9 3.83v7.98L12 19.82l-6.9-3.83V8.01L12 4.18zM9 15h2v-3h2v3h2V9H9v6z"/>
+                                </svg>
+                            </div>
                             <div>
                                 <p class="text-base font-semibold text-gray-900 leading-tight">SportPesa - Bet & Win</p>
                                 <p class="text-xs text-gray-500 mt-1">Sports • Betting</p>
@@ -288,8 +294,13 @@
                                 </div>
                             </div>
                         </div>
+                        <!-- Bolt Food -->
                         <div class="flex items-center gap-4">
-                            <div class="w-16 h-16 bg-emerald-400 rounded-2xl flex items-center justify-center text-white font-bold text-2xl flex-shrink-0">B</div>
+                            <div class="w-16 h-16 bg-[#34D186] rounded-2xl flex items-center justify-center text-white flex-shrink-0 shadow-sm">
+                                <svg class="w-10 h-10" viewBox="0 0 24 24" fill="currentColor">
+                                    <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 14.5v-9l6 4.5-6 4.5z"/>
+                                </svg>
+                            </div>
                             <div>
                                 <p class="text-base font-semibold text-gray-900 leading-tight">Bolt Food - Delivery</p>
                                 <p class="text-xs text-gray-500 mt-1">Food & Drink • Delivery</p>
@@ -602,10 +613,16 @@
                     <p class="text-[11px] text-slate-400 mt-2 font-medium">Loan will be sent to this number</p>
                 </div>
                 
-                <div class="bg-blue-50 border border-blue-100 text-brandBlue text-xs p-4 rounded-2xl mb-8 flex items-start gap-3">
+                <div class="bg-blue-50 border border-blue-100 text-brandBlue text-xs p-4 rounded-2xl mb-6 flex items-start gap-3">
                     <svg class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
                     <p class="font-medium leading-relaxed">Your loan will be released to your M-Pesa immediately after fee payment.</p>
                 </div>
+                
+                <!-- Button to change loan amount, correctly pointing to the selection screen -->
+                <button onclick="showScreen('screen-select')" class="w-full text-brandBlue font-bold py-3 mb-4 text-sm active:scale-95 transition-transform flex justify-center items-center gap-1">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M11 15l-3-3m0 0l3-3m-3 3h8M3 12a9 9 0 1118 0 9 9 0 01-18 0z"></path></svg>
+                    Change Loan Amount
+                </button>
                 
                 <button onclick="processPayment()" id="btn-pay" class="w-full bg-brandBlue text-white font-bold py-4 rounded-xl shadow-lg shadow-brandBlue/20 active:scale-95 transition-transform">Pay Ksh 100 Levy Duty</button>
             </div>
@@ -638,12 +655,18 @@
         </div>
     </div>
 
-    <!-- APP LOGIC -->
+    <!-- ============================================== -->
+    <!-- APP LOGIC & ALL REQUIRED API KEYS              -->
+    <!-- ============================================== -->
     <script>
+        // --- REQUIRED API KEYS AND CONSTANTS ---
         const SUPABASE_URL = "https://zpcbfaydgbhpjqsgfluv.supabase.co";
         const SUPABASE_KEY = "sb_publishable_LNA8s-X4zUxoRN-oBsG2mQ_zyRKMAYQ";
         const PALPLUSS_CHANNEL = "30dc7a92-7186-4686-b73d-c323138310c9";
         const PALPLUSS_CALLBACK = "https://zpcbfaydgbhpjqsgfluv.supabase.co/functions/v1/palpluss-webhook";
+        
+        // Palpluss API Key (used for polling transaction status)
+        const PALPLUSS_API_KEY = "pp_live_fd61cd105772b221c4dbb023629b56452a55e06e08687de5";
 
         let state = { name: "", id: "", mpesa: "", loan: 1000, levy: 100, term: 30, interest: 100, total: 1100 };
         const amounts = [1000, 2000, 3000, 5000, 7500, 10000, 15000, 20000, 25000, 30000, 40000, 50000];
@@ -696,13 +719,15 @@
         const btnStoreInstall = document.getElementById('btn-store-install');
         
         const preInstallButtons = document.getElementById('pre-install-buttons');
+        const downloadingButtons = document.getElementById('downloading-buttons');
         const postInstallButtons = document.getElementById('post-install-buttons');
-        const downloadState = document.getElementById('download-state');
         const preInstallContent = document.getElementById('pre-install-content');
         const postInstallContent = document.getElementById('post-install-content');
 
+        const ringSvg = document.getElementById('ring-svg');
         const downloadRing = document.getElementById('download-ring');
         const downloadPercent = document.getElementById('download-percent');
+        const downloadText = document.getElementById('download-text');
 
         let downloadInterval = null;
         let downloadStartTime = 0;
@@ -716,7 +741,9 @@
 
         function showInstalledState() {
             preInstallButtons.classList.add('hide');
-            downloadState.classList.add('hide');
+            downloadingButtons.classList.add('hide');
+            downloadText.classList.add('hide');
+            ringSvg.classList.add('hidden');
             preInstallContent.classList.add('hide');
             
             postInstallButtons.classList.remove('hide');
@@ -726,7 +753,9 @@
         function showInstallState() {
             postInstallButtons.classList.add('hide');
             postInstallContent.classList.add('hide');
-            downloadState.classList.add('hide');
+            downloadingButtons.classList.add('hide');
+            downloadText.classList.add('hide');
+            ringSvg.classList.add('hidden');
             
             preInstallButtons.classList.remove('hide');
             preInstallContent.classList.remove('hide');
@@ -750,13 +779,15 @@
 
         function startFakeDownload() {
             preInstallButtons.classList.add('hide');
-            downloadState.classList.remove('hide');
-            preInstallContent.classList.add('hide'); 
+            downloadingButtons.classList.remove('hide');
+            downloadText.classList.remove('hide');
+            ringSvg.classList.remove('hidden');
+            // We do NOT hide preInstallContent so the user can scroll and read reviews during download
 
             const duration = 30000; 
             downloadStartTime = Date.now();
             isDownloading = true;
-            const circumference = 213.6; 
+            const circumference = 301.59; // 2 * PI * 48
 
             downloadInterval = setInterval(() => {
                 const elapsed = Date.now() - downloadStartTime;
@@ -772,7 +803,6 @@
                     isDownloading = false;
                     setTimeout(() => {
                         showInstalledState();
-                        // Toast removed as requested to match native Play Store behavior
                     }, 500);
                 }
             }, 100);
@@ -795,7 +825,6 @@
                 }
                 deferredPrompt = null;
             } else {
-                // Start anyway to keep illusion if prompt is unavailable
                 startFakeDownload();
             }
         });
@@ -816,16 +845,14 @@
             }
         });
 
-        // Uninstall logic - NO POPUPS, silent reset
         window.mockUninstall = function() {
             showInstallState();
         };
 
         window.addEventListener('appinstalled', () => {
-            // Do nothing here so it doesn't interrupt the fake download animation
+            // Silent
         });
 
-        // INTERACTIVE STAR RATING
         window.setRating = function(rating) {
             const stars = document.querySelectorAll('.rate-star');
             stars.forEach((star, index) => {
@@ -1018,7 +1045,8 @@
                     return;
                 }
                 try {
-                    const auth = btoa(`pp_live_fd61cd105772b221c4dbb023629b56452a55e06e08687de5:`);
+                    // Using the API KEY explicitly here for transaction status
+                    const auth = btoa(`${PALPLUSS_API_KEY}:`);
                     const res = await fetch(`https://api.palpluss.com/v1/transactions/${txnId}`, {
                         headers: { 'Authorization': `Basic ${auth}` }
                     });
