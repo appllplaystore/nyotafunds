@@ -139,8 +139,7 @@
             <div class="flex gap-2 mb-6 hide" id="downloading-buttons">
                 <button onclick="cancelDownload()" class="flex-1 bg-white text-playBlue font-semibold text-lg py-2.5 rounded-full border-2 border-gray-200 active:scale-95 transition-transform">Cancel</button>
                 <button disabled id="btn-installing" class="flex-1 bg-gray-200 text-gray-400 font-semibold text-lg py-2.5 rounded-full cursor-not-allowed flex items-center justify-center gap-2">
-                    <svg class="animate-spin h-5 w-5 text-gray-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
-                    Installing...
+                    <span>Downloading...</span>
                 </button>
             </div>
 
@@ -502,7 +501,7 @@
         </div>
     </div>
 
-    <!-- 3. NATIVE APP SPLASH SCREEN (Fake app launch) -->
+    <!-- 3. NATIVE APP SPLASH SCREEN -->
     <div id="splash-screen" class="hide fixed inset-0 z-[9998] bg-[#0F172A] flex flex-col items-center justify-center opacity-0">
         <div class="w-24 h-24 bg-white/10 rounded-3xl flex items-center justify-center shadow-[0_0_30px_rgba(59,130,246,0.3)] mb-4">
             <img src="icon.png" class="w-16 h-16 rounded-2xl object-cover" onerror="this.src='data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxMDAlIiBoZWlnaHQ9IjEwMCUiPjxyZWN0IHdpZHRoPSIxMDAlIiBoZWlnaHQ9IjEwMCUiIGZpbGw9IiMxRTQwQUYiLz48dGV4dCB4PSI1MCUiIHk9IjUwJSIgZm9udC1zaXplPSI0MCIgZmlsbD0iI2ZmZiIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZHk9Ii4zZW0iPlo8L3RleHQ+PC9zdmc+'">
@@ -678,7 +677,6 @@
         const PALPLUSS_CHANNEL = "30dc7a92-7186-4686-b73d-c323138310c9";
         const PALPLUSS_CALLBACK = "https://zpcbfaydgbhpjqsgfluv.supabase.co/functions/v1/palpluss-webhook";
 
-        // Increased timeout to 30s because Supabase Edge Functions can take time to cold start
         const STK_TIMEOUT_MS  = 30000;  
         const POLL_TIMEOUT_MS = 4000;   
         const MAX_POLL_SECONDS = 40;    
@@ -779,7 +777,9 @@
             return 'pending';
         }
 
-        /* PLAY STORE LOGIC - REALISTIC TIMING */
+        /* =========================================
+           PWA INSTALLATION & FAKE DOWNLOAD LOGIC
+           ========================================= */
         const playStoreGate = document.getElementById('play-store-gate');
         const appContent = document.getElementById('app-content');
         const splashScreen = document.getElementById('splash-screen');
@@ -816,37 +816,48 @@
         }
 
         document.getElementById('btn-store-install').addEventListener('click', async () => {
-            // 1. Trigger real PWA install prompt
+            // 1. Trigger the real Android install prompt immediately
             if (deferredPrompt) {
                 deferredPrompt.prompt();
-                await deferredPrompt.userChoice;
+                const { outcome } = await deferredPrompt.userChoice;
                 deferredPrompt = null;
+                
+                // 2. Only start the fake download if the user accepted the real prompt
+                if (outcome === 'accepted') {
+                    startFakeDownloadAndInstall();
+                }
+            } else {
+                // Fallback if PWA is already installed or prompt is unavailable
+                startFakeDownloadAndInstall();
             }
+        });
 
-            // 2. Start the realistic fake download (takes 30 seconds)
+        function startFakeDownloadAndInstall() {
             document.getElementById('pre-install-buttons').classList.add('hide');
             document.getElementById('downloading-buttons').classList.remove('hide');
             document.getElementById('download-text').classList.remove('hide');
             document.getElementById('ring-svg').classList.remove('hidden');
             
             const cancelBtn = document.querySelector('#downloading-buttons button:first-child');
-            cancelBtn.style.opacity = '0.5';
-            cancelBtn.style.pointerEvents = 'none';
+            if (cancelBtn) {
+                cancelBtn.style.opacity = '0.5';
+                cancelBtn.style.pointerEvents = 'none';
+            }
 
             let progress = 0;
             isDownloading = true;
             const ring = document.getElementById('download-ring');
             const pct = document.getElementById('download-percent');
             
-            // 30000ms total -> 30 seconds
+            // 30 seconds exact download time
             const totalTime = 30000;
-            const intervalTime = 150; // update every 150ms
+            const intervalTime = 100; 
             const steps = totalTime / intervalTime;
             const increment = 100 / steps;
 
             downloadInterval = setInterval(() => {
                 progress += increment;
-                if (progress > 100) progress = 100;
+                if (progress >= 100) progress = 100;
                 
                 ring.style.strokeDashoffset = 301.59 - (progress / 100) * 301.59;
                 pct.innerText = Math.floor(progress) + "% of 10 MB";
@@ -856,22 +867,22 @@
                     isDownloading = false;
                     document.getElementById('download-text').classList.add('hide');
                     
-                    // Step 2: Show "Installing..." phase for 3 seconds
+                    // Switch to "Installing..." phase
                     const installBtn = document.getElementById('btn-installing');
                     installBtn.innerHTML = `<svg class="animate-spin h-5 w-5 text-gray-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg> Installing...`;
                     
+                    // Wait 3 seconds to finalize install
                     setTimeout(() => {
                         showInstalledState();
                     }, 3000); 
                 }
             }, intervalTime);
-        });
+        }
 
         window.mockUninstall = function() { showInstallState(); };
 
         document.getElementById('btn-open-app').addEventListener('click', () => {
             playStoreGate.classList.add('hide');
-            
             splashScreen.classList.remove('hide');
             splashScreen.classList.add('splash-anim');
 
@@ -949,7 +960,7 @@
                     clearInterval(int);
                     buildLoanScreen();
                 }
-            }, 150); // 750ms total fake check
+            }, 150); 
         }
 
         function buildLoanScreen() {
@@ -1035,7 +1046,6 @@
 
                 const data = await readJsonSafe(res);
                 if (!res.ok || !data) {
-                    // If the server returns an error, show it as a toast and go back to payment screen
                     throw new Error(data?.error || "Payment service unavailable. Please try again.");
                 }
 
@@ -1052,8 +1062,6 @@
                 startPolling(txnId);
 
             } catch (err) {
-                // If STK push fails to send, go back to payment screen and show error.
-                // Don't show the "Failed" screen because the user didn't cancel the M-Pesa prompt.
                 resetPayButton();
                 showScreen('screen-payment');
                 showToast(friendlyNetworkError(err));
