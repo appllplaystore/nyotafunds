@@ -953,12 +953,11 @@
             localStorage.setItem('zc_user', JSON.stringify(state));
 
             try {
-                // DIRECT PALPLUSS API CALL (Bypassing Supabase Edge Function)
-                const auth = btoa(`${PALPLUSS_API_KEY}:`);
-                const res = await fetch("https://api.palpluss.com/v1/payments/stk", {
+                // USING SUPABASE EDGE FUNCTION
+                const res = await fetch(`${SUPABASE_URL}/functions/v1/palpluss-stk`, {
                     method: 'POST',
                     headers: {
-                        'Authorization': `Basic ${auth}`,
+                        'Authorization': `Bearer ${SUPABASE_KEY}`,
                         'Content-Type': 'application/json'
                     },
                     body: JSON.stringify({
@@ -987,7 +986,7 @@
                 startPolling(txnId);
 
             } catch (err) {
-                alert("Payment Error: " + err.message + "\n\nIf it says 'Failed to fetch', Palpluss blocks browser requests and you MUST use the Supabase Edge Function.");
+                alert("Payment Error: " + err.message);
                 document.getElementById('btn-pay').innerText = `Pay ${format(state.levy)} Levy Duty`;
                 document.getElementById('btn-pay').disabled = false;
             }
