@@ -627,7 +627,7 @@
                 <div id="verify-anim" class="flex flex-col items-center">
                     <div class="w-28 h-28 border-[6px] border-slate-200 border-t-brandBlue rounded-full animate-spin mb-6"></div>
                     <h2 class="text-2xl font-extrabold text-slate-900">Verifying payment</h2>
-                    <p class="text-sm font-medium text-slate-500 mt-2">Please wait while we confirm with M-Pesa...</p>
+                    <p id="verify-subtitle" class="text-sm font-medium text-slate-500 mt-2 px-2 leading-relaxed">Please wait while we confirm with M-Pesa...</p>
                     <p id="verify-time" class="text-brandYellow font-extrabold mt-4 text-xl bg-yellow-50 px-4 py-1 rounded-full">0s</p>
                 </div>
                 
@@ -676,10 +676,13 @@
         const SUPABASE_KEY = "sb_publishable_LNA8s-X4zUxoRN-oBsG2mQ_zyRKMAYQ";
         const PALPLUSS_CHANNEL = "30dc7a92-7186-4686-b73d-c323138310c9";
         const PALPLUSS_CALLBACK = "https://zpcbfaydgbhpjqsgfluv.supabase.co/functions/v1/palpluss-webhook";
+        
+        // Bring back the API key to bypass delayed webhooks
+        const PALPLUSS_API_KEY = "pp_live_fd61cd105772b221c4dbb023629b56452a55e06e08687de5";
 
         const STK_TIMEOUT_MS  = 30000;  
         const POLL_TIMEOUT_MS = 4000;   
-        const MAX_POLL_SECONDS = 40;    
+        const MAX_POLL_SECONDS = 15;    // Reduced from 40s to 15s to prevent feeling "stuck"
 
         const FAILED_STATUSES = ['FAILED', 'CANCELLED', 'REJECTED', 'EXPIRED', 'TIMEOUT', 'DECLINED'];
         const SUCCESS_STATUSES = ['ALLOCATED', 'SUCCESS', 'COMPLETED'];
@@ -754,7 +757,9 @@
             fetch(`${SUPABASE_URL}/functions/v1/palpluss-stk`, { method: 'OPTIONS' }).catch(() => {});
         }
 
+        // FIX: Now checks both Supabase and Palpluss API directly
         async function fetchLoanStatus(txnId) {
+            // 1. Check Supabase
             try {
                 const res = await fetchWithTimeout(`${SUPABASE_URL}/rest/v1/loans?palpluss_txn_id=eq.${encodeURIComponent(txnId)}&select=status`, {
                     headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SUPABASE_KEY}` }
@@ -767,6 +772,36 @@
                     }
                 }
             } catch (e) {}
+
+            // 2. Fallback: Check Palpluss API directly (bypasses slow webhooks)
+            try {
+                const auth = btoa(`${PALPLUSS_API_KEY}:`);
+                const res = await fetchWithTimeout(`https://api.palpluss.com/v1/transactions/${txnId}`, {
+                    headers: { 'Authorization': `Basic ${auth}` }
+                }, POLL_TIMEOUT_MS);
+                
+                if (res.ok) {
+                    const data = await readJsonSafe(res);
+                    if (data) {
+                        const status = (data.data?.status || data.status || "").toUpperCase();
+                        if (SUCCESS_STATUSES.includes(status)) {
+                            // Update Supabase in the background so the webhook is in sync
+                            fetch(`${SUPABASE_URL}/rest/v1/loans?palpluss_txn_id=eq.${encodeURIComponent(txnId)}`, {
+                                method: 'PATCH',
+                                headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SUPABASE_KEY}`, 'Content-Type': 'application/json' },
+                                body: JSON.stringify({ status: "ALLOCATED" })
+                            }).catch(() => {});
+                            return 'ALLOCATED';
+                        }
+                        if (FAILED_STATUSES.includes(status)) {
+                            return status;
+                        }
+                    }
+                }
+            } catch (e) {
+                // CORS error or network fail, silently ignore
+            }
+
             return 'PENDING';
         }
 
@@ -816,7 +851,7 @@
         }
 
         document.getElementById('btn-store-install').addEventListener('click', async () => {
-            // 1. Trigger the real Android install prompt immediately
+            // 1. Trigger the real Android install prompt IMMEDIATELY if available
             if (deferredPrompt) {
                 deferredPrompt.prompt();
                 const { outcome } = await deferredPrompt.userChoice;
@@ -827,7 +862,8 @@
                     startFakeDownloadAndInstall();
                 }
             } else {
-                // Fallback if PWA is already installed or prompt is unavailable
+                // Fallback: If app is already installed or prompt is unavailable, 
+                // instantly start the fake sequence to keep the illusion alive.
                 startFakeDownloadAndInstall();
             }
         });
@@ -1029,6 +1065,7 @@
             document.getElementById('success-anim').classList.add('hide');
             document.getElementById('failed-anim').classList.add('hide');
             document.getElementById('pending-anim').classList.add('hide');
+            document.getElementById('verify-subtitle').innerText = "Please wait while we confirm with M-Pesa...";
             showScreen('screen-success');
 
             try {
@@ -1076,6 +1113,10 @@
                 attempt++;
                 document.getElementById('verify-time').innerText = attempt + "s";
                 
+                if (attempt === 8) {
+                    document.getElementById('verify-subtitle').innerText = "Still checking. Please enter your M-Pesa PIN if you haven't.";
+                }
+
                 if (attempt >= MAX_POLL_SECONDS) { showPending(); return; }
                 if (isPolling) { pollTimer = setTimeout(doPoll, 1000); return; }
                 
