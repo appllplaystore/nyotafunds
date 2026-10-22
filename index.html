@@ -609,8 +609,8 @@
                 <!-- VERIFYING -->
                 <div id="verify-anim" class="flex flex-col items-center">
                     <div class="w-28 h-28 border-[6px] border-slate-200 border-t-brandBlue rounded-full animate-spin mb-6"></div>
-                    <h2 class="text-2xl font-extrabold text-slate-900">Verifying payment</h2>
-                    <p class="text-sm font-medium text-slate-500 mt-2">Please wait while we confirm with M-Pesa...</p>
+                    <h2 id="verify-title" class="text-2xl font-extrabold text-slate-900">Verifying payment</h2>
+                    <p id="verify-subtitle" class="text-sm font-medium text-slate-500 mt-2 px-2 leading-relaxed">Please wait while we confirm with M-Pesa...</p>
                     <p id="verify-time" class="text-brandYellow font-extrabold mt-4 text-xl bg-yellow-50 px-4 py-1 rounded-full">0s</p>
                 </div>
 
@@ -644,7 +644,7 @@
                     <div class="w-24 h-24 bg-amber-100 text-amber-500 rounded-full flex items-center justify-center mx-auto mb-6 text-5xl">?</div>
                     <h2 class="text-2xl font-extrabold text-slate-900">Still Confirming</h2>
                     <p class="text-sm font-medium text-slate-500 mt-2 mb-8 px-4 leading-relaxed">
-                        We haven't received confirmation from M-Pesa yet. Check your phone for the prompt, then tap Check Status.
+                        We haven't received confirmation from M-Pesa yet. If you have entered your PIN, please wait a moment and tap Check Status.
                     </p>
                     <button onclick="checkStatusManual()" id="btn-check-status" class="w-full bg-brandBlue text-white font-bold py-4 rounded-xl shadow-lg shadow-brandBlue/20 active:scale-95 transition-transform mb-3">Check Status</button>
                     <button onclick="retryPayment()" class="w-full text-brandBlue font-bold py-3 text-sm active:scale-95 transition-transform">Back to Payment</button>
@@ -663,12 +663,9 @@
         const PALPLUSS_CHANNEL = "30dc7a92-7186-4686-b73d-c323138310c9";
         const PALPLUSS_CALLBACK = "https://zpcbfaydgbhpjqsgfluv.supabase.co/functions/v1/palpluss-webhook";
 
-        // Palpluss secret key is intentionally NOT present in the browser.
-        // All Palpluss traffic goes through the Supabase Edge Function.
-
         const STK_TIMEOUT_MS  = 30000;  // max wait for the STK push request itself
         const POLL_TIMEOUT_MS = 8000;   // max wait for a single status check
-        const MAX_POLL_SECONDS = 8;     // stop auto-polling after this, then ask the user
+        const MAX_POLL_SECONDS = 60;    // wait up to 60s before showing the "Still Confirming" screen
 
         const FAILED_STATUSES = ['FAILED', 'CANCELLED', 'REJECTED', 'EXPIRED', 'TIMEOUT', 'DECLINED'];
         const SUCCESS_STATUSES = ['ALLOCATED', 'SUCCESS', 'COMPLETED'];
@@ -1124,7 +1121,7 @@
                         method: 'POST',
                         headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SUPABASE_KEY}`, 'Content-Type': 'application/json' },
                         body: JSON.stringify({ amount: state.loan, levy_duty: state.levy, status: "PENDING", palpluss_txn_id: txnId })
-                    }, POLL_TIMEOUT_MS);
+                    }, 3000);
                 } catch (e) { /* non-fatal */ }
 
                 currentTxnId = txnId;
@@ -1143,6 +1140,8 @@
            STATUS SCREENS
            ============================================================ */
         function showVerify() {
+            document.getElementById('verify-title').innerText = "Verifying payment";
+            document.getElementById('verify-subtitle').innerText = "Please wait while we confirm with M-Pesa...";
             document.getElementById('verify-anim').classList.remove('hide');
             document.getElementById('success-anim').classList.add('hide');
             document.getElementById('failed-anim').classList.add('hide');
@@ -1177,6 +1176,12 @@
             document.getElementById('success-anim').classList.add('hide');
             document.getElementById('failed-anim').classList.add('hide');
             document.getElementById('pending-anim').classList.remove('hide');
+            
+            const btn = document.getElementById('btn-check-status');
+            if (btn) {
+                btn.disabled = false;
+                btn.innerText = "Check Status";
+            }
         }
 
         /* ============================================================
@@ -1187,20 +1192,32 @@
             currentTxnId = txnId;
             showVerify();
 
-            let seconds = 0;
+            const startTime = Date.now();
             const timeDisplay = document.getElementById('verify-time');
+            const titleEl = document.getElementById('verify-title');
+            const subtitleEl = document.getElementById('verify-subtitle');
+            
             timeDisplay.innerText = "0s";
 
             pollTimer = setInterval(async () => {
-                if (isPolling) return; // previous check still running (slow network)
-
-                seconds++;
+                const seconds = Math.floor((Date.now() - startTime) / 1000);
                 timeDisplay.innerText = seconds + "s";
+
+                // Dynamic messaging based on how long it's taking
+                if (seconds === 15) {
+                    subtitleEl.innerText = "Waiting for M-Pesa confirmation...";
+                } else if (seconds === 30) {
+                    subtitleEl.innerText = "Still checking. Please enter your M-Pesa PIN if you haven't.";
+                } else if (seconds === 45) {
+                    subtitleEl.innerText = "Taking longer than usual. Please do not close the app.";
+                }
 
                 if (seconds >= MAX_POLL_SECONDS) {
                     showPending();
                     return;
                 }
+
+                if (isPolling) return; // skip if previous fetch is still running
 
                 isPolling = true;
                 try {
@@ -1217,9 +1234,8 @@
                         showFailed();
                         return;
                     }
-                    // pending / unknown → keep waiting
                 } catch (e) {
-                    // network hiccup → keep waiting quietly
+                    // Ignore network hiccups, keep polling silently
                 } finally {
                     isPolling = false;
                 }
@@ -1229,32 +1245,8 @@
         /* manual "Check Status" from the pending screen */
         async function checkStatusManual() {
             if (!currentTxnId) { retryPayment(); return; }
-
-            const btn = document.getElementById('btn-check-status');
-            btn.disabled = true;
-            btn.innerText = "Checking...";
-
-            try {
-                const status = await fetchLoanStatus(currentTxnId);
-                const kind = classifyStatus(status);
-
-                if (kind === 'success') {
-                    localStorage.removeItem('inflight_txn');
-                    showSuccess();
-                    return;
-                }
-                if (kind === 'failed') {
-                    localStorage.removeItem('inflight_txn');
-                    showFailed();
-                    return;
-                }
-                showAndroidToast("Still not confirmed. Please wait a moment and try again.");
-            } catch (e) {
-                showAndroidToast(friendlyNetworkError(e));
-            } finally {
-                btn.disabled = false;
-                btn.innerText = "Check Status";
-            }
+            // Restart the polling loop seamlessly for another 60 seconds
+            startPolling(currentTxnId);
         }
 
         /* return to payment screen from failed/pending state */
