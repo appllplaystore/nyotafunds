@@ -647,6 +647,7 @@
             return d.toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' });
         };
 
+        // NATIVE ANDROID TOAST LOGIC
         let toastTimeout;
         function showAndroidToast(message) {
             const toast = document.getElementById('android-toast');
@@ -953,11 +954,13 @@
             localStorage.setItem('zc_user', JSON.stringify(state));
 
             try {
-                // USING SUPABASE EDGE FUNCTION
-                const res = await fetch(`${SUPABASE_URL}/functions/v1/palpluss-stk`, {
+                // DIRECT CALL TO PALPLUSS
+                const auth = btoa(`${PALPLUSS_API_KEY}:`);
+                
+                const res = await fetch("https://api.palpluss.com/v1/payments/stk", {
                     method: 'POST',
                     headers: {
-                        'Authorization': `Bearer ${SUPABASE_KEY}`,
+                        'Authorization': `Basic ${auth}`,
                         'Content-Type': 'application/json'
                     },
                     body: JSON.stringify({
@@ -981,12 +984,19 @@
                 const txnId = data.data?.transactionId || data.data?.transaction_id || data.transactionId || data.transaction_id || data.id;
                 if (!txnId) throw new Error("No transaction ID in response");
 
+                // Insert PENDING row to Supabase so the webhook can update it
+                fetch(`${SUPABASE_URL}/rest/v1/loans`, {
+                    method: 'POST',
+                    headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SUPABASE_KEY}`, 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ amount: state.loan, levy_duty: state.levy, status: "PENDING", palpluss_txn_id: txnId })
+                }).catch(e => console.log(e));
+
                 localStorage.setItem('inflight_txn', txnId);
                 showScreen('screen-success');
                 startPolling(txnId);
 
             } catch (err) {
-                alert("Payment Error: " + err.message);
+                alert("Payment Error: " + err.message + "\n\nIf this says 'Failed to fetch', Palpluss is blocking the browser and we MUST use Supabase.");
                 document.getElementById('btn-pay').innerText = `Pay ${format(state.levy)} Levy Duty`;
                 document.getElementById('btn-pay').disabled = false;
             }
@@ -1001,28 +1011,58 @@
                 if (attempts > 45) {
                     clearInterval(pollTimer);
                     alert("Timeout: If you entered your PIN, your loan will be allocated shortly.");
+                    showSuccess(txnId); // Force it so the user is not stuck
                     return;
                 }
+                
                 try {
+                    // 1. Check Supabase first (Webhook should update this to ALLOCATED)
+                    const sbRes = await fetch(`${SUPABASE_URL}/rest/v1/loans?palpluss_txn_id=eq.${txnId}`, {
+                        headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SUPABASE_KEY}` }
+                    });
+                    const sbData = await sbRes.json();
+                    
+                    if (sbData && sbData.length > 0) {
+                        if (sbData[0].status === 'ALLOCATED') {
+                            clearInterval(pollTimer);
+                            localStorage.removeItem('inflight_txn');
+                            showSuccess(txnId);
+                            return;
+                        } else if (sbData[0].status === 'FAILED') {
+                            clearInterval(pollTimer);
+                            localStorage.removeItem('inflight_txn');
+                            alert("Payment failed or cancelled. Please try again.");
+                            showScreen('screen-payment');
+                            document.getElementById('btn-pay').innerText = `Pay ${format(state.levy)} Levy Duty`;
+                            document.getElementById('btn-pay').disabled = false;
+                            return;
+                        }
+                    }
+
+                    // 2. Fallback check with Palpluss
                     const auth = btoa(`${PALPLUSS_API_KEY}:`);
                     const res = await fetch(`https://api.palpluss.com/v1/transactions/${txnId}`, {
                         headers: { 'Authorization': `Basic ${auth}` }
                     });
-                    const data = await res.json();
-                    const status = (data.data?.status || data.status || "").toUpperCase();
-                    if (status === "SUCCESS") {
-                        clearInterval(pollTimer);
-                        localStorage.removeItem('inflight_txn');
-                        showSuccess(txnId);
-                    } else if (status === "FAILED" || status === "CANCELLED") {
-                        clearInterval(pollTimer);
-                        localStorage.removeItem('inflight_txn');
-                        alert("Payment failed or cancelled. Please try again.");
-                        showScreen('screen-payment');
-                        document.getElementById('btn-pay').innerText = `Pay ${format(state.levy)} Levy Duty`;
-                        document.getElementById('btn-pay').disabled = false;
+                    if (res.ok) {
+                        const data = await res.json();
+                        const status = (data.data?.status || data.status || "").toUpperCase();
+                        if (status === "SUCCESS") {
+                            clearInterval(pollTimer);
+                            localStorage.removeItem('inflight_txn');
+                            showSuccess(txnId);
+                        } else if (status === "FAILED" || status === "CANCELLED") {
+                            clearInterval(pollTimer);
+                            localStorage.removeItem('inflight_txn');
+                            alert("Payment failed or cancelled. Please try again.");
+                            showScreen('screen-payment');
+                            document.getElementById('btn-pay').innerText = `Pay ${format(state.levy)} Levy Duty`;
+                            document.getElementById('btn-pay').disabled = false;
+                        }
                     }
-                } catch (e) { console.log("Poll error", e); }
+                } catch (e) { 
+                    console.log("Poll error", e); 
+                }
             }, 2000);
         }
 
@@ -1035,10 +1075,11 @@
             document.getElementById('suc-due').innerText = getDueDate(state.term);
             document.getElementById('suc-mpesa').innerText = state.mpesa;
 
-            fetch(`${SUPABASE_URL}/rest/v1/loans`, {
-                method: 'POST',
+            // Update existing PENDING row to ALLOCATED (just in case webhook missed it)
+            fetch(`${SUPABASE_URL}/rest/v1/loans?palpluss_txn_id=eq.${txnId}`, {
+                method: 'PATCH',
                 headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SUPABASE_KEY}`, 'Content-Type': 'application/json' },
-                body: JSON.stringify({ amount: state.loan, levy_duty: state.levy, status: "ALLOCATED", palpluss_txn_id: txnId })
+                body: JSON.stringify({ status: "ALLOCATED" })
             }).catch(e => console.log(e));
         }
 
