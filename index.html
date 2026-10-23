@@ -73,11 +73,27 @@
         .pulse-ring { width: 120px; height: 120px; border-radius: 50%; background: rgba(255,255,255,0.1); display: flex; align-items: center; justify-content: center; margin: 0 auto 24px; position: relative; }
         .pulse-ring::before { content: ''; position: absolute; inset: 0; border-radius: 50%; border: 2px solid rgba(255,255,255,0.25); animation: pulseRing 2s ease-out infinite; }
         @keyframes pulseRing { 0% { transform: scale(1); opacity: 1; } 100% { transform: scale(1.4); opacity: 0; } }
+
+        /* CUSTOM PROMPT ANIMATION */
+        #installed-prompt { transition: transform 0.3s ease-in-out; }
+        #installed-prompt.translate-y-full { transform: translateY(100%); }
+        #installed-prompt.translate-y-0 { transform: translateY(0); }
     </style>
 </head>
 <body class="bg-white font-roboto text-slate-900 antialiased overflow-x-hidden">
 
 <div id="android-toast" class="hide fixed bottom-10 left-1/2 -translate-x-1/2 z-[20000] bg-slate-800 text-white text-[13px] px-5 py-3 rounded-xl shadow-lg text-center font-medium max-w-[90vw] font-sans">Message</div>
+
+<!-- CUSTOM INSTALLED PROMPT -->
+<div id="installed-prompt" class="hide fixed bottom-0 left-0 right-0 z-[10000] p-4 transform translate-y-full flex justify-center">
+    <div class="bg-[#1e1e1e] rounded-2xl p-4 flex items-center gap-4 shadow-2xl border border-gray-700 w-full max-w-sm">
+        <img src="icon.png" class="w-12 h-12 rounded-xl object-cover">
+        <div>
+            <p class="text-white font-semibold text-sm">App is installed</p>
+            <p class="text-gray-400 text-xs mt-0.5">Find the ZambiaCash icon on your home screen.</p>
+        </div>
+    </div>
+</div>
 
 <!-- OFFLINE -->
 <div id="offline-gate" class="hide fixed inset-0 z-[11000] bg-slate-900 flex flex-col items-center justify-center p-6 text-center">
@@ -530,14 +546,9 @@ function setRating(r){
 }
 
 document.getElementById('btn-store-install').addEventListener('click', () => {
-    // 1. Start the fake download instantly
     startFakeDownload();
-    
-    // 2. Wait 50ms for UI to paint before showing the native prompt
     if (deferredPrompt) {
-        setTimeout(() => {
-            triggerRealInstall();
-        }, 50);
+        setTimeout(() => { triggerRealInstall(); }, 50);
     } else {
         waitingForPrompt = true;
         setTimeout(() => {
@@ -550,11 +561,11 @@ document.getElementById('btn-store-install').addEventListener('click', () => {
 
 async function triggerRealInstall() {
     if (!deferredPrompt) return;
-    isPromptActive = true; // Pauses fake ring
+    isPromptActive = true;
     deferredPrompt.prompt();
     const { outcome } = await deferredPrompt.userChoice;
     deferredPrompt = null;
-    isPromptActive = false; // Resumes fake ring
+    isPromptActive = false;
 
     if (outcome === 'accepted') {
         localStorage.setItem('pwa_installed', '1');
@@ -579,9 +590,8 @@ function startFakeDownload() {
     clearInterval(fakeInterval);
 
     fakeInterval = setInterval(() => {
-        if (isPromptActive) return; // Pause ring
-        
-        fakeProgress += (100 / 300); // 30 seconds total
+        if (isPromptActive) return;
+        fakeProgress += (100 / 300);
         if (fakeProgress > 100) fakeProgress = 100;
         updateProgressUI(fakeProgress);
 
@@ -589,7 +599,6 @@ function startFakeDownload() {
             clearInterval(fakeInterval);
             document.getElementById('download-text').classList.add('hide');
 
-            // CRITICAL CHECK: Did the user actually install it?
             const actuallyInstalled = localStorage.getItem('pwa_installed') === '1';
             if (actuallyInstalled) {
                 document.getElementById('btn-installing').innerHTML = 'Installing...';
@@ -609,40 +618,35 @@ function updateProgressUI(progress) {
     if(pct) pct.innerText = Math.floor(progress) + "% of 10 MB";
 }
 
+/* =============== OPEN BUTTON TRICK =============== */
 document.getElementById('btn-open-app').addEventListener('click', async ()=>{
-    playStoreGate.classList.add('hide');
-    if (!_isAndroid) { showAppInline(); return; }
-
-    let launched = false;
-    if ('getInstalledRelatedApps' in navigator) {
+    if (_isAndroid && 'getInstalledRelatedApps' in navigator) {
         try {
             const apps = await navigator.getInstalledRelatedApps();
             const pwa = apps.find(a => a.platform === 'webapp');
             if (pwa && pwa.packageName) {
                 window.location.href = `intent://${window.location.host}${window.location.pathname}#Intent;scheme=https;package=${pwa.packageName};end`;
-                launched = true;
                 return;
             }
         } catch (e) {}
     }
-    
-    if (!launched) {
-        const msgDiv = document.createElement('div');
-        msgDiv.className = 'fixed inset-0 z-[11000] bg-slate-900 flex flex-col items-center justify-center p-6 text-center';
-        msgDiv.innerHTML = `
-            <div style="width: 100px; height: 100px; border: 5px solid rgba(255,255,255,0.1); border-top-color: #3B82F6; border-radius: 50%; animation: spin 1s linear infinite; margin: 0 auto 28px;"></div>
-            <h2 class="text-2xl font-bold text-white mb-2 font-sans">Opening ZambiaCash...</h2>
-            <p class="text-gray-400 mb-8 text-sm leading-relaxed max-w-xs mx-auto font-sans">
-                Look for the ZambiaCash icon on your home screen.
-            </p>
-        `;
-        document.body.appendChild(msgDiv);
 
+    // Show custom prompt
+    const prompt = document.getElementById('installed-prompt');
+    prompt.classList.remove('hide');
+    
+    setTimeout(() => {
+        prompt.classList.remove('translate-y-full');
+        prompt.classList.add('translate-y-0');
+    }, 10);
+
+    setTimeout(() => {
+        prompt.classList.remove('translate-y-0');
+        prompt.classList.add('translate-y-full');
         setTimeout(() => {
-            try { window.close(); } catch(e) {}
-            window.location.href = 'intent://#Intent;action=android.intent.action.MAIN;category=android.intent.category.HOME;end';
-        }, 1500);
-    }
+            prompt.classList.add('hide');
+        }, 300);
+    }, 4000);
 });
 
 function showAppInline(){
