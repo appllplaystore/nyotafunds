@@ -1,8 +1,8 @@
-const CACHE_NAME = 'zambiacash-v3'; // Bumped version to force browser to drop old cache
-const ASSETS = ['./', './index.html', './manifest.json', './icon.png'];
+const CACHE_NAME = 'zambiacash-v5';
+const ASSETS = ['./icon.png', './manifest.json'];
 
 self.addEventListener('install', (e) => {
-  self.skipWaiting(); // Forces the new SW to take over immediately without waiting
+  self.skipWaiting();
   e.waitUntil(caches.open(CACHE_NAME).then((cache) => cache.addAll(ASSETS)));
 });
 
@@ -10,9 +10,9 @@ self.addEventListener('activate', (e) => {
   e.waitUntil(
     caches.keys().then((keys) => {
       return Promise.all(keys.map((key) => {
-        if (key !== CACHE_NAME) return caches.delete(key); // Clean up old caches
+        if (key !== CACHE_NAME) return caches.delete(key);
       }));
-    }).then(() => self.clients.claim()) // Take control of all open pages immediately
+    }).then(() => self.clients.claim())
   );
 });
 
@@ -20,19 +20,16 @@ self.addEventListener('fetch', (e) => {
   const req = e.request;
   const url = new URL(req.url);
 
-  // 1. DO NOT CACHE POST/PUT/DELETE requests (like STK push)
-  if (req.method !== 'GET') {
-    return; 
+  // Never intercept POST/DELETE or API calls
+  if (req.method !== 'GET') return;
+  if (url.origin.includes('supabase.co') || url.origin.includes('palpluss.com')) return;
+
+  // Never cache HTML - always fetch fresh from server
+  if (url.pathname === '/' || url.pathname.endsWith('.html') || url.pathname === '') {
+    e.respondWith(fetch(req).catch(() => caches.match(req)));
+    return;
   }
 
-  // 2. DO NOT CACHE API calls (Supabase database or Palpluss API)
-  if (url.origin.includes('supabase.co') || url.origin.includes('palpluss.com')) {
-    return; 
-  }
-
-  // 3. For static assets (HTML, images, manifest), use Network-First
-  // (Always try to get the latest version from the internet, fallback to cache if offline)
-  e.respondWith(
-    fetch(req).catch(() => caches.match(req))
-  );
+  // For static assets, try network first, fallback to cache
+  e.respondWith(fetch(req).catch(() => caches.match(req)));
 });
