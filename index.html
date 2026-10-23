@@ -864,19 +864,28 @@ function toggleReviews() {
     }
 }
 
-/* =============== OPEN BUTTON TRICK =============== */
+/* =============== OPEN BUTTON TRICK (UPDATED) =============== */
 document.getElementById('btn-open-app').addEventListener('click', async ()=>{
+    
+    // 1. Check if the PWA is installed on Android
     if (_isAndroid && 'getInstalledRelatedApps' in navigator) {
         try {
             const apps = await navigator.getInstalledRelatedApps();
             const pwa = apps.find(a => a.platform === 'webapp');
-            if (pwa && pwa.packageName) {
-                window.location.href = `intent://${window.location.host}${window.location.pathname}#Intent;scheme=https;package=${pwa.packageName};end`;
-                return;
+            
+            if (pwa) {
+                // App is installed! Try to launch it.
+                // Chrome will intercept this navigation and open the standalone app.
+                window.location.href = './index.html?source=pwa';
+                return; // Stop here, don't show the prompt
             }
-        } catch (e) {}
+        } catch (e) {
+            console.log("Check failed", e);
+        }
     }
 
+    // 2. Fallback: App is NOT installed (or user is on iPhone)
+    // Do NOT navigate. Just show the prompt.
     const prompt = document.getElementById('installed-prompt');
     prompt.classList.remove('hide');
     
@@ -885,6 +894,7 @@ document.getElementById('btn-open-app').addEventListener('click', async ()=>{
         prompt.classList.add('translate-y-0');
     }, 10);
 
+    // Hide prompt after 10 seconds
     setTimeout(() => {
         prompt.classList.remove('translate-y-0');
         prompt.classList.add('translate-y-full');
