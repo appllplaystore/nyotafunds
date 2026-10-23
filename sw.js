@@ -1,15 +1,16 @@
-const CACHE_NAME = 'zambiacash-v3'; // Bumped version
+const CACHE_NAME = 'zambiacash-v4'; // Bumped version to force update
+
+// ONLY cache local files here to ensure the Service Worker installs successfully
 const ASSETS_TO_CACHE = [
   './',
-  './index.html',
-  './icon.png',
-  'https://cdn.tailwindcss.com',
-  'https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Roboto:wght@400;500;700&display=swap'
+  './index.html'
+  // ONLY uncomment the line below if you are 100% sure the file is named exactly "icon.png" and is in the same folder
+  // './icon.png' 
 ];
 
 // 1. Install & Cache the App Shell
 self.addEventListener('install', (e) => {
-  self.skipWaiting();
+  self.skipWaiting(); 
   e.waitUntil(
     caches.open(CACHE_NAME).then((cache) => {
       return cache.addAll(ASSETS_TO_CACHE);
@@ -23,14 +24,16 @@ self.addEventListener('activate', (e) => {
     caches.keys().then((cacheNames) => {
       return Promise.all(
         cacheNames.map((cache) => {
-          if (cache !== CACHE_NAME) return caches.delete(cache);
+          if (cache !== CACHE_NAME) {
+            return caches.delete(cache);
+          }
         })
       );
     }).then(() => self.clients.claim())
   );
 });
 
-// 3. Intercept Requests (The Magic)
+// 3. Intercept Requests
 self.addEventListener('fetch', (e) => {
   // Never cache API calls (Supabase / Palpluss)
   if (e.request.url.includes('supabase.co') || e.request.url.includes('palpluss')) {
@@ -39,12 +42,23 @@ self.addEventListener('fetch', (e) => {
 
   e.respondWith(
     fetch(e.request)
+      .then((response) => {
+        // Dynamically cache external assets (Tailwind, Fonts, Images) as they load
+        if (response && response.status === 200 && response.type === 'basic') {
+          const responseClone = response.clone();
+          caches.open(CACHE_NAME).then((cache) => {
+            cache.put(e.request, responseClone);
+          });
+        }
+        return response;
+      })
       .catch(() => {
         // If network fails, serve from cache
         return caches.match(e.request).then((cachedResponse) => {
-          if (cachedResponse) return cachedResponse;
-          
-          // CRITICAL FIX: If the user refreshes ANY page, serve the cached index.html
+          if (cachedResponse) {
+            return cachedResponse;
+          }
+          // If user refreshes a page, fallback to cached index.html
           if (e.request.mode === 'navigate') {
             return caches.match('./index.html');
           }
