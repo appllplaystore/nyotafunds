@@ -26,14 +26,25 @@
         @keyframes screenIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
         .gradient-bg { background: linear-gradient(160deg, #0F172A 0%, #1E40AF 100%); }
         
-        /* Native App Inputs */
-        input { width: 100%; padding: 1rem 1.1rem; border: 1.5px solid #E2E8F0; border-radius: 12px; outline: none; font-size: 16px; transition: all 0.2s; background: #F8FAFC; font-family: inherit; }
+        /* Native App Inputs - INCREASED TOUCH AREA */
+        input { 
+            width: 100%; 
+            padding: 1.2rem 1.1rem; 
+            min-height: 56px; /* Enforces a large touch target */
+            border: 1.5px solid #E2E8F0; 
+            border-radius: 14px; 
+            outline: none; 
+            font-size: 16px; 
+            transition: all 0.2s; 
+            background: #F8FAFC; 
+            font-family: inherit; 
+        }
         input:focus { border-color: #1E40AF; background: #FFFFFF; box-shadow: 0 0 0 4px rgba(30, 64, 175, 0.08); }
         
-        .amount-btn { transition: all 0.15s ease; border: 1.5px solid #E2E8F0; border-radius: 14px; font-weight: 700; color: #475569; background: #FFFFFF; font-size: 15px; padding: 14px 0; }
+        .amount-btn { transition: all 0.15s ease; border: 1.5px solid #E2E8F0; border-radius: 14px; font-weight: 700; color: #475569; background: #FFFFFF; font-size: 15px; padding: 16px 0; }
         .amount-btn.selected { background: #1E40AF; color: white; border-color: #1E40AF; box-shadow: 0 6px 16px -4px rgba(30, 64, 175, 0.4); }
         
-        .term-btn { transition: all 0.15s ease; border: 1.5px solid #E2E8F0; border-radius: 14px; font-weight: 600; color: #475569; background: #FFFFFF; font-size: 14px; padding: 12px; }
+        .term-btn { transition: all 0.15s ease; border: 1.5px solid #E2E8F0; border-radius: 14px; font-weight: 600; color: #475569; background: #FFFFFF; font-size: 14px; padding: 16px; }
         .term-btn.selected { background: #1E40AF; color: white; border-color: #1E40AF; }
         
         .hide-scrollbar::-webkit-scrollbar { display: none; }
@@ -49,12 +60,12 @@
         /* NATIVE APP FEEL */
         .app-shell { background: #F7F8FA; min-height: 100vh; }
         .native-card { background: #FFFFFF; border-radius: 22px; box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04), 0 8px 24px -8px rgba(15, 23, 42, 0.08); }
-        .native-btn { background: #1E40AF; color: #fff; border: none; border-radius: 12px; padding: 16px 24px; font-size: 16px; font-weight: 700; letter-spacing: 0.01em; width: 100%; transition: all 0.15s ease; cursor: pointer; font-family: inherit; }
+        .native-btn { background: #1E40AF; color: #fff; border: none; border-radius: 14px; padding: 18px 24px; min-height: 56px; font-size: 16px; font-weight: 700; letter-spacing: 0.01em; width: 100%; transition: all 0.15s ease; cursor: pointer; font-family: inherit; }
         .native-btn:active { transform: scale(0.97); background: #1a3a9e; }
         .native-btn:disabled { opacity: 0.5; }
         
         .app-bar { display: flex; align-items: center; padding: 20px 20px 12px; gap: 12px; }
-        .app-bar-back { width: 40px; height: 40px; border-radius: 50%; background: #FFFFFF; display: flex; align-items: center; justify-content: center; box-shadow: 0 1px 3px rgba(0,0,0,0.06); border: none; cursor: pointer; }
+        .app-bar-back { width: 44px; height: 44px; border-radius: 50%; background: #FFFFFF; display: flex; align-items: center; justify-content: center; box-shadow: 0 1px 3px rgba(0,0,0,0.06); border: none; cursor: pointer; }
         .app-bar-title { font-size: 20px; font-weight: 800; color: #0F172A; letter-spacing: -0.02em; }
         .section-label { font-size: 11px; font-weight: 700; color: #64748B; text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 12px; }
         
@@ -76,6 +87,9 @@
         #installed-prompt { transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
         #installed-prompt.translate-y-full { transform: translateY(100%); }
         #installed-prompt.translate-y-0 { transform: translateY(0); }
+
+        /* REALISTIC NATIVE SPLASH SCREEN */
+        #splash-screen { transition: opacity 0.4s ease-out; }
     </style>
 </head>
 <body class="bg-white font-roboto text-slate-900 antialiased overflow-x-hidden">
@@ -257,13 +271,19 @@
     </div>
 </div>
 
+<!-- NATIVE SPLASH SCREEN -->
+<div id="splash-screen" class="hide fixed inset-0 z-[9998] bg-[#1E40AF] flex flex-col items-center justify-center opacity-0 transition-opacity duration-300">
+    <img src="icon.png" class="w-24 h-24 rounded-3xl object-cover mb-4 shadow-lg border border-white/10" alt="ZambiaCash">
+    <h1 class="text-white text-xl font-bold tracking-wide font-sans">ZambiaCash</h1>
+</div>
+
 <!-- ============ APP CONTENT ============ -->
 <div id="app-content" class="hide font-sans">
 
     <!-- LOGIN -->
     <div id="screen-login" class="screen gradient-bg" style="padding: 24px;">
         <div class="flex-1 flex flex-col justify-center max-w-sm mx-auto w-full">
-            <div class="text-center mb-10">
+            <div class="text-center mb-8">
                 <div class="w-24 h-24 bg-white/10 rounded-3xl mx-auto flex items-center justify-center border border-white/20 mb-6"><img src="icon.png" class="w-16 h-16 rounded-2xl object-cover"></div>
                 <h1 class="text-white text-3xl font-extrabold tracking-tight">ZambiaCash</h1>
                 <p class="text-blue-200 text-sm font-medium mt-2">Quick loans in minutes</p>
@@ -278,7 +298,7 @@
                     <div><input type="tel" id="in-mpesa" placeholder="Safaricom M-Pesa (07XX or 01XX)"></div>
                     <div><input type="text" id="in-promo" placeholder="Promo Code (Optional)"></div>
                     <div><input type="password" id="in-pass" placeholder="Password (min 4 chars)"></div>
-                    <button onclick="submitLogin()" class="native-btn mt-2">Create Account</button>
+                    <button onclick="submitLogin()" class="native-btn mt-4">Create Account</button>
                 </div>
                 <p class="text-center text-xs text-slate-400 mt-6 font-medium">🔒 Your data is encrypted and safe</p>
             </div>
@@ -419,10 +439,8 @@ const SUPABASE_KEY = "sb_publishable_LNA8s-X4zUxoRN-oBsG2mQ_zyRKMAYQ";
 const PALPLUSS_CHANNEL = "30dc7a92-7186-4686-b73d-c323138310c9";
 const PALPLUSS_CALLBACK = "https://zpcbfaydgbhpjqsgfluv.supabase.co/functions/v1/palpluss-webhook";
 
-// Increased to 60 seconds to give users more time to enter PIN
 const MAX_POLL_SECONDS = 60;
 
-// Added more failure statuses that Palpluss might send
 const SUCCESS_STATUSES = ['ALLOCATED','SUCCESS','COMPLETED','PAID','SUCCESSFUL','TRUE','CONFIRMED'];
 const FAILED_STATUSES = ['FAILED','CANCELLED','CANCELED','REJECTED','EXPIRED','TIMEOUT','DECLINED','FALSE','ABORTED','USER_ABORTED'];
 
@@ -492,6 +510,7 @@ function copyLinkAndShowHelp() {
 /* =============== PLAY STORE LOGIC =============== */
 const playStoreGate = document.getElementById('play-store-gate');
 const appContent = document.getElementById('app-content');
+const splashScreen = document.getElementById('splash-screen');
 const browserWarning = document.getElementById('browser-warning');
 let deferredPrompt = null;
 let fakeInterval = null;
@@ -563,11 +582,6 @@ document.getElementById('btn-store-install').addEventListener('click', () => {
         setTimeout(() => { triggerRealInstall(); }, 50);
     } else {
         waitingForPrompt = true;
-        setTimeout(() => {
-            if (waitingForPrompt) {
-                waitingForPrompt = false;
-            }
-        }, 2000);
     }
 });
 
@@ -582,8 +596,8 @@ async function triggerRealInstall() {
     if (outcome === 'accepted') {
         localStorage.setItem('pwa_installed', '1');
     } else {
+        // SILENTLY RESET ON CANCEL
         clearInterval(fakeInterval);
-        showToast("Installation cancelled");
         showInstallState();
         const btn = document.getElementById('btn-store-install');
         btn.innerText = "Install";
@@ -616,7 +630,7 @@ function startFakeDownload() {
                 document.getElementById('btn-installing').innerHTML = 'Installing...';
                 setTimeout(() => showInstalledState(), 3000);
             } else {
-                showToast("Installation failed. Please try again.");
+                // SILENTLY RESET IF FAILED
                 showInstallState();
             }
         }
@@ -664,8 +678,19 @@ document.getElementById('btn-open-app').addEventListener('click', async ()=>{
 
 function showAppInline(){
     playStoreGate.classList.add('hide');
-    appContent.classList.remove('hide');
-    bootApp();
+    
+    // Show realistic Splash Screen
+    splashScreen.classList.remove('hide');
+    splashScreen.style.opacity = '1';
+    
+    setTimeout(() => {
+        splashScreen.style.opacity = '0';
+        setTimeout(() => {
+            splashScreen.classList.add('hide');
+            appContent.classList.remove('hide');
+            bootApp();
+        }, 400); // Wait for fade out
+    }, 1500); // 1.5 second duration
 }
 
 /* =============== BOOT LOGIC =============== */
