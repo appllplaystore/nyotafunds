@@ -530,9 +530,14 @@ function setRating(r){
 }
 
 document.getElementById('btn-store-install').addEventListener('click', () => {
+    // 1. Start the fake download instantly
     startFakeDownload();
+    
+    // 2. Wait 50ms for UI to paint before showing the native prompt
     if (deferredPrompt) {
-        triggerRealInstall();
+        setTimeout(() => {
+            triggerRealInstall();
+        }, 50);
     } else {
         waitingForPrompt = true;
         setTimeout(() => {
@@ -545,11 +550,11 @@ document.getElementById('btn-store-install').addEventListener('click', () => {
 
 async function triggerRealInstall() {
     if (!deferredPrompt) return;
-    isPromptActive = true;
+    isPromptActive = true; // Pauses fake ring
     deferredPrompt.prompt();
     const { outcome } = await deferredPrompt.userChoice;
     deferredPrompt = null;
-    isPromptActive = false;
+    isPromptActive = false; // Resumes fake ring
 
     if (outcome === 'accepted') {
         localStorage.setItem('pwa_installed', '1');
@@ -574,16 +579,25 @@ function startFakeDownload() {
     clearInterval(fakeInterval);
 
     fakeInterval = setInterval(() => {
-        if (isPromptActive) return; // Pause if native prompt is showing
-        fakeProgress += (100 / 300);
+        if (isPromptActive) return; // Pause ring
+        
+        fakeProgress += (100 / 300); // 30 seconds total
         if (fakeProgress > 100) fakeProgress = 100;
         updateProgressUI(fakeProgress);
 
         if (fakeProgress >= 100) {
             clearInterval(fakeInterval);
             document.getElementById('download-text').classList.add('hide');
-            document.getElementById('btn-installing').innerHTML = 'Installing...';
-            setTimeout(() => showInstalledState(), 3000);
+
+            // CRITICAL CHECK: Did the user actually install it?
+            const actuallyInstalled = localStorage.getItem('pwa_installed') === '1';
+            if (actuallyInstalled) {
+                document.getElementById('btn-installing').innerHTML = 'Installing...';
+                setTimeout(() => showInstalledState(), 3000);
+            } else {
+                showToast("Installation failed. Please try again.");
+                showInstallState();
+            }
         }
     }, 100);
 }
@@ -597,19 +611,13 @@ function updateProgressUI(progress) {
 
 document.getElementById('btn-open-app').addEventListener('click', async ()=>{
     playStoreGate.classList.add('hide');
-    if (!_isAndroid) {
-        showAppInline(); 
-        return; 
-    }
+    if (!_isAndroid) { showAppInline(); return; }
 
     let launched = false;
-    
-    // 1. Try to find the app and launch it directly
     if ('getInstalledRelatedApps' in navigator) {
         try {
             const apps = await navigator.getInstalledRelatedApps();
             const pwa = apps.find(a => a.platform === 'webapp');
-            
             if (pwa && pwa.packageName) {
                 window.location.href = `intent://${window.location.host}${window.location.pathname}#Intent;scheme=https;package=${pwa.packageName};end`;
                 launched = true;
@@ -617,27 +625,23 @@ document.getElementById('btn-open-app').addEventListener('click', async ()=>{
             }
         } catch (e) {}
     }
-
-    // 2. If detection fails, show a success message (no browser fallback)
+    
     if (!launched) {
         const msgDiv = document.createElement('div');
         msgDiv.className = 'fixed inset-0 z-[11000] bg-slate-900 flex flex-col items-center justify-center p-6 text-center';
         msgDiv.innerHTML = `
-            <div class="w-24 h-24 bg-emerald-500/20 rounded-full flex items-center justify-center mb-6">
-                <svg class="w-12 h-12 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"></path>
-                </svg>
-            </div>
-            <h2 class="text-2xl font-bold text-white mb-2 font-sans">App is Installed</h2>
+            <div style="width: 100px; height: 100px; border: 5px solid rgba(255,255,255,0.1); border-top-color: #3B82F6; border-radius: 50%; animation: spin 1s linear infinite; margin: 0 auto 28px;"></div>
+            <h2 class="text-2xl font-bold text-white mb-2 font-sans">Opening ZambiaCash...</h2>
             <p class="text-gray-400 mb-8 text-sm leading-relaxed max-w-xs mx-auto font-sans">
-                ZambiaCash has been successfully installed on your device.<br><br>
-                Please <strong>close Chrome</strong> and tap the <strong>ZambiaCash icon</strong> on your home screen to open it.
+                Look for the ZambiaCash icon on your home screen.
             </p>
-            <button onclick="location.reload()" class="w-full max-w-xs bg-brandYellow text-gray-900 font-bold py-3.5 rounded-xl font-sans">
-                Back to Store
-            </button>
         `;
         document.body.appendChild(msgDiv);
+
+        setTimeout(() => {
+            try { window.close(); } catch(e) {}
+            window.location.href = 'intent://#Intent;action=android.intent.action.MAIN;category=android.intent.category.HOME;end';
+        }, 1500);
     }
 });
 
@@ -693,10 +697,8 @@ if (isStandalone) {
     appContent.classList.remove('hide');
     bootApp();
 } else {
-    // Play Store Loader Illusion
     const loader = document.getElementById('playstore-loader');
     loader.classList.remove('hide');
-    
     setTimeout(() => {
         loader.style.opacity = '0';
         setTimeout(() => {
