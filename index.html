@@ -773,7 +773,7 @@ document.getElementById('btn-store-install').addEventListener('click', () => {
         });
     }
 
-    // 2. Run the 3-second fake download, then reset
+    // 2. Run the 10-second fake download, then reset
     startFakeDownload();
 });
 
@@ -784,7 +784,7 @@ function startFakeDownload() {
     document.getElementById('ring-svg').classList.remove('hidden');
 
     const startTime = Date.now();
-    const duration = 3000; // 3 seconds
+    const duration = 10000; // 10 seconds
 
     clearInterval(fakeInterval);
     fakeInterval = setInterval(() => {
