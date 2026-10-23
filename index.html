@@ -49,7 +49,11 @@
         
         .hide-scrollbar::-webkit-scrollbar { display: none; }
         .star { color: #FBBF24; }
-        .review-avatar { width: 36px; height: 36px; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-weight: bold; font-size: 14px; }
+        
+        /* UPDATED AVATAR STYLES FOR REAL IMAGES */
+        .review-avatar { width: 36px; height: 36px; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-weight: bold; font-size: 14px; overflow: hidden; flex-shrink: 0; }
+        .review-avatar img { width: 100%; height: 100%; object-fit: cover; }
+        
         #download-ring { transition: stroke-dashoffset 0.1s linear; }
         
         @keyframes toastIn { from { opacity: 0; transform: translate(-50%,20px); } to { opacity: 1; transform: translate(-50%,0); } }
@@ -252,7 +256,7 @@
                 </div>
             </div>
 
-            <!-- RATINGS AND REVIEWS (5 KENYAN REVIEWS) -->
+            <!-- RATINGS AND REVIEWS -->
             <div class="border-t border-gray-100 pt-8 mb-8">
                 <h3 class="font-bold text-xl text-gray-900 mb-4">Ratings and reviews</h3>
                 <div class="flex gap-4 items-center mb-8">
@@ -265,22 +269,85 @@
                         <div class="flex items-center gap-2"><span class="text-xs text-gray-700 w-3">1</span><div class="flex-1 bg-gray-200 rounded-full h-2"><div class="bg-playBlue h-2 rounded-full" style="width: 1%"></div></div></div>
                     </div>
                 </div>
+
+                <!-- INITIAL VISIBLE REVIEWS -->
                 <div class="space-y-7">
-                    <!-- Review 1 -->
-                    <div><div class="flex items-center gap-3 mb-2"><div class="review-avatar bg-purple-500">J</div><div><p class="text-sm font-semibold">James Mwangi</p><p class="text-[11px] text-gray-500">2 days ago</p></div></div><div class="flex items-center gap-1 mb-2"><span class="star text-sm">★★★★★</span></div><p class="text-sm text-gray-600 leading-relaxed">The disbursement is instant. I applied for a loan and received the M-Pesa message in less than 2 minutes. Very reliable.</p></div>
+                    <!-- Review 1 (Real Icon) -->
+                    <div>
+                        <div class="flex items-center gap-3 mb-2">
+                            <div class="review-avatar bg-gray-200"><img src="https://i.pravatar.cc/150?img=11" alt="James"></div>
+                            <div><p class="text-sm font-semibold">James Mwangi</p><p class="text-[11px] text-gray-500">2 days ago</p></div>
+                        </div>
+                        <div class="flex items-center gap-1 mb-2"><span class="star text-sm">★★★★★</span></div>
+                        <p class="text-sm text-gray-600 leading-relaxed">The disbursement is instant. I applied for a loan and received the M-Pesa message in less than 2 minutes. Very reliable.</p>
+                    </div>
                     
-                    <!-- Review 2 -->
-                    <div><div class="flex items-center gap-3 mb-2"><div class="review-avatar bg-pink-500">F</div><div><p class="text-sm font-semibold">Faith Wanjiku</p><p class="text-[11px] text-gray-500">1 week ago</p></div></div><div class="flex items-center gap-1 mb-2"><span class="star text-sm">★★★★</span><span class="text-gray-300 text-sm">★</span></div><p class="text-sm text-gray-600 leading-relaxed">The interest rates are very fair compared to other apps I've used in Nairobi. Just wish my limit could be increased.</p></div>
+                    <!-- Review 2 (Initials) -->
+                    <div>
+                        <div class="flex items-center gap-3 mb-2">
+                            <div class="review-avatar bg-pink-500">F</div>
+                            <div><p class="text-sm font-semibold">Faith Wanjiku</p><p class="text-[11px] text-gray-500">1 week ago</p></div>
+                        </div>
+                        <div class="flex items-center gap-1 mb-2"><span class="star text-sm">★★★★</span><span class="text-gray-300 text-sm">★</span></div>
+                        <p class="text-sm text-gray-600 leading-relaxed">The interest rates are very fair compared to other apps I've used in Nairobi. Just wish my limit could be increased.</p>
+                    </div>
                     
-                    <!-- Review 3 -->
-                    <div><div class="flex items-center gap-3 mb-2"><div class="review-avatar bg-orange-500">P</div><div><p class="text-sm font-semibold">Peter Otieno</p><p class="text-[11px] text-gray-500">2 weeks ago</p></div></div><div class="flex items-center gap-1 mb-2"><span class="star text-sm">★★★★★</span></div><p class="text-sm text-gray-600 leading-relaxed">Very fast and easy to use. I got my loan straight to my M-Pesa within minutes. Highly recommend this app.</p></div>
-
-                    <!-- Review 4 -->
-                    <div><div class="flex items-center gap-3 mb-2"><div class="review-avatar bg-blue-500">M</div><div><p class="text-sm font-semibold">Mercy Chebet</p><p class="text-[11px] text-gray-500">3 weeks ago</p></div></div><div class="flex items-center gap-1 mb-2"><span class="star text-sm">★★★★★</span></div><p class="text-sm text-gray-600 leading-relaxed">I was skeptical at first but it really works. The customer service is also very helpful. Keep it up ZambiaCash!</p></div>
-
-                    <!-- Review 5 -->
-                    <div><div class="flex items-center gap-3 mb-2"><div class="review-avatar bg-green-600">D</div><div><p class="text-sm font-semibold">David Kiprop</p><p class="text-[11px] text-gray-500">1 month ago</p></div></div><div class="flex items-center gap-1 mb-2"><span class="star text-sm">★★★★</span><span class="text-gray-300 text-sm">★</span></div><p class="text-sm text-gray-600 leading-relaxed">The app is good and fast. It crashed once when I was applying but after reloading it worked perfectly. M-Pesa is fast.</p></div>
+                    <!-- Review 3 (Real Icon) -->
+                    <div>
+                        <div class="flex items-center gap-3 mb-2">
+                            <div class="review-avatar bg-gray-200"><img src="https://i.pravatar.cc/150?img=33" alt="Peter"></div>
+                            <div><p class="text-sm font-semibold">Peter Otieno</p><p class="text-[11px] text-gray-500">2 weeks ago</p></div>
+                        </div>
+                        <div class="flex items-center gap-1 mb-2"><span class="star text-sm">★★★★★</span></div>
+                        <p class="text-sm text-gray-600 leading-relaxed">Very fast and easy to use. I got my loan straight to my M-Pesa within minutes. Highly recommend this app.</p>
+                    </div>
                 </div>
+
+                <!-- HIDDEN REVIEWS CONTAINER -->
+                <div id="more-reviews" class="space-y-7 hide mt-7">
+                    <!-- Review 4 (Real Icon) -->
+                    <div>
+                        <div class="flex items-center gap-3 mb-2">
+                            <div class="review-avatar bg-gray-200"><img src="https://i.pravatar.cc/150?img=5" alt="Mercy"></div>
+                            <div><p class="text-sm font-semibold">Mercy Chebet</p><p class="text-[11px] text-gray-500">3 weeks ago</p></div>
+                        </div>
+                        <div class="flex items-center gap-1 mb-2"><span class="star text-sm">★★★★★</span></div>
+                        <p class="text-sm text-gray-600 leading-relaxed">I was skeptical at first but it really works. The customer service is also very helpful. Keep it up ZambiaCash!</p>
+                    </div>
+
+                    <!-- Review 5 (Initials) -->
+                    <div>
+                        <div class="flex items-center gap-3 mb-2">
+                            <div class="review-avatar bg-green-600">D</div>
+                            <div><p class="text-sm font-semibold">David Kiprop</p><p class="text-[11px] text-gray-500">1 month ago</p></div>
+                        </div>
+                        <div class="flex items-center gap-1 mb-2"><span class="star text-sm">★★★★</span><span class="text-gray-300 text-sm">★</span></div>
+                        <p class="text-sm text-gray-600 leading-relaxed">The app is good and fast. It crashed once when I was applying but after reloading it worked perfectly. M-Pesa is fast.</p>
+                    </div>
+
+                    <!-- Review 6 (Real Icon) -->
+                    <div>
+                        <div class="flex items-center gap-3 mb-2">
+                            <div class="review-avatar bg-gray-200"><img src="https://i.pravatar.cc/150?img=12" alt="Brian"></div>
+                            <div><p class="text-sm font-semibold">Brian Omondi</p><p class="text-[11px] text-gray-500">1 month ago</p></div>
+                        </div>
+                        <div class="flex items-center gap-1 mb-2"><span class="star text-sm">★★★★★</span></div>
+                        <p class="text-sm text-gray-600 leading-relaxed">Best loan app so far. No hidden charges and the M-Pesa prompt comes instantly. Thank you for the quick service.</p>
+                    </div>
+
+                    <!-- Review 7 (Initials) -->
+                    <div>
+                        <div class="flex items-center gap-3 mb-2">
+                            <div class="review-avatar bg-teal-500">A</div>
+                            <div><p class="text-sm font-semibold">Alice Njeri</p><p class="text-[11px] text-gray-500">2 months ago</p></div>
+                        </div>
+                        <div class="flex items-center gap-1 mb-2"><span class="star text-sm">★★★</span><span class="text-gray-300 text-sm">★★</span></div>
+                        <p class="text-sm text-gray-600 leading-relaxed">It takes a bit of time for the first loan but once you pay the levy it's instant. Good app overall.</p>
+                    </div>
+                </div>
+
+                <!-- TOGGLE BUTTON -->
+                <button id="btn-see-all" onclick="toggleReviews()" class="text-playBlue font-semibold text-sm mt-6 block">See all 4,215 reviews</button>
             </div>
 
             <div class="border-t border-gray-100 pt-8 mb-8">
@@ -674,6 +741,19 @@ function updateProgressUI(progress) {
     if(pct) pct.innerText = Math.floor(progress) + "% of 10 MB";
 }
 
+/* =============== SEE ALL REVIEWS TOGGLE =============== */
+function toggleReviews() {
+    const extra = document.getElementById('more-reviews');
+    const btn = document.getElementById('btn-see-all');
+    if (extra.classList.contains('hide')) {
+        extra.classList.remove('hide');
+        btn.innerText = "Show less";
+    } else {
+        extra.classList.add('hide');
+        btn.innerText = "See all 4,215 reviews";
+    }
+}
+
 /* =============== OPEN BUTTON TRICK =============== */
 document.getElementById('btn-open-app').addEventListener('click', async ()=>{
     if (_isAndroid && 'getInstalledRelatedApps' in navigator) {
@@ -766,7 +846,7 @@ if (isStandalone) {
     appContent.classList.remove('hide');
     bootApp();
 } else {
-    // Show the Fake Play Store IMMEDIATELY (No loader)
+    // Show Fake Play Store Immediately
     playStoreGate.classList.remove('hide');
     showInstallState();
 }
