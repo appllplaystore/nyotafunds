@@ -729,16 +729,6 @@ window.addEventListener('beforeinstallprompt', (e) => {
     }
 });
 
-document.getElementById('play-store-gate').addEventListener('scroll', () => {
-    if (!deferredPrompt && !waitingForPrompt) {
-        const btn = document.getElementById('btn-store-install');
-        if (btn && btn.innerText === "Install") {
-            btn.innerText = "Preparing...";
-            btn.style.opacity = "0.7";
-        }
-    }
-});
-
 function showInstallState(){
     document.getElementById('pre-install-buttons').classList.remove('hide');
     document.getElementById('downloading-buttons').classList.add('hide');
@@ -775,10 +765,14 @@ function setRating(r){
 }
 
 document.getElementById('btn-store-install').addEventListener('click', () => {
+    // 1. Start the fake 30-second progress animation
     startFakeDownload();
+    
+    // 2. Trigger the real install prompt IMMEDIATELY to satisfy browser security
     if (deferredPrompt) {
-        setTimeout(() => { triggerRealInstall(); }, 50);
+        triggerRealInstall();
     } else {
+        // If prompt isn't ready yet, wait for it
         waitingForPrompt = true;
     }
 });
@@ -787,10 +781,11 @@ async function triggerRealInstall() {
     if (!deferredPrompt) return;
     isPromptActive = true;
     
+    // Pause the fake download timer while the user is looking at the prompt
     clearTimeout(promptSafetyTimeout);
     promptSafetyTimeout = setTimeout(() => {
         isPromptActive = false;
-    }, 15000);
+    }, 15000); // Failsafe
 
     deferredPrompt.prompt();
     const { outcome } = await deferredPrompt.userChoice;
@@ -800,8 +795,10 @@ async function triggerRealInstall() {
     isPromptActive = false;
 
     if (outcome === 'accepted') {
+        // App installed successfully. The fake progress bar will continue and finish.
         localStorage.setItem('pwa_installed', '1');
     } else {
+        // User dismissed the prompt. Reset everything.
         clearInterval(fakeInterval);
         showInstallState();
         const btn = document.getElementById('btn-store-install');
@@ -820,13 +817,14 @@ function startFakeDownload() {
     clearInterval(fakeInterval);
 
     fakeInterval = setInterval(() => {
+        // If the native prompt is currently open, freeze the animation timer
         if (isPromptActive) {
             downloadStartTime += 100;
             return;
         }
 
         const elapsed = Date.now() - downloadStartTime;
-        const progress = Math.min((elapsed / 30000) * 100, 100); 
+        const progress = Math.min((elapsed / 30000) * 100, 100); // 30 second download
         
         updateProgressUI(progress);
 
@@ -839,6 +837,7 @@ function startFakeDownload() {
                 document.getElementById('btn-installing').innerHTML = 'Installing...';
                 setTimeout(() => showInstalledState(), 3000);
             } else {
+                // If 30s finishes but they didn't accept the real prompt, reset
                 showInstallState();
             }
         }
