@@ -165,7 +165,7 @@
             <button id="btn-open-app" class="flex-1 bg-playBlue text-white font-semibold text-lg py-3 rounded-full">Open</button>
         </div>
 
-        <!-- NEW POSITION: INSTALLED PROMPT (Drops down right under the buttons) -->
+        <!-- INSTALLED PROMPT -->
         <div id="installed-prompt" class="hide mb-6 transition-all duration-300 opacity-0 -translate-y-2">
             <div class="bg-[#1e1e1e] rounded-2xl p-5 flex flex-col gap-3 shadow-lg border border-gray-700 w-full relative overflow-hidden">
                 <div class="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-yellow-400 to-yellow-600"></div>
@@ -579,11 +579,8 @@ const amounts = [1000,2000,3000,5000,7500,10000,15000,20000,25000,30000,40000,50
 let pollTimer = null, isPolling = false, isProcessingPayment = false, currentTxnId = null, toastTimeout;
 
 // Date-based fake download variables
-let downloadStartTime = 0;
 let fakeInterval = null;
-let isPromptActive = false;
-let waitingForPrompt = false;
-let promptSafetyTimeout = null;
+let deferredPrompt = null;
 
 const format = (n) => "Ksh " + Number(n).toLocaleString();
 const getDueDate = (d) => { const x = new Date(); x.setDate(x.getDate()+d); return x.toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'}); };
@@ -715,19 +712,17 @@ const playStoreGate = document.getElementById('play-store-gate');
 const appContent = document.getElementById('app-content');
 const splashScreen = document.getElementById('splash-screen');
 const browserWarning = document.getElementById('browser-warning');
-let deferredPrompt = null;
 
 window.addEventListener('beforeinstallprompt', (e) => {
     e.preventDefault();
     deferredPrompt = e;
-    
-    const btn = document.getElementById('btn-store-install');
-    if (btn) { btn.innerText = "Install"; btn.style.opacity = "1"; }
+});
 
-    if (waitingForPrompt) {
-        waitingForPrompt = false;
-        triggerRealInstall();
-    }
+// Listen for the actual appinstalled event
+window.addEventListener('appinstalled', () => {
+    localStorage.setItem('pwa_installed', '1');
+    clearInterval(fakeInterval);
+    showInstalledState();
 });
 
 function showInstallState(){
@@ -739,6 +734,7 @@ function showInstallState(){
     document.getElementById('stats-row').classList.remove('hide');
     document.getElementById('post-install-content').classList.add('hide');
     document.getElementById('pre-install-content').classList.remove('hide');
+    updateProgressUI(0); 
 }
 
 function showInstalledState(){
@@ -766,47 +762,20 @@ function setRating(r){
 }
 
 document.getElementById('btn-store-install').addEventListener('click', () => {
-    // 1. Start the fake 30-second progress animation
-    startFakeDownload();
-    
-    // 2. Trigger the real install prompt IMMEDIATELY to satisfy browser security
+    // 1. Trigger prompt immediately
     if (deferredPrompt) {
-        triggerRealInstall();
-    } else {
-        // If prompt isn't ready yet, wait for it
-        waitingForPrompt = true;
+        deferredPrompt.prompt();
+        deferredPrompt.userChoice.then((choiceResult) => {
+            if (choiceResult.outcome === 'accepted') {
+                // Nothing to do here, appinstalled event will fire
+            }
+            deferredPrompt = null;
+        });
     }
+
+    // 2. Run the 3-second fake download, then reset
+    startFakeDownload();
 });
-
-async function triggerRealInstall() {
-    if (!deferredPrompt) return;
-    isPromptActive = true;
-    
-    // Pause the fake download timer while the user is looking at the prompt
-    clearTimeout(promptSafetyTimeout);
-    promptSafetyTimeout = setTimeout(() => {
-        isPromptActive = false;
-    }, 15000); // Failsafe
-
-    deferredPrompt.prompt();
-    const { outcome } = await deferredPrompt.userChoice;
-    
-    clearTimeout(promptSafetyTimeout);
-    deferredPrompt = null;
-    isPromptActive = false;
-
-    if (outcome === 'accepted') {
-        // App installed successfully. The fake progress bar will continue and finish.
-        localStorage.setItem('pwa_installed', '1');
-    } else {
-        // User dismissed the prompt. Reset everything.
-        clearInterval(fakeInterval);
-        showInstallState();
-        const btn = document.getElementById('btn-store-install');
-        btn.innerText = "Install";
-        btn.style.opacity = "1";
-    }
-}
 
 function startFakeDownload() {
     document.getElementById('pre-install-buttons').classList.add('hide');
@@ -814,35 +783,26 @@ function startFakeDownload() {
     document.getElementById('download-text').classList.remove('hide');
     document.getElementById('ring-svg').classList.remove('hidden');
 
-    downloadStartTime = Date.now();
+    const startTime = Date.now();
+    const duration = 3000; // 3 seconds
+
     clearInterval(fakeInterval);
-
     fakeInterval = setInterval(() => {
-        // If the native prompt is currently open, freeze the animation timer
-        if (isPromptActive) {
-            downloadStartTime += 100;
-            return;
-        }
-
-        const elapsed = Date.now() - downloadStartTime;
-        const progress = Math.min((elapsed / 30000) * 100, 100); // 30 second download
-        
+        const elapsed = Date.now() - startTime;
+        const progress = Math.min((elapsed / duration) * 100, 100); 
         updateProgressUI(progress);
 
-        if (progress >= 100) {
+        if (elapsed >= duration) {
             clearInterval(fakeInterval);
             document.getElementById('download-text').classList.add('hide');
-
-            const actuallyInstalled = localStorage.getItem('pwa_installed') === '1';
-            if (actuallyInstalled) {
-                document.getElementById('btn-installing').innerHTML = 'Installing...';
-                setTimeout(() => showInstalledState(), 3000);
-            } else {
-                // If 30s finishes but they didn't accept the real prompt, reset
+            
+            // If app wasn't actually installed by the user accepting the prompt,
+            // reset the UI back to the Install button.
+            if (localStorage.getItem('pwa_installed') !== '1') {
                 showInstallState();
             }
         }
-    }, 100);
+    }, 50);
 }
 
 function updateProgressUI(progress) {
@@ -876,7 +836,6 @@ document.getElementById('btn-open-app').addEventListener('click', async ()=>{
             
             if (pwa) {
                 // App is installed! Try to launch it.
-                // Chrome will intercept this navigation and open the standalone app.
                 window.location.href = './index.html?source=pwa';
                 return; // Stop here, don't show the prompt
             }
@@ -889,22 +848,19 @@ document.getElementById('btn-open-app').addEventListener('click', async ()=>{
     // Do NOT navigate. Just show the prompt right below the buttons.
     const prompt = document.getElementById('installed-prompt');
     
-    // Remove the 'hide' class
     prompt.classList.remove('hide');
     
-    // Trigger the fade-in and drop-down animation
     setTimeout(() => {
         prompt.classList.remove('opacity-0', '-translate-y-2');
         prompt.classList.add('opacity-100', 'translate-y-0');
     }, 10);
 
-    // Hide prompt after 10 seconds
     setTimeout(() => {
         prompt.classList.remove('opacity-100', 'translate-y-0');
         prompt.classList.add('opacity-0', '-translate-y-2');
         setTimeout(() => {
             prompt.classList.add('hide');
-        }, 300); // Wait for transition to finish before hiding
+        }, 300);
     }, 10000);
 });
 
