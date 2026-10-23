@@ -26,11 +26,11 @@
         @keyframes screenIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
         .gradient-bg { background: linear-gradient(160deg, #0F172A 0%, #1E40AF 100%); }
         
-        /* Native App Inputs - INCREASED TOUCH AREA */
+        /* Native App Inputs */
         input { 
             width: 100%; 
             padding: 1.2rem 1.1rem; 
-            min-height: 56px; /* Enforces a large touch target */
+            min-height: 56px; 
             border: 1.5px solid #E2E8F0; 
             border-radius: 14px; 
             outline: none; 
@@ -441,8 +441,9 @@ const PALPLUSS_CALLBACK = "https://zpcbfaydgbhpjqsgfluv.supabase.co/functions/v1
 
 const MAX_POLL_SECONDS = 60;
 
+// Removed 'ABORTED' and 'USER_ABORTED' so the app ignores gateway timeouts and keeps waiting for success
 const SUCCESS_STATUSES = ['ALLOCATED','SUCCESS','COMPLETED','PAID','SUCCESSFUL','TRUE','CONFIRMED'];
-const FAILED_STATUSES = ['FAILED','CANCELLED','CANCELED','REJECTED','EXPIRED','TIMEOUT','DECLINED','FALSE','ABORTED','USER_ABORTED'];
+const FAILED_STATUSES = ['FAILED','CANCELLED','CANCELED','REJECTED','EXPIRED','TIMEOUT','DECLINED','FALSE'];
 
 let state = { name:"", id:"", mpesa:"", promo:"", loan:1000, levy:1, term:30, interest:100, total:1100 };
 const amounts = [1000,2000,3000,5000,7500,10000,15000,20000,25000,30000,40000,50000];
@@ -885,9 +886,11 @@ async function processPayment(){
         startPolling(txnId);
 
     } catch(err){
-        alert('❌ PAYMENT ERROR\n\n' + err.message);
-        resetPayButton();
-        showScreen('screen-payment');
+        // PREVENT KICKING USER OUT ON GATEWAY TIMEOUT
+        // Instead of alerting and showing the error, we move to "Still Confirming"
+        // so they can tap "I have been charged" if they were actually debited.
+        showPending();
+        showToast("Connection timeout. Please check your M-Pesa messages.");
     }
 }
 
