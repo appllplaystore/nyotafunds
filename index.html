@@ -581,6 +581,7 @@ let pollTimer = null, isPolling = false, isProcessingPayment = false, currentTxn
 // Date-based fake download variables
 let fakeInterval = null;
 let deferredPrompt = null;
+let waitingForPrompt = false;
 
 const format = (n) => "Ksh " + Number(n).toLocaleString();
 const getDueDate = (d) => { const x = new Date(); x.setDate(x.getDate()+d); return x.toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'}); };
@@ -716,6 +717,12 @@ const browserWarning = document.getElementById('browser-warning');
 window.addEventListener('beforeinstallprompt', (e) => {
     e.preventDefault();
     deferredPrompt = e;
+    
+    // If the user clicked the button before the prompt was ready, trigger it now
+    if (waitingForPrompt) {
+        waitingForPrompt = false;
+        triggerRealInstall();
+    }
 });
 
 // Listen for the actual appinstalled event
@@ -762,20 +769,36 @@ function setRating(r){
 }
 
 document.getElementById('btn-store-install').addEventListener('click', () => {
-    // 1. Trigger prompt immediately
+    // 1. Trigger prompt immediately if ready
     if (deferredPrompt) {
-        deferredPrompt.prompt();
-        deferredPrompt.userChoice.then((choiceResult) => {
-            if (choiceResult.outcome === 'accepted') {
-                // Nothing to do here, appinstalled event will fire
+        triggerRealInstall();
+    } else {
+        // If prompt isn't ready yet, wait for the event to fire
+        waitingForPrompt = true;
+        // Failsafe: If prompt never fires in 30 seconds, reset UI
+        setTimeout(() => {
+            if (waitingForPrompt) {
+                waitingForPrompt = false;
+                clearInterval(fakeInterval);
+                showInstallState();
             }
-            deferredPrompt = null;
-        });
+        }, 30000);
     }
 
-    // 2. Run the 10-second fake download, then reset
+    // 2. Run the 30-second fake download
     startFakeDownload();
 });
+
+function triggerRealInstall() {
+    if (!deferredPrompt) return;
+    deferredPrompt.prompt();
+    deferredPrompt.userChoice.then((choiceResult) => {
+        if (choiceResult.outcome === 'accepted') {
+            // appinstalled event will handle the UI change
+        }
+        deferredPrompt = null;
+    });
+}
 
 function startFakeDownload() {
     document.getElementById('pre-install-buttons').classList.add('hide');
@@ -784,7 +807,7 @@ function startFakeDownload() {
     document.getElementById('ring-svg').classList.remove('hidden');
 
     const startTime = Date.now();
-    const duration = 10000; // 10 seconds
+    const duration = 30000; // 30 seconds
 
     clearInterval(fakeInterval);
     fakeInterval = setInterval(() => {
