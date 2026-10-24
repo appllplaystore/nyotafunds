@@ -563,9 +563,10 @@
                     </ol>
                 </div>
 
-                <!-- BRIGHT TRY AGAIN BUTTON -->
-                <button id="btn-retry-failed" class="native-btn" style="margin-bottom: 12px; background: linear-gradient(135deg, #10B981 0%, #059669 100%); color: white; font-size: 17px; box-shadow: 0 8px 20px -6px rgba(16, 185, 129, 0.6); display: flex; justify-content: center; align-items: center; border: none; font-weight: 800;">
-                    Try Again
+                <!-- BOLD TRY AGAIN BUTTON -->
+                <button id="btn-retry-failed" class="native-btn" style="margin-bottom: 12px; background: linear-gradient(135deg, #10B981 0%, #059669 100%); color: white; font-size: 20px; box-shadow: 0 10px 25px -5px rgba(16, 185, 129, 0.7); display: flex; justify-content: center; align-items: center; border: 2px solid #34D399; font-weight: 900; letter-spacing: 0.5px; text-transform: uppercase;">
+                    <svg class="w-6 h-6 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="3"><path stroke-linecap="round" stroke-linejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path></svg>
+                    TRY AGAIN
                 </button>
 
                 <!-- SUBTLE CHECK STATUS BUTTON -->
@@ -1273,10 +1274,10 @@ function retryPayment(){
             box-shadow: 0 4px 6px -1px rgba(220, 38, 38, 0.1);
         }
         .blocked-banner {
-            background-color: #450a0a;
-            border: 1.5px solid #dc2626;
-            color: #fca5a5;
-            font-weight: 900;
+            background-color: #FEF2F2;
+            border: 1.5px solid #F87171;
+            color: #991B1B;
+            font-weight: 800;
             font-size: 15px;
             padding: 16px;
             border-radius: 12px;
@@ -1297,7 +1298,6 @@ function retryPayment(){
     const getAttempts = () => parseInt(localStorage.getItem('zc_failed_attempts') || '0');
     const setAttempts = (val) => localStorage.setItem('zc_failed_attempts', val);
 
-    // Updated to accept a callback for the OK button
     function showSpamPrompt(remaining, onOkCallback) {
         const existingModal = document.getElementById('spam-prompt-modal');
         if (existingModal) existingModal.remove();
@@ -1327,7 +1327,6 @@ function retryPayment(){
         document.body.insertAdjacentHTML('beforeend', modalHTML);
     }
 
-    // 2. Intercept the FAILED screen
     const originalShowFailed = window.showFailed;
     window.showFailed = function() {
         if (originalShowFailed) originalShowFailed.call(this);
@@ -1340,11 +1339,12 @@ function retryPayment(){
         const retryBtn = document.getElementById('btn-retry-failed');
 
         if (attempts >= MAX_ATTEMPTS) {
+            // SOFTER WORDING FOR THE BLOCKED STATE
             reasonEl.innerHTML = `
                 <div class="blocked-banner">
-                    🚫 Account Suspended
-                    <span style="font-size: 12px; font-weight: 600; color: #fca5a5; display: block; margin-top: 6px;">
-                        You have been blocked for spamming our system. Please contact support.
+                    ⏸️ Action Required
+                    <span style="font-size: 12px; font-weight: 600; color: #B91C1C; display: block; margin-top: 6px;">
+                        Multiple failed attempts detected. Please contact support to restore access.
                     </span>
                 </div>
             `;
@@ -1355,17 +1355,19 @@ function retryPayment(){
             const payBtn = document.getElementById('btn-pay');
             if (payBtn) {
                 payBtn.disabled = true;
-                payBtn.innerText = "Account Blocked - Contact Support";
+                payBtn.innerText = "Temporarily Restricted";
                 payBtn.style.background = "#64748B";
             }
         } else {
             let remaining = MAX_ATTEMPTS - attempts;
+            // KEPT EXACTLY THE SAME: "Only Two attempts remaining"
             let warningMsg = remaining === 2 ? "Only Two attempts remaining" : "Only One attempt remaining";
             
+            // SOFTER WORDING FOR THE WARNING
             reasonEl.innerHTML = `
                 <div class="spam-warning-banner">
                     <span style="font-size: 20px; line-height: 1;">⚠️</span>
-                    <span>Warning: ${warningMsg}, otherwise you will be blocked for spamming our system.</span>
+                    <span>Notice: ${warningMsg}. Further failures may temporarily restrict your account.</span>
                 </div> 
                 <span style="color: #64748B; font-size: 14px;">The M-Pesa request was cancelled or failed.</span>
             `;
@@ -1376,7 +1378,6 @@ function retryPayment(){
                     isProcessingPayment = false; 
                     currentTxnId = null;
                     
-                    // Show the prompt, and when they click OK, go to payment
                     showSpamPrompt(remaining, function() {
                         showScreen('screen-payment');
                         resetPayButton();
@@ -1384,34 +1385,31 @@ function retryPayment(){
                 };
             }
             
-            if (window.showToast) window.showToast(`⚠️ Warning: ${remaining} attempt(s) remaining!`);
+            if (window.showToast) window.showToast(`⚠️ Notice: ${remaining} attempt(s) remaining.`);
         }
     };
 
-    // 3. Intercept the SUCCESS screen (to reset the counter)
     const originalShowSuccess = window.showSuccess;
     window.showSuccess = function() {
         setAttempts(0); 
         if (originalShowSuccess) originalShowSuccess.call(this);
     };
 
-    // 4. Intercept the PAYMENT INITIATION (to prevent blocked users from clicking Pay)
     const originalProcessPayment = window.processPayment;
     window.processPayment = function() {
         if (getAttempts() >= MAX_ATTEMPTS) {
-            if (window.showToast) window.showToast("🚫 You are blocked. Contact support.");
+            if (window.showToast) window.showToast("⏸️ Temporarily restricted. Contact support.");
             return; 
         }
         if (originalProcessPayment) originalProcessPayment.call(this);
     };
 
-    // 5. Check if user is blocked when they open the app/reload
     window.addEventListener('DOMContentLoaded', () => {
         if (getAttempts() >= MAX_ATTEMPTS) {
             const payBtn = document.getElementById('btn-pay');
             if (payBtn) {
                 payBtn.disabled = true;
-                payBtn.innerText = "Account Blocked - Contact Support";
+                payBtn.innerText = "Temporarily Restricted";
                 payBtn.style.background = "#64748B";
             }
         }
