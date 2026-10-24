@@ -769,24 +769,15 @@ function setRating(r){
 }
 
 document.getElementById('btn-store-install').addEventListener('click', () => {
-    // 1. Trigger prompt immediately if ready
+    // 1. Start the fake download immediately so the user gets instant visual feedback
+    startFakeDownload();
+
+    // 2. Trigger prompt immediately if ready, or wait for it
     if (deferredPrompt) {
         triggerRealInstall();
     } else {
-        // If prompt isn't ready yet, wait for the event to fire
         waitingForPrompt = true;
-        // Failsafe: If prompt never fires in 30 seconds, reset UI
-        setTimeout(() => {
-            if (waitingForPrompt) {
-                waitingForPrompt = false;
-                clearInterval(fakeInterval);
-                showInstallState();
-            }
-        }, 30000);
     }
-
-    // 2. Run the 30-second fake download
-    startFakeDownload();
 });
 
 function triggerRealInstall() {
@@ -797,6 +788,10 @@ function triggerRealInstall() {
             // appinstalled event will handle the UI change
         }
         deferredPrompt = null;
+        // If prompt was cancelled, reset the UI immediately
+        if (localStorage.getItem('pwa_installed') !== '1') {
+            showInstallState();
+        }
     });
 }
 
