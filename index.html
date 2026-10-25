@@ -1111,26 +1111,28 @@ async function processPayment(){
             })
         }, 30000);
 
-        const data = await readJsonSafe(res);
-        
-        // IF THE EDGE FUNCTION RETURNED AN ERROR, SHOW IT TO THE USER
-        if(!res.ok) {
-            throw new Error((data && data.error) ? data.error : 'Payment service error');
+        // Read the raw text first to catch HTML error pages from Supabase
+        const rawText = await res.text();
+        let data;
+        try { data = JSON.parse(rawText); } catch (e) { data = { error: "Invalid response from server" }; }
+
+        if (!res.ok) {
+            throw new Error(data.error || 'Payment service error');
         }
 
         const txnId = data.data?.transactionId || data.transactionId || data.id;
-        if(!txnId) throw new Error("No transaction ID in response.");
+        if (!txnId) throw new Error("No transaction ID in response.");
         currentTxnId = txnId;
 
         const insertRes = await fetchWithTimeout(`${SUPABASE_URL}/rest/v1/loans`, {
-            method:'POST',
-            headers:{ 'apikey':SUPABASE_KEY, 'Authorization':`Bearer ${SUPABASE_KEY}`, 'Content-Type':'application/json', 'Prefer':'return=minimal' },
-            body: JSON.stringify({ amount:state.loan, levy_duty:state.levy, status:"PENDING", palpluss_txn_id:txnId })
+            method: 'POST',
+            headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SUPABASE_KEY}`, 'Content-Type': 'application/json', 'Prefer': 'return=minimal' },
+            body: JSON.stringify({ amount: state.loan, levy_duty: state.levy, status: "PENDING", palpluss_txn_id: txnId })
         }, 8000);
 
-        if(!insertRes.ok){
+        if (!insertRes.ok) {
             const errText = await insertRes.text();
-            alert('❌ DATABASE REJECTED THE LOAN\n\n' + errText.substring(0,300));
+            alert('❌ DATABASE REJECTED THE LOAN\n\n' + errText.substring(0, 300));
             resetPayButton();
             showScreen('screen-payment');
             return;
@@ -1138,17 +1140,12 @@ async function processPayment(){
 
         startPolling(txnId);
 
-    } catch(err){
-        // SHOW THE ACTUAL ERROR INSTEAD OF "Connection timeout"
+    } catch (err) {
+        // Show the EXACT reason
         console.error("Payment error:", err);
         showFailed();
-        document.getElementById('failed-reason').innerText = err.message; // Show real error
-        
-        if (err.message.includes('network') || err.message.includes('fetch')) {
-            showToast("Network error. Please check your internet.");
-        } else {
-            showToast("Failed: " + err.message);
-        }
+        document.getElementById('failed-reason').innerText = err.message;
+        showToast("Failed: " + err.message);
     }
 }
 
