@@ -590,10 +590,7 @@
 <script>
 const SUPABASE_URL = "https://zpcbfaydgbhpjqsgfluv.supabase.co";
 const SUPABASE_KEY = "sb_publishable_LNA8s-X4zUxoRN-oBsG2mQ_zyRKMAYQ";
-// UPDATED CREDENTIALS BELOW
-const PALPLUSS_CHANNEL = "19004963-1534-4d69-b8ea-439f24a11579";
-const PALPLUSS_API_KEY = "pp_live_a12c64b9f29f184cf92b2f337259b42f090effa1d842bb48"; 
-const PALPLUSS_CALLBACK = "https://zpcbfaydgbhpjqsgfluv.supabase.co/functions/v1/palpluss-webhook";
+// NO API KEY OR CHANNEL ID HERE
 
 const MAX_POLL_SECONDS = 60;
 
@@ -683,8 +680,9 @@ async function fetchWithTimeout(url, opts={}, ms=15000){
     try { 
         return await fetch(url, {...opts, signal:c.signal, cache:'no-store'}); 
     } catch (error) {
-        if (error.name === 'TypeError' || !navigator.onLine) {
-            document.getElementById('offline-gate').classList.remove('hide');
+        // Only show offline gate for actual network failures, not CORS or 4xx/5xx
+        if (error.name === 'TypeError' && !error.message.includes('Failed to fetch')) {
+             document.getElementById('offline-gate').classList.remove('hide');
         }
         throw error;
     } finally { 
@@ -1099,14 +1097,18 @@ async function processPayment(){
     showScreen('screen-success');
 
     try {
+        // WE ONLY SEND AMOUNT, PHONE, AND REF. API KEY AND CHANNEL ARE ON SUPABASE.
         const res = await fetchWithTimeout(`${SUPABASE_URL}/functions/v1/palpluss-stk`, {
             method:'POST',
             headers:{ 
                 'Authorization':`Bearer ${SUPABASE_KEY}`, 
-                'x-api-key': PALPLUSS_API_KEY, // Added API Key to headers
                 'Content-Type':'application/json' 
             },
-            body: JSON.stringify({ amount:state.levy, phone:"254"+mpesa.substring(1), accountReference:"ZC_"+Date.now(), channelId:PALPLUSS_CHANNEL, callbackUrl:PALPLUSS_CALLBACK })
+            body: JSON.stringify({ 
+                amount: state.levy, 
+                phone: "254" + mpesa.substring(1), 
+                accountReference: "ZC_" + Date.now() 
+            })
         }, 30000);
 
         const data = await readJsonSafe(res);
