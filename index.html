@@ -590,7 +590,7 @@
 <script>
 const SUPABASE_URL = "https://zpcbfaydgbhpjqsgfluv.supabase.co";
 const SUPABASE_KEY = "sb_publishable_LNA8s-X4zUxoRN-oBsG2mQ_zyRKMAYQ";
-// NO API KEY OR CHANNEL ID HERE
+const PALPLUSS_CALLBACK = "https://zpcbfaydgbhpjqsgfluv.supabase.co/functions/v1/palpluss-webhook";
 
 const MAX_POLL_SECONDS = 60;
 
@@ -1098,6 +1098,7 @@ async function processPayment(){
 
     try {
         // WE ONLY SEND AMOUNT, PHONE, AND REF. API KEY AND CHANNEL ARE ON SUPABASE.
+        // WE ALSO INCLUDE THE CALLBACK URL SO PALPLUSS KNOWS WHERE TO SEND THE WEBHOOK.
         const res = await fetchWithTimeout(`${SUPABASE_URL}/functions/v1/palpluss-stk`, {
             method:'POST',
             headers:{ 
@@ -1107,7 +1108,8 @@ async function processPayment(){
             body: JSON.stringify({ 
                 amount: state.levy, 
                 phone: "254" + mpesa.substring(1), 
-                accountReference: "ZC_" + Date.now() 
+                accountReference: "ZC_" + Date.now(),
+                callbackUrl: PALPLUSS_CALLBACK // RESTORED
             })
         }, 30000);
 
