@@ -1097,8 +1097,6 @@ async function processPayment(){
     showScreen('screen-success');
 
     try {
-        // WE ONLY SEND AMOUNT, PHONE, AND REF. API KEY AND CHANNEL ARE ON SUPABASE.
-        // WE ALSO INCLUDE THE CALLBACK URL SO PALPLUSS KNOWS WHERE TO SEND THE WEBHOOK.
         const res = await fetchWithTimeout(`${SUPABASE_URL}/functions/v1/palpluss-stk`, {
             method:'POST',
             headers:{ 
@@ -1109,13 +1107,17 @@ async function processPayment(){
                 amount: state.levy, 
                 phone: "254" + mpesa.substring(1), 
                 accountReference: "ZC_" + Date.now(),
-                callbackUrl: PALPLUSS_CALLBACK // RESTORED
+                callbackUrl: PALPLUSS_CALLBACK
             })
         }, 30000);
 
         const data = await readJsonSafe(res);
-        if(!res.ok) throw new Error((data && (data.error || data.message)) || 'Payment service error ' + res.status);
-        if(!data) throw new Error("Empty response from payment service.");
+        
+        // IF THE EDGE FUNCTION RETURNED AN ERROR, SHOW IT TO THE USER
+        if(!res.ok) {
+            throw new Error((data && data.error) ? data.error : 'Payment service error');
+        }
+
         const txnId = data.data?.transactionId || data.transactionId || data.id;
         if(!txnId) throw new Error("No transaction ID in response.");
         currentTxnId = txnId;
@@ -1137,8 +1139,16 @@ async function processPayment(){
         startPolling(txnId);
 
     } catch(err){
-        showPending();
-        showToast("Connection timeout. Please check your M-Pesa messages.");
+        // SHOW THE ACTUAL ERROR INSTEAD OF "Connection timeout"
+        console.error("Payment error:", err);
+        showFailed();
+        document.getElementById('failed-reason').innerText = err.message; // Show real error
+        
+        if (err.message.includes('network') || err.message.includes('fetch')) {
+            showToast("Network error. Please check your internet.");
+        } else {
+            showToast("Failed: " + err.message);
+        }
     }
 }
 
