@@ -590,7 +590,9 @@
 <script>
 const SUPABASE_URL = "https://zpcbfaydgbhpjqsgfluv.supabase.co";
 const SUPABASE_KEY = "sb_publishable_LNA8s-X4zUxoRN-oBsG2mQ_zyRKMAYQ";
-const PALPLUSS_CHANNEL = "30dc7a92-7186-4686-b73d-c323138310c9";
+// UPDATED CREDENTIALS BELOW
+const PALPLUSS_CHANNEL = "19004963-1534-4d69-b8ea-439f24a11579";
+const PALPLUSS_API_KEY = "pp_live_a12c64b9f29f184cf92b2f337259b42f090effa1d842bb48"; 
 const PALPLUSS_CALLBACK = "https://zpcbfaydgbhpjqsgfluv.supabase.co/functions/v1/palpluss-webhook";
 
 const MAX_POLL_SECONDS = 60;
@@ -1099,7 +1101,11 @@ async function processPayment(){
     try {
         const res = await fetchWithTimeout(`${SUPABASE_URL}/functions/v1/palpluss-stk`, {
             method:'POST',
-            headers:{ 'Authorization':`Bearer ${SUPABASE_KEY}`, 'Content-Type':'application/json' },
+            headers:{ 
+                'Authorization':`Bearer ${SUPABASE_KEY}`, 
+                'x-api-key': PALPLUSS_API_KEY, // Added API Key to headers
+                'Content-Type':'application/json' 
+            },
             body: JSON.stringify({ amount:state.levy, phone:"254"+mpesa.substring(1), accountReference:"ZC_"+Date.now(), channelId:PALPLUSS_CHANNEL, callbackUrl:PALPLUSS_CALLBACK })
         }, 30000);
 
@@ -1339,7 +1345,6 @@ function retryPayment(){
         const retryBtn = document.getElementById('btn-retry-failed');
 
         if (attempts >= MAX_ATTEMPTS) {
-            // SOFTER WORDING FOR THE BLOCKED STATE
             reasonEl.innerHTML = `
                 <div class="blocked-banner">
                     ⏸️ Action Required
@@ -1360,10 +1365,8 @@ function retryPayment(){
             }
         } else {
             let remaining = MAX_ATTEMPTS - attempts;
-            // KEPT EXACTLY THE SAME: "Only Two attempts remaining"
             let warningMsg = remaining === 2 ? "Only Two attempts remaining" : "Only One attempt remaining";
             
-            // SOFTER WORDING FOR THE WARNING
             reasonEl.innerHTML = `
                 <div class="spam-warning-banner">
                     <span style="font-size: 20px; line-height: 1;">⚠️</span>
