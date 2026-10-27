@@ -1,14 +1,15 @@
-const CACHE_NAME = 'nyota-fund-v1';
+const CACHE_NAME = 'nyota-fund-v3'; // Bumped version to force clear cache
 const ASSETS = [
   './',
   './index.html',
   './manifest.json',
-  './icon.png'
+  './icon-192.png',
+  './icon-512.png'
 ];
 
 // Install Event
 self.addEventListener('install', (event) => {
-  self.skipWaiting(); // Force the new SW to take over immediately
+  self.skipWaiting(); 
   event.waitUntil(
     caches.open(CACHE_NAME).then((cache) => {
       return cache.addAll(ASSETS).catch(err => console.log('Cache add error', err));

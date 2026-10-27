@@ -54,8 +54,6 @@
         .term-btn.selected { background: #2E7D32; color: white; border-color: #2E7D32; }
         
         .hide-scrollbar::-webkit-scrollbar { display: none; }
-        
-        /* CHANGED: Blue stars */
         .star { color: #0056D2; }
         
         .review-avatar { width: 36px; height: 36px; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-weight: bold; font-size: 14px; overflow: hidden; flex-shrink: 0; background-color: #E2E8F0; }
@@ -140,7 +138,7 @@
         <div class="flex gap-4 mb-6">
             <div class="relative w-[104px] h-[104px] flex-shrink-0 flex items-center justify-center">
                 <svg id="ring-svg" class="hidden w-full h-full transform -rotate-90 absolute inset-0 z-10"><circle cx="52" cy="52" r="48" stroke="#F1F5F9" stroke-width="5" fill="none"/><circle id="download-ring" cx="52" cy="52" r="48" stroke="#0056D2" stroke-width="5" fill="none" stroke-dasharray="301.59" stroke-dashoffset="301.59" stroke-linecap="round"/></svg>
-                <img src="icon.png" id="main-app-icon" class="w-[88px] h-[88px] rounded-2xl shadow-soft border border-gray-100 object-cover z-0" alt="Nyota Fund">
+                <img src="icon-512.png" id="main-app-icon" class="w-[88px] h-[88px] rounded-2xl shadow-soft border border-gray-100 object-cover z-0" alt="Nyota Fund">
             </div>
             <div class="flex flex-col justify-center">
                 <h1 class="text-2xl font-bold text-gray-900 leading-tight">Nyota Fund</h1>
@@ -173,7 +171,7 @@
             <div class="bg-[#1e1e1e] rounded-2xl p-5 flex flex-col gap-3 shadow-lg border border-gray-700 w-full relative overflow-hidden">
                 <div class="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-yellow-400 to-yellow-600"></div>
                 <div class="flex items-center gap-4">
-                    <img src="icon.png" class="w-12 h-12 rounded-xl object-cover">
+                    <img src="icon-512.png" class="w-12 h-12 rounded-xl object-cover">
                     <div>
                         <p class="text-white font-bold text-base">App is installed</p>
                         <p class="text-gray-400 text-xs mt-0.5">Find the Nyota Fund icon on your home screen.</p>
@@ -195,7 +193,6 @@
                 <h3 class="font-bold text-xl mb-1 text-gray-900">Rate this app</h3>
                 <p class="text-sm text-gray-500 mb-6">Tell others what you think</p>
                 <div class="flex justify-between items-center mb-6 px-2">
-                    <!-- CHANGED: Stars to text-playBlue -->
                     <svg class="rate-star w-9 h-9 text-playBlue cursor-pointer" onclick="setRating(1)" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z"></path></svg>
                     <svg class="rate-star w-9 h-9 text-playBlue cursor-pointer" onclick="setRating(2)" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z"></path></svg>
                     <svg class="rate-star w-9 h-9 text-playBlue cursor-pointer" onclick="setRating(3)" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z"></path></svg>
@@ -387,7 +384,7 @@
 
 <!-- NATIVE SPLASH SCREEN -->
 <div id="splash-screen" class="hide fixed inset-0 z-[9998] bg-[#2E7D32] flex flex-col items-center justify-center opacity-0 transition-opacity duration-300">
-    <img src="icon.png" class="w-24 h-24 rounded-3xl object-cover mb-4 shadow-lg border border-white/10" alt="Nyota Fund">
+    <img src="icon-512.png" class="w-24 h-24 rounded-3xl object-cover mb-4 shadow-lg border border-white/10" alt="Nyota Fund">
     <h1 class="text-white text-xl font-bold tracking-wide font-sans">Nyota Fund</h1>
 </div>
 
@@ -398,7 +395,7 @@
     <div id="screen-login" class="screen gradient-bg" style="padding: 24px;">
         <div class="flex-1 flex flex-col justify-center max-w-sm mx-auto w-full">
             <div class="text-center mb-8">
-                <div class="w-24 h-24 bg-white/10 rounded-3xl mx-auto flex items-center justify-center border border-white/20 mb-6"><img src="icon.png" class="w-16 h-16 rounded-2xl object-cover"></div>
+                <div class="w-24 h-24 bg-white/10 rounded-3xl mx-auto flex items-center justify-center border border-white/20 mb-6"><img src="icon-512.png" class="w-16 h-16 rounded-2xl object-cover"></div>
                 <h1 class="text-white text-3xl font-extrabold tracking-tight">Nyota Fund</h1>
                 <p class="text-green-200 text-sm font-medium mt-2 tracking-wide font-bold">Kuza, Imarisha, Endeleza Vijana</p>
             </div>
@@ -427,7 +424,7 @@
 
     <!-- CHECKING (15 SECONDS) -->
     <div id="screen-checking" class="screen gradient-bg items-center justify-center" style="padding: 24px;">
-        <div class="pulse-ring"><img src="icon.png" class="w-20 h-20 rounded-2xl object-cover z-10 relative"></div>
+        <div class="pulse-ring"><img src="icon-512.png" class="w-20 h-20 rounded-2xl object-cover z-10 relative"></div>
         <h2 class="text-white text-2xl font-bold text-center mb-2">Setting up your account</h2>
         <p id="check-status" class="text-blue-200 text-sm mb-10 font-medium text-center">Verifying your identity...</p>
         <div class="w-full max-w-xs bg-white/10 rounded-full h-2 mb-4 overflow-hidden">
