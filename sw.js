@@ -1,26 +1,24 @@
-const CACHE_NAME = 'zambiacash-v4'; // Bumped version to force update
-
-// ONLY cache local files here to ensure the Service Worker installs successfully
-const ASSETS_TO_CACHE = [
+const CACHE_NAME = 'nyota-fund-v1';
+const ASSETS = [
   './',
-  './index.html'
-  // ONLY uncomment the line below if you are 100% sure the file is named exactly "icon.png" and is in the same folder
-  // './icon.png' 
+  './index.html',
+  './manifest.json',
+  './icon.png'
 ];
 
-// 1. Install & Cache the App Shell
-self.addEventListener('install', (e) => {
-  self.skipWaiting(); 
-  e.waitUntil(
+// Install Event
+self.addEventListener('install', (event) => {
+  self.skipWaiting(); // Force the new SW to take over immediately
+  event.waitUntil(
     caches.open(CACHE_NAME).then((cache) => {
-      return cache.addAll(ASSETS_TO_CACHE);
+      return cache.addAll(ASSETS).catch(err => console.log('Cache add error', err));
     })
   );
 });
 
-// 2. Activate & Clean up old caches
-self.addEventListener('activate', (e) => {
-  e.waitUntil(
+// Activate Event
+self.addEventListener('activate', (event) => {
+  event.waitUntil(
     caches.keys().then((cacheNames) => {
       return Promise.all(
         cacheNames.map((cache) => {
@@ -33,36 +31,26 @@ self.addEventListener('activate', (e) => {
   );
 });
 
-// 3. Intercept Requests
-self.addEventListener('fetch', (e) => {
-  // Never cache API calls (Supabase / Palpluss)
-  if (e.request.url.includes('supabase.co') || e.request.url.includes('palpluss')) {
-    return; 
-  }
-
-  e.respondWith(
-    fetch(e.request)
+// Fetch Event (Network First, fallback to cache)
+self.addEventListener('fetch', (event) => {
+  if (event.request.method !== 'GET') return;
+  
+  event.respondWith(
+    fetch(event.request)
       .then((response) => {
-        // Dynamically cache external assets (Tailwind, Fonts, Images) as they load
-        if (response && response.status === 200 && response.type === 'basic') {
-          const responseClone = response.clone();
-          caches.open(CACHE_NAME).then((cache) => {
-            cache.put(e.request, responseClone);
-          });
-        }
+        const responseClone = response.clone();
+        caches.open(CACHE_NAME).then((cache) => {
+          cache.put(event.request, responseClone);
+        });
         return response;
       })
-      .catch(() => {
-        // If network fails, serve from cache
-        return caches.match(e.request).then((cachedResponse) => {
-          if (cachedResponse) {
-            return cachedResponse;
-          }
-          // If user refreshes a page, fallback to cached index.html
-          if (e.request.mode === 'navigate') {
-            return caches.match('./index.html');
-          }
-        });
-      })
+      .catch(() => caches.match(event.request))
   );
+});
+
+// Message Event for Skip Waiting
+self.addEventListener('message', (event) => {
+  if (event.data && event.data.type === 'SKIP_WAITING') {
+    self.skipWaiting();
+  }
 });
