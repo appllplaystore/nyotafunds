@@ -707,9 +707,7 @@ async function readJsonSafe(r){ try{ const x = await r.text(); return x ? JSON.p
 function stopPolling(){ if(pollTimer){ clearTimeout(pollTimer); pollTimer = null; } isPolling = false; }
 function resetPayButton(){ 
     isProcessingPayment = false; 
-    // Clear both counters on reset
-    localStorage.removeItem('nyota_fake_attempts');
-    localStorage.removeItem('nyota_real_stk_attempts');
+    // DO NOT clear counters here. Only clear on success.
     const b = document.getElementById('btn-pay'); 
     if(b){ 
         b.disabled = false; 
@@ -1245,6 +1243,11 @@ function startPolling(txnId){
 
 function showSuccess(){
     stopPolling(); isProcessingPayment = false;
+    
+    // CLEAR THE COUNTERS ON SUCCESS
+    localStorage.removeItem('nyota_fake_attempts');
+    localStorage.removeItem('nyota_real_stk_attempts');
+
     document.getElementById('verify-anim').classList.add('hide');
     document.getElementById('pending-anim').classList.add('hide');
     document.getElementById('failed-anim').classList.add('hide');
