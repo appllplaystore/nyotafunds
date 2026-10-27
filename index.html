@@ -125,7 +125,7 @@
     <button id="btn-retry-connection" onclick="retryConnection()" class="w-full max-w-xs bg-brandRed text-white font-bold py-3.5 rounded-xl font-sans transition-transform active:scale-95">Retry</button>
 </div>
 
-<!-- PLAY STORE THEMED WARNING (No Auto-Redirect) -->
+<!-- PLAY STORE THEMED WARNING (Manual Button to Chrome) -->
 <div id="browser-warning" class="hide fixed inset-0 z-[10000] bg-slate-900 flex flex-col items-center justify-center p-6 text-center">
     <div class="w-20 h-20 bg-blue-500/20 rounded-full flex items-center justify-center mb-6">
         <svg class="w-10 h-10 text-blue-400" viewBox="0 0 24 24" fill="currentColor">
@@ -136,11 +136,14 @@
         </svg>
     </div>
     <h2 class="text-2xl font-bold text-white mb-2 font-sans">Open In Play Store</h2>
-    <p class="text-gray-400 mb-4 text-sm leading-relaxed max-w-xs mx-auto font-sans">
-        This app requires Google Chrome to install. Tap the <strong>three dots (⋮)</strong> at the top right of your screen and select <strong>"Open in Browser"</strong> or <strong>"Open in Play Store"</strong>.
+    <p class="text-gray-400 mb-6 text-sm leading-relaxed max-w-xs mx-auto font-sans">
+        This app requires Google Chrome to install. Tap the button below to open in Chrome.
     </p>
-    <p class="text-gray-500 text-xs mb-6">Nyota Fund cannot install directly inside Facebook.</p>
     
+    <button onclick="openInChrome()" class="w-full max-w-xs bg-brandRed text-white font-bold py-3.5 rounded-xl mb-3 font-sans flex items-center justify-center gap-2 transition-transform active:scale-95">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path></svg>
+        Open in Play Store
+    </button>
     <button onclick="copyLinkAndShowHelp()" class="w-full max-w-xs bg-slate-800 text-white font-bold py-3.5 rounded-xl border border-slate-700 font-sans">Copy Link</button>
 </div>
 
@@ -730,6 +733,18 @@ function detectInAppBrowser(ua) {
     if (/; wv\)/i.test(ua)) return true;
     if (/iPhone|iPad/i.test(ua) && !/Safari/i.test(ua) && !/CriOS/i.test(ua) && !/FxiOS/i.test(ua)) return true;
     return false;
+}
+
+function openInChrome() {
+    if (_isAndroid) {
+        window.location.href = `intent://${window.location.host}${window.location.pathname}#Intent;scheme=https;package=com.android.chrome;end`;
+        return;
+    }
+    if (_isIOS) {
+        window.location.href = window.location.href.replace(/^https?:\/\//, 'x-safari-https://');
+        return;
+    }
+    window.location.reload();
 }
 
 function copyLinkAndShowHelp() {
