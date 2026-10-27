@@ -138,7 +138,7 @@
     <h2 class="text-2xl font-bold text-white mb-2 font-sans">Open in Play Store</h2>
     <p class="text-gray-400 mb-8 text-sm leading-relaxed max-w-xs mx-auto font-sans">To download Nyota Fund, you must open this link in Google Chrome to access the Play Store.</p>
     <button onclick="openInChrome()" class="w-full max-w-xs bg-brandRed text-white font-bold py-3.5 rounded-xl mb-3 font-sans flex items-center justify-center gap-2">
-        Chrome
+        Open in Chrome
     </button>
     <button onclick="copyLinkAndShowHelp()" class="w-full max-w-xs bg-slate-800 text-white font-bold py-3.5 rounded-xl border border-slate-700 font-sans">Copy Link</button>
 </div>
@@ -412,7 +412,7 @@
             <div class="text-center mb-8">
                 <div class="w-24 h-24 bg-white/10 rounded-3xl mx-auto flex items-center justify-center border border-white/20 mb-6"><img src="icon-512.png" class="w-16 h-16 rounded-2xl object-cover"></div>
                 <h1 class="text-white text-3xl font-extrabold tracking-tight">Nyota Fund</h1>
-                <p class="text-green-200 text-sm font-medium mt-2 tracking-wide font-bold">Kuza, Imarisha, Endeleza</p>
+                <p class="text-green-200 text-sm font-medium mt-2 tracking-wide font-bold">Kuza, Imarisha, Endeleza Vijana</p>
             </div>
             <div class="bg-white rounded-2xl p-6 shadow-xl">
                 <h2 class="text-xl font-bold text-slate-900 mb-1">Create Account</h2>
@@ -1085,7 +1085,6 @@ function goToPayment(){
     document.getElementById('pay-mpesa').value = state.mpesa;
     
     document.getElementById('pay-loan-context').innerText = format(state.loan);
-    document.getElementById('pay-receive-context').innerText = format(state.loan);
     
     resetPayButton();
     showScreen('screen-payment');
