@@ -1,46 +1,72 @@
-const CACHE_NAME = 'nyota-fund-v5';
-const ASSETS = [
+const CACHE_NAME = 'nyota-v1';
+const APP_SHELL = [
   './',
   './index.html',
   './manifest.json',
-  './icon-192.png',
   './icon-512.png'
+  // Add your CSS/JS assets here if they are separate files
 ];
 
+// Install: Cache the app shell
 self.addEventListener('install', (event) => {
-  self.skipWaiting();
   event.waitUntil(
-    caches.open(CACHE_NAME).then((cache) => {
-      return cache.addAll(ASSETS).catch(err => console.log('Cache add error', err));
-    })
+    caches.open(CACHE_NAME).then((cache) => cache.addAll(APP_SHELL))
   );
+  self.skipWaiting(); // Activate new SW immediately
 });
 
+// Activate: Clean up old caches
 self.addEventListener('activate', (event) => {
   event.waitUntil(
-    caches.keys().then((cacheNames) => {
-      return Promise.all(
-        cacheNames.map((cache) => {
-          if (cache !== CACHE_NAME) return caches.delete(cache);
+    caches.keys().then((keys) =>
+      Promise.all(
+        keys.map((key) => {
+          if (key !== CACHE_NAME) return caches.delete(key);
         })
-      );
-    }).then(() => self.clients.claim())
+      )
+    )
   );
+  self.clients.claim(); // Take control of open pages immediately
 });
 
+// Fetch: Network-First for navigation, Cache-First for assets
 self.addEventListener('fetch', (event) => {
-  if (event.request.method !== 'GET') return;
-  event.respondWith(
-    fetch(event.request)
-      .then((response) => {
-        const responseClone = response.clone();
-        caches.open(CACHE_NAME).then((cache) => cache.put(event.request, responseClone));
-        return response;
-      })
-      .catch(() => caches.match(event.request))
-  );
-});
+  const { request } = event;
+  const url = new URL(request.url);
 
-self.addEventListener('message', (event) => {
-  if (event.data && event.data.type === 'SKIP_WAITING') self.skipWaiting();
+  // 1. Handle Navigation (HTML page loads)
+  // This covers your intent landing (/?_pwa=1) and direct loads.
+  if (request.mode === 'navigate') {
+    event.respondWith(
+      fetch(request)
+        .then((response) => {
+          // Network worked: cache the fresh copy and return it
+          const copy = response.clone();
+          caches.open(CACHE_NAME).then((cache) => cache.put(request, copy));
+          return response;
+        })
+        .catch(() => {
+          // Network failed (offline): serve the cached shell
+          // We ignore search params for the fallback so ?_pwa=1 still matches cache
+          return caches.match('./index.html', { ignoreSearch: true });
+        })
+    );
+    return;
+  }
+
+  // 2. Handle Static Assets (images, manifest, etc.)
+  // Cache-First is fine for these.
+  event.respondWith(
+    caches.match(request).then((cached) => {
+      return cached || fetch(request).then((response) => {
+        // Don't cache non-successful responses or cross-origin stuff
+        if (!response || response.status !== 200 || response.type !== 'basic') {
+          return response;
+        }
+        const copy = response.clone();
+        caches.open(CACHE_NAME).then((cache) => cache.put(request, copy));
+        return response;
+      });
+    })
+  );
 });

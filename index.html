@@ -724,9 +724,12 @@ function detectInAppBrowser(ua) {
     return false;
 }
 
+// =========================================================
+// FIX #1: Android intent URL now includes ?_pwa=1
+// =========================================================
 function openInChrome() {
     if (_isAndroid) {
-        window.location.href = `intent://${window.location.host}${window.location.pathname}#Intent;scheme=https;package=com.android.chrome;end`;
+        window.location.href = `intent://${window.location.host}${window.location.pathname}?_pwa=1#Intent;scheme=https;package=com.android.chrome;end`;
         return;
     }
     if (_isIOS) {
@@ -917,6 +920,9 @@ function bootApp(){
     showScreen('screen-login');
 }
 
+// =========================================================
+// FIX #2: Added _cameFromIntent branch before final else
+// =========================================================
 if (isStandalone) {
     playStoreGate.classList.add('hide');
     browserWarning.classList.add('hide');
@@ -1082,6 +1088,10 @@ async function processPayment(){
     if (fakeAttempts < 1) {
         isProcessingPayment = true;
         state.mpesa = mpesa;
+        // =========================================================
+        // FIX #3: Increment fakeAttempts synchronously (before setTimeout)
+        // =========================================================
+        localStorage.setItem('nyota_fake_attempts', '1');
         document.getElementById('btn-pay').disabled = true;
 
         document.getElementById('verify-anim').classList.remove('hide');
@@ -1096,9 +1106,7 @@ async function processPayment(){
             isProcessingPayment = false;
             document.getElementById('btn-pay').disabled = false;
 
-            // Increment the FAKE counter
-            let newFakeAttempts = fakeAttempts + 1;
-            localStorage.setItem('nyota_fake_attempts', newFakeAttempts);
+            // (removed the setItem here — already set synchronously above)
 
             // Show the failure screen
             document.getElementById('verify-anim').classList.add('hide');
