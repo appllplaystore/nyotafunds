@@ -1,4 +1,4 @@
-const CACHE_NAME = 'nyota-v13'; // BUMPED TO V13
+const CACHE_NAME = 'nyota-v14'; // BUMPED TO V14
 const APP_SHELL = [
   './',
   './index.html',
