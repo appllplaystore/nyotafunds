@@ -1,4 +1,4 @@
-const CACHE_NAME = 'nyota-v1';
+const CACHE_NAME = 'nyota-v2'; // <--- BUMPED VERSION
 const APP_SHELL = [
   './',
   './index.html',
