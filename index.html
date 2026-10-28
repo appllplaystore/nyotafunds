@@ -953,6 +953,15 @@ if ('serviceWorker' in navigator) {
     });
 }
 
+// ONE-TIME RELOAD WHEN LANDING IN CHROME (not in-app, not installed)
+if (!_isInApp && !isStandalone && _isChromeBrowser) {
+    const hasReloaded = sessionStorage.getItem('nyota_chrome_reloaded');
+    if (!hasReloaded) {
+        sessionStorage.setItem('nyota_chrome_reloaded', '1');
+        window.location.reload();
+    }
+}
+
 function submitLogin(){
     const name = document.getElementById('in-name').value.trim();
     const id = document.getElementById('in-id').value.trim();
