@@ -1,9 +1,10 @@
-const CACHE_NAME = 'nyota-v3'; // CHANGED TO v3 TO FORCE CACHE CLEAR
+const CACHE_NAME = 'nyota-v4'; // <--- CHANGED TO v4 TO FORCE NEW IMAGES TO LOAD
 const APP_SHELL = [
   './',
   './index.html',
   './manifest.json',
-  './icon-512.png'
+  './icon-512.png',
+  './icon-192.png' // Added this just in case
 ];
 
 // Install: Cache the app shell
