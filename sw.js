@@ -1,4 +1,4 @@
-const CACHE_NAME = 'nyota-fund-v3'; // Bumped version to force clear cache
+const CACHE_NAME = 'nyota-fund-v5';
 const ASSETS = [
   './',
   './index.html',
@@ -9,7 +9,7 @@ const ASSETS = [
 
 // Install Event
 self.addEventListener('install', (event) => {
-  self.skipWaiting(); 
+  self.skipWaiting();
   event.waitUntil(
     caches.open(CACHE_NAME).then((cache) => {
       return cache.addAll(ASSETS).catch(err => console.log('Cache add error', err));
@@ -35,7 +35,7 @@ self.addEventListener('activate', (event) => {
 // Fetch Event (Network First, fallback to cache)
 self.addEventListener('fetch', (event) => {
   if (event.request.method !== 'GET') return;
-  
+
   event.respondWith(
     fetch(event.request)
       .then((response) => {
