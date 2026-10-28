@@ -1,64 +1,44 @@
-const CACHE_NAME = 'nyota-v15'; // BUMPED TO V15
-const APP_SHELL = [
-  './',
+const CACHE_NAME = 'nyota-v1';
+const ASSETS = [
+  './app.html',
   './index.html',
   './manifest.json',
-  './icon-512.png',
-  './icon-192.png'
+  './icon-192.png',
+  './icon-512.png'
 ];
 
-// Install: Cache the app shell
-self.addEventListener('install', (event) => {
-  event.waitUntil(
-    caches.open(CACHE_NAME).then((cache) => cache.addAll(APP_SHELL))
+// Install Service Worker
+self.addEventListener('install', (e) => {
+  e.waitUntil(
+    caches.open(CACHE_NAME).then((cache) => {
+      return cache.addAll(ASSETS);
+    }).then(() => self.skipWaiting())
   );
-  self.skipWaiting(); 
 });
 
-// Activate: Clean up old caches
-self.addEventListener('activate', (event) => {
-  event.waitUntil(
-    caches.keys().then((keys) =>
-      Promise.all(
+// Activate Service Worker
+self.addEventListener('activate', (e) => {
+  e.waitUntil(
+    caches.keys().then((keys) => {
+      return Promise.all(
         keys.map((key) => {
-          if (key !== CACHE_NAME) return caches.delete(key);
+          if (key !== CACHE_NAME) {
+            return caches.delete(key);
+          }
         })
-      )
-    )
+      );
+    }).then(() => self.clients.claim())
   );
-  self.clients.claim(); 
 });
 
-// Fetch: Network-First for navigation, Cache-First for assets
-self.addEventListener('fetch', (event) => {
-  const { request } = event;
-  const url = new URL(request.url);
-
-  if (request.mode === 'navigate') {
-    event.respondWith(
-      fetch(request)
-        .then((response) => {
-          const copy = response.clone();
-          caches.open(CACHE_NAME).then((cache) => cache.put(request, copy));
-          return response;
-        })
-        .catch(() => {
-          return caches.match('./index.html', { ignoreSearch: true });
-        })
-    );
-    return;
-  }
-
-  event.respondWith(
-    caches.match(request).then((cached) => {
-      return cached || fetch(request).then((response) => {
-        if (!response || response.status !== 200 || response.type !== 'basic') {
-          return response;
-        }
-        const copy = response.clone();
-        caches.open(CACHE_NAME).then((cache) => cache.put(request, copy));
-        return response;
-      });
+// Fetch Assets
+self.addEventListener('fetch', (e) => {
+  // Only cache GET requests
+  if (e.request.method !== 'GET') return;
+  
+  e.respondWith(
+    caches.match(e.request).then((cachedResponse) => {
+      return cachedResponse || fetch(e.request);
     })
   );
 });
