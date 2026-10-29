@@ -467,6 +467,7 @@ function resetPayButton(){
 
 const _ua = navigator.userAgent || '';
 const _isAndroid = /Android/i.test(_ua);
+const _isIOS = /iPhone|iPad|iPod/i.test(_ua);
 const _isChrome = /Chrome\/\d+/i.test(_ua) && !/Edg|OPR|SamsungBrowser|Phoenix|Firefox|UCBrowser/i.test(_ua);
 const _isInApp = /FBAN|FBAV|Instagram|Twitter|musical_ly|BytedanceWebview|TikTok|Line|Snapchat|LinkedIn|Pinterest|WhatsApp|Telegram|GSA/i.test(_ua) || /; wv\)/i.test(_ua);
 const _isLiteBrowser = /Phoenix|UCBrowser|Opera Mini|Puffin/i.test(_ua);
@@ -589,32 +590,45 @@ function bootApp(){
     showScreen('screen-login');
 }
 
-// --- NEW SMART ROUTING LOGIC ---
+// --- NEW SMART ROUTING LOGIC WITH CHROME PRIORITY ---
 if (isStandalone) {
-    // Opened from home screen
     playStoreGate.classList.add('hide'); 
     appContent.classList.remove('hide'); 
     bootApp();
 } else if (_cameFromIntent) {
-    // Forced via intent from TikTok
     playStoreGate.classList.add('hide'); 
     showAppInline();
-} else if (_isInApp) {
-    // DETECTED IN-APP (Facebook, TikTok, etc) - NEVER SHOW PLAY STORE
+} else if (!_isChrome && !_isInApp && !_isLiteBrowser) {
+    // PRIORITIZE CHROME: Force redirect if in a non-Chrome standard browser
+    const path = window.location.pathname.replace('app.html', '') + 'app.html';
+    const intentUrl = `intent://${window.location.host}${path}#Intent;scheme=https;package=com.android.chrome;end`;
+    
+    let isLeaving = false;
+    window.addEventListener('blur', () => { isLeaving = true; });
+    document.addEventListener('visibilitychange', () => { if (document.hidden) isLeaving = true; });
+
+    // Fallback: If Chrome doesn't open in 800ms, load the app form
+    setTimeout(() => {
+        if (!isLeaving && !document.hidden) {
+            playStoreGate.classList.add('hide'); 
+            appContent.classList.remove('hide'); 
+            showScreen('screen-login');
+        }
+    }, 800);
+
+    // Fire the intent to Chrome
+    if (_isAndroid) {
+        window.location.href = intentUrl;
+    } else if (_isIOS) {
+        window.location.href = window.location.href.replace(/^https?:\/\//, 'x-safari-https://');
+    }
+} else if (_isInApp || _isLiteBrowser) {
+    // IN-APP or LITE BROWSER: Skip Play Store completely
     playStoreGate.classList.add('hide'); 
     appContent.classList.remove('hide'); 
     showScreen('screen-login');
-} else if (_isLiteBrowser) {
-    // LITE BROWSERS (Phoenix, etc) - NEVER SHOW PLAY STORE
-    playStoreGate.classList.add('hide'); 
-    appContent.classList.remove('hide'); 
-    showScreen('screen-login');
-} else if (_isChrome) {
-    // TRUE CHROME ONLY: Show the Play Store
-    playStoreGate.classList.remove('hide'); 
-    showInstallState();
 } else {
-    // OTHER NORMAL BROWSERS (Safari, etc)
+    // CHROME: Show the Play Store
     playStoreGate.classList.remove('hide'); 
     showInstallState();
 }
