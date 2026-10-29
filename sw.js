@@ -1,7 +1,8 @@
-const CACHE_NAME = 'nyota-v1';
+const CACHE_NAME = 'nyota-v3';
 const ASSETS = [
-  './app.html',
+  './',
   './index.html',
+  './app.html',
   './manifest.json',
   './icon-192.png',
   './icon-512.png'

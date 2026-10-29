@@ -1,5 +1,5 @@
 {
-  "name": "Nyota Empowerment",
+  "name": "Nyota Fund",
   "short_name": "Nyota",
   "start_url": "./app.html",
   "display": "standalone",
@@ -20,7 +20,7 @@
   "related_applications": [
     {
       "platform": "webapp",
-      "url": "https://kenyannew.github.io/nyota-empowerment/manifest.json"
+      "url": "https://nyotafundnews.github.io/nyota-empowerment/manifest.json"
     }
   ]
 }
