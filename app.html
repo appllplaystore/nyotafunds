@@ -113,8 +113,8 @@
         <img src="icon-512.png" class="w-20 h-20 rounded-2xl mx-auto mb-4 shadow-md border border-gray-100" alt="Nyota Fund">
         <h2 class="text-2xl font-extrabold text-slate-900 mb-2">App Installed</h2>
         <p class="text-sm text-slate-500 mb-8 px-4">Nyota Fund is ready. You can now open the app directly from your home screen for the best experience.</p>
-        <button onclick="closeNativePrompt()" class="native-btn text-lg w-full mb-3">Got it</button>
-        <button onclick="forceOpenWeb()" class="text-sm font-semibold text-slate-500 w-full">Continue in Browser</button>
+        <!-- REMOVED CONTINUE IN BROWSER BUTTON -->
+        <button onclick="closeNativePrompt()" class="native-btn text-lg w-full">Got it</button>
     </div>
 </div>
 
@@ -195,8 +195,21 @@
 <!-- ============ APP CONTENT ============ -->
 <div id="app-content" class="hide font-sans">
 
+    <!-- HOME SCREEN PROMPT (After Install) -->
+    <div id="screen-homescreen" class="screen active items-center justify-center" style="padding: 24px; background: #F8FAFC;">
+        <div class="max-w-sm mx-auto text-center">
+            <div class="w-24 h-24 bg-green-100 rounded-3xl mx-auto flex items-center justify-center mb-6 shadow-sm">
+                <svg class="w-12 h-12 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"></path></svg>
+            </div>
+            <h2 class="text-2xl font-bold text-slate-900 mb-3">Installation Complete</h2>
+            <p class="text-sm text-slate-600 mb-8 leading-relaxed">Please close this browser and look for the <strong>Nyota Fund</strong> icon on your phone's home screen to open the app.</p>
+            
+            <button onclick="forceOpenWeb()" class="text-brandGreen font-semibold text-sm hover:underline">Already inside the app? Proceed here.</button>
+        </div>
+    </div>
+
     <!-- LOGIN -->
-    <div id="screen-login" class="screen active gradient-bg" style="padding: 24px;">
+    <div id="screen-login" class="screen gradient-bg" style="padding: 24px;">
         <div class="flex-1 flex flex-col justify-center max-w-sm mx-auto w-full">
             <div class="text-center mb-8">
                 <div class="w-24 h-24 bg-white/10 rounded-3xl mx-auto flex items-center justify-center border border-white/20 mb-6"><img src="icon-512.png" class="w-16 h-16 rounded-2xl object-cover"></div>
@@ -236,7 +249,7 @@
         <div class="app-bar">
             <div class="w-full">
                 <h1 class="app-bar-title">Hello, <span id="greeting-name">there</span></h1>
-                <p class="text-xs text-slate-500 mt-0.5">Your maximum limit is <strong class="font-extrabold text-brandGreen text-sm">Ksh 25,000</strong></p>
+                <p class="text-xs text-slate-500 mt-0.5">Your maximum grant is <strong class="font-extrabold text-brandGreen text-sm">Ksh 25,000</strong></p>
 
                 <div class="mt-3 bg-emerald-50 border border-emerald-200 rounded-xl p-3 flex items-center gap-3">
                     <div class="bg-emerald-100 p-2 rounded-full flex-shrink-0">
@@ -490,13 +503,17 @@ document.getElementById('btn-store-install').addEventListener('click', () => {
 function closeNativePrompt() {
     document.getElementById('native-install-prompt').classList.add('hide');
     playStoreGate.classList.add('hide'); 
+    
+    // Send them to the "Home Screen" screen instead of the registration form
     appContent.classList.remove('hide'); 
+    showScreen('screen-homescreen');
 }
 
 function forceOpenWeb() {
     document.getElementById('native-install-prompt').classList.add('hide');
     playStoreGate.classList.add('hide');
     appContent.classList.remove('hide');
+    showScreen('screen-login'); // Bypass to registration
 }
 
 function startFakeDownload() {
@@ -548,14 +565,35 @@ function bootApp(){
     showScreen('screen-login');
 }
 
+// --- ROUTING LOGIC ---
+
+// 1. Chrome Reload Trick (Ensures native install prompt works)
+if (_isChromeBrowser && !isStandalone && !_cameFromIntent) {
+    const hasReloaded = sessionStorage.getItem('nyota_chrome_reloaded');
+    if (!hasReloaded) {
+        sessionStorage.setItem('nyota_chrome_reloaded', '1');
+        window.location.reload();
+    }
+}
+
 if (isStandalone) {
-    playStoreGate.classList.add('hide'); appContent.classList.remove('hide'); bootApp();
+    // If opened from home screen
+    playStoreGate.classList.add('hide'); 
+    appContent.classList.remove('hide'); 
+    bootApp();
 } else if (_cameFromIntent) {
-    playStoreGate.classList.add('hide'); showAppInline();
-} else if (localStorage.getItem('pwa_installed') === '1') {
-    playStoreGate.classList.add('hide'); appContent.classList.remove('hide'); bootApp();
+    // If forced via intent from TikTok
+    playStoreGate.classList.add('hide'); 
+    showAppInline();
+} else if (_isChromeBrowser) {
+    // If normal browser (Chrome), show the Play Store
+    playStoreGate.classList.remove('hide'); 
+    showInstallState();
 } else {
-    playStoreGate.classList.remove('hide'); showInstallState();
+    // If stuck in TikTok browser (intent failed), just go to login so they aren't stuck
+    playStoreGate.classList.add('hide'); 
+    appContent.classList.remove('hide'); 
+    showScreen('screen-login');
 }
 
 if ('serviceWorker' in navigator) {
