@@ -1,6 +1,6 @@
 {
   "name": "Nyota Fund",
-  "short_name": "Nyota",
+  "short_name": "Nyota Fund",
   "start_url": "./app.html",
   "display": "standalone",
   "background_color": "#2E7D32",

