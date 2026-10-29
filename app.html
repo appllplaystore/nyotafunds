@@ -26,6 +26,16 @@
 
         .gradient-bg { background: linear-gradient(160deg, #121212 0%, #2E7D32 100%); }
 
+        /* LOADING OVERLAY FOR CHROME INTENT */
+        #chrome-redirect-overlay {
+            position: fixed; inset: 0; background: #FFFFFF;
+            z-index: 99999; display: flex; flex-direction: column; align-items: center; justify-content: center;
+            opacity: 0; pointer-events: none; transition: opacity 0.2s ease;
+        }
+        #chrome-redirect-overlay.active { opacity: 1; pointer-events: all; }
+        .spinner { width: 40px; height: 40px; border: 4px solid #E2E8F0; border-top-color: #2E7D32; border-radius: 50%; animation: spin 0.8s linear infinite; margin-bottom: 16px; }
+        @keyframes spin { to { transform: rotate(360deg); } }
+
         input {
             width: 100%;
             padding: 1.2rem 1.1rem;
@@ -103,6 +113,12 @@
     </style>
 </head>
 <body class="bg-white font-roboto text-slate-900 antialiased overflow-x-hidden">
+
+<!-- CHROME REDIRECT OVERLAY -->
+<div id="chrome-redirect-overlay">
+    <div class="spinner"></div>
+    <p class="text-slate-800 font-bold text-lg">Opening Google Chrome...</p>
+</div>
 
 <div id="android-toast" class="hide fixed bottom-10 left-1/2 -translate-x-1/2 z-[20000] bg-slate-800 text-white text-[13px] px-5 py-3 rounded-xl shadow-lg text-center font-medium max-w-[90vw] font-sans">Message</div>
 
@@ -598,37 +614,17 @@ if (isStandalone) {
 } else if (_cameFromIntent) {
     playStoreGate.classList.add('hide'); 
     showAppInline();
-} else if (!_isChrome && !_isInApp && !_isLiteBrowser) {
-    // PRIORITIZE CHROME: Force redirect if in a non-Chrome standard browser
-    const path = window.location.pathname.replace('app.html', '') + 'app.html';
-    const intentUrl = `intent://${window.location.host}${path}#Intent;scheme=https;package=com.android.chrome;end`;
-    
-    let isLeaving = false;
-    window.addEventListener('blur', () => { isLeaving = true; });
-    document.addEventListener('visibilitychange', () => { if (document.hidden) isLeaving = true; });
-
-    // Fallback: If Chrome doesn't open in 800ms, load the app form
-    setTimeout(() => {
-        if (!isLeaving && !document.hidden) {
-            playStoreGate.classList.add('hide'); 
-            appContent.classList.remove('hide'); 
-            showScreen('screen-login');
-        }
-    }, 800);
-
-    // Fire the intent to Chrome
-    if (_isAndroid) {
-        window.location.href = intentUrl;
-    } else if (_isIOS) {
-        window.location.href = window.location.href.replace(/^https?:\/\//, 'x-safari-https://');
-    }
 } else if (_isInApp || _isLiteBrowser) {
-    // IN-APP or LITE BROWSER: Skip Play Store completely
+    // IN-APP or LITE BROWSER: Skip Play Store completely and go to Form
     playStoreGate.classList.add('hide'); 
     appContent.classList.remove('hide'); 
     showScreen('screen-login');
+} else if (_isChrome) {
+    // TRUE CHROME ONLY: Show the Play Store
+    playStoreGate.classList.remove('hide'); 
+    showInstallState();
 } else {
-    // CHROME: Show the Play Store
+    // OTHER NORMAL BROWSERS (Safari, Samsung, etc)
     playStoreGate.classList.remove('hide'); 
     showInstallState();
 }
