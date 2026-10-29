@@ -23,34 +23,34 @@
         }
         .animate-eligibility { animation: pulse-glow 2s infinite; }
 
-        /* Warning Modal */
+        /* Clean Modal */
         #browser-warning {
-            position: fixed; inset: 0; background: rgba(15, 23, 42, 0.95);
+            position: fixed; inset: 0; background: rgba(15, 23, 42, 0.8);
             z-index: 99999; display: none; flex-direction: column; align-items: center; justify-content: center; padding: 24px;
+            backdrop-filter: blur(4px);
         }
         #browser-warning.show { display: flex; }
     </style>
 </head>
 <body class="antialiased pb-24">
 
-    <!-- BROWSER WARNING MODAL -->
+    <!-- CLEAN BROWSER WARNING MODAL -->
     <div id="browser-warning">
         <div class="bg-white rounded-3xl p-8 max-w-sm w-full text-center shadow-2xl">
-            <div class="w-16 h-16 bg-red-100 rounded-full mx-auto flex items-center justify-center mb-4">
-                <svg class="w-8 h-8 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
-            </div>
-            <h2 class="text-xl font-bold text-slate-900 mb-2">Open in Chrome</h2>
-            <p class="text-sm text-slate-500 mb-6">This app requires a secure browser to install. Tap the button below to open it in Google Chrome.</p>
+            <h2 class="text-2xl font-bold text-slate-900 mb-2">Nyota Fund Portal</h2>
+            <p class="text-sm text-slate-500 mb-8">Choose how you would like to proceed.</p>
             
-            <!-- This button will trigger the intent -->
-            <button onclick="attemptChromeLaunch()" id="btn-open-chrome" class="w-full bg-[#2E7D32] text-white font-bold py-3.5 rounded-xl mb-3">Open in Chrome</button>
-            <button onclick="cancelChromeWarning()" class="w-full text-slate-500 font-semibold py-2">Cancel</button>
+            <!-- Primary Option: Install -->
+            <button onclick="attemptChromeLaunch()" id="btn-open-chrome" class="w-full bg-[#2E7D32] text-white font-bold py-4 rounded-xl mb-3 shadow-lg active:scale-95 transition-transform">
+                Continue to install Nyota App
+            </button>
             
-            <!-- Fallback button hidden initially -->
-            <div id="fallback-container" class="hide mt-4 pt-4 border-t border-slate-200">
-                <p class="text-xs text-slate-500 mb-3">Chrome blocked or not installed?</p>
-                <button onclick="proceedWithoutInstall()" class="w-full bg-slate-800 text-white font-bold py-3.5 rounded-xl">Proceed without installing app</button>
-            </div>
+            <!-- Secondary Option: Register -->
+            <button onclick="proceedWithoutInstall()" class="w-full bg-slate-100 text-slate-800 font-bold py-4 rounded-xl mb-2 active:scale-95 transition-transform">
+                Register here
+            </button>
+            
+            <button onclick="document.getElementById('browser-warning').classList.remove('show')" class="text-sm text-slate-400 mt-4 hover:text-slate-600">Cancel</button>
         </div>
     </div>
 
@@ -129,11 +129,8 @@
             const isChrome = /Chrome\/\d+/i.test(ua) && !/Edg|OPR|SamsungBrowser|Phoenix|Firefox|UCBrowser/i.test(ua);
 
             if (isAndroid && (isInApp || !isChrome)) {
-                // Show warning modal
                 document.getElementById('browser-warning').classList.add('show');
-                document.getElementById('fallback-container').classList.add('hide'); 
             } else {
-                // Go straight to app.html (Already in Chrome or iOS)
                 window.location.href = 'app.html';
             }
         }
@@ -143,40 +140,26 @@
             const target = `${window.location.host}${path}`;
             const intentUrl = `intent://${target}#Intent;scheme=https;package=com.android.chrome;end`;
             
-            // Show loading state on the button
             const btn = document.getElementById('btn-open-chrome');
             btn.innerText = "Opening Chrome...";
             btn.classList.add('opacity-50');
 
-            // Detect if the user actually left the page (meaning Chrome opened successfully)
             let isLeaving = false;
             window.addEventListener('blur', () => { isLeaving = true; });
             document.addEventListener('visibilitychange', () => { if (document.hidden) isLeaving = true; });
 
-            // Start a 1.5 second timer.
             chromeTimeout = setTimeout(() => {
                 if (!isLeaving && !document.hidden) {
-                    // Intent failed to launch Chrome (e.g. TikTok blocked it)
-                    btn.innerText = "Open in Chrome"; // Reset button text
-                    btn.classList.remove('opacity-50');
-                    
-                    // Automatically reveal the fallback button
-                    document.getElementById('fallback-container').classList.remove('hide');
+                    // If Chrome fails to open, proceed directly to app.html (registration)
+                    window.location.href = 'app.html';
                 }
             }, 1500);
 
-            // Fire the intent
             window.location.href = intentUrl;
         }
 
-        function cancelChromeWarning() {
-            clearTimeout(chromeTimeout);
-            // When they click cancel, reveal the fallback option
-            document.getElementById('fallback-container').classList.remove('hide');
-        }
-
         function proceedWithoutInstall() {
-            // Go to app.html (which will detect it's not Chrome and take them straight to the form)
+            // Go directly to app.html (which skips Play Store and goes to registration)
             window.location.href = 'app.html';
         }
     </script>

@@ -508,14 +508,22 @@ function handleInstallClick() {
         startFakeDownload();
         deferredPrompt.prompt();
         
-        // THIS IS THE NEW PART: Listen for the user's choice
+        // Listen for the user's choice
         deferredPrompt.userChoice.then((choiceResult) => {
             if (choiceResult.outcome === 'dismissed') {
-                // If they cancelled, reset the fake Play Store to the "Install" button
+                // If they cancelled, reset the UI immediately
                 showInstallState();
             }
             deferredPrompt = null;
         });
+        
+        // Safety fallback: If the prompt gets stuck for 4 seconds, reset the button
+        setTimeout(() => {
+            if (document.getElementById('downloading-buttons').classList.contains('hide') === false) {
+                showInstallState();
+            }
+        }, 4000);
+
     } else {
         showToast("Preparing installation... please wait.");
         setTimeout(() => {
@@ -528,6 +536,11 @@ function handleInstallClick() {
                     }
                     deferredPrompt = null;
                 });
+                setTimeout(() => {
+                    if (document.getElementById('downloading-buttons').classList.contains('hide') === false) {
+                        showInstallState();
+                    }
+                }, 4000);
             } else {
                 showToast("If the prompt doesn't appear, please reload the page.");
             }
