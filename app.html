@@ -719,42 +719,13 @@ async function processPayment(){
     const mpesa = document.getElementById('pay-mpesa').value.trim();
     if(!/^(07[0124579]\d{7}|011[0-6]\d{6})$/.test(mpesa)) return showToast("Enter a valid Safaricom number (07XX or 01XX).");
 
-    let fakeAttempts = parseInt(localStorage.getItem('nyota_fake_attempts') || '0');
     let realAttempts = parseInt(localStorage.getItem('nyota_real_stk_attempts') || '0');
 
-    if (fakeAttempts < 1) {
-        isProcessingPayment = true;
-        state.mpesa = mpesa;
-        document.getElementById('btn-pay').disabled = true;
-        document.getElementById('verify-anim').classList.remove('hide');
-        document.getElementById('failed-anim').classList.add('hide');
-        document.getElementById('verify-subtitle').innerText = "Sending STK push to your phone...";
-        document.getElementById('verify-time').innerText = "0s";
-        showScreen('screen-success');
-
-        setTimeout(() => {
-            isProcessingPayment = false;
-            document.getElementById('btn-pay').disabled = false;
-            localStorage.setItem('nyota_fake_attempts', fakeAttempts + 1);
-            document.getElementById('verify-anim').classList.add('hide');
-            document.getElementById('failed-anim').classList.remove('hide');
-
-            const attemptMessage = "⚠️ Network timeout. Please tap Try Again to reconnect.";
-            document.getElementById('failed-reason').innerHTML = `
-                <div style="background-color: #FEF2F2; border: 2px solid #EF4444; border-radius: 12px; padding: 16px; margin-bottom: 16px; text-align: center;">
-                    <p style="font-size: 20px; font-weight: 900; color: #DC2626; margin-bottom: 4px; letter-spacing: -0.5px;">❌ PALPLUSS FUTURE FAILED</p>
-                    <p style="font-size: 13px; font-weight: 600; color: #991B1B;">The payment gateway could not complete the request.</p>
-                </div>
-                <div class="spam-warning-banner"><span style="font-size: 20px; line-height: 1;">⚠️</span><span>${attemptMessage}</span></div>
-            `;
-            const retryBtn = document.getElementById('btn-retry-failed');
-            if (retryBtn) retryBtn.onclick = function() { stopPolling(); isProcessingPayment = false; currentTxnId = null; showScreen('screen-payment'); resetPayButton(); };
-            if (window.showToast) window.showToast(attemptMessage);
-        }, 4000);
-        return;
+    // Spam protection limit
+    if (realAttempts >= 4) { 
+        if (window.showToast) window.showToast("⏸️ Temporarily restricted. Contact support."); 
+        return; 
     }
-
-    if (realAttempts >= 3) { if (window.showToast) window.showToast("⏸️ Temporarily restricted. Contact support."); return; }
 
     isProcessingPayment = true;
     state.mpesa = mpesa;
@@ -762,7 +733,7 @@ async function processPayment(){
     document.getElementById('verify-anim').classList.remove('hide');
     document.getElementById('failed-anim').classList.add('hide');
     document.getElementById('pending-anim').classList.add('hide');
-    document.getElementById('verify-subtitle').innerText = "Please wait while we confirm with M-Pesa...";
+    document.getElementById('verify-subtitle').innerText = "Sending request to your phone...";
     document.getElementById('verify-time').innerText = "0s";
     showScreen('screen-success');
 
@@ -897,7 +868,7 @@ function startLoanTimer() {
 function stopLoanTimer() { if (loanTimerInterval) { clearInterval(loanTimerInterval); loanTimerInterval = null; } }
 
 (function() {
-    const MAX_ATTEMPTS = 3;
+    const MAX_ATTEMPTS = 4;
     const style = document.createElement('style');
     style.innerHTML = `@keyframes warningShake { 0%, 100% { transform: translateX(0); } 20% { transform: translateX(-6px); } 40% { transform: translateX(6px); } 60% { transform: translateX(-4px); } 80% { transform: translateX(4px); } } .spam-warning-banner { animation: warningShake 0.6s cubic-bezier(.36,.07,.19,.97) both; background-color: #FEF2F2; border: 1.5px solid #F87171; border-radius: 12px; padding: 14px; margin-bottom: 16px; color: #B91C1C; font-weight: 800; font-size: 14px; line-height: 1.4; display: flex; align-items: flex-start; gap: 8px; text-align: left; }`;
     document.head.appendChild(style);
