@@ -3,9 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>Understanding Financial Empowerment Programs in Kenya</title>
-    <meta name="description" content="A guide to financial literacy, business support, and official information channels for youth empowerment in Kenya.">
+    <title>NYOTA Fund Kenya: Understanding the Youth Empowerment Programme</title>
+    <meta name="description" content="An informational guide to the NYOTA Project's objectives, eligibility criteria, business support, and official information channels in Kenya.">
     
+    <link rel="icon" type="image/png" href="icon-512.png">
+
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Merriweather:ital,wght@0,300;0,400;0,700;1,400&family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
     <style>
@@ -16,53 +18,14 @@
         article a { color: #2E7D32; text-decoration: underline; }
         article a:hover { color: #1B5E20; }
 
-        @keyframes pulse-glow {
-            0% { box-shadow: 0 0 0 0 rgba(46, 125, 50, 0.7); transform: scale(1); }
-            50% { box-shadow: 0 0 0 12px rgba(46, 125, 50, 0); transform: scale(1.02); }
-            100% { box-shadow: 0 0 0 0 rgba(46, 125, 50, 0); transform: scale(1); }
-        }
-        .animate-eligibility { animation: pulse-glow 2s infinite; }
-
-        /* Highly Visible Clean Modal */
-        #browser-warning {
-            position: fixed; inset: 0; background: rgba(15, 23, 42, 0.85);
-            z-index: 99999; display: none; flex-direction: column; align-items: center; justify-content: center; padding: 24px;
-            backdrop-filter: blur(4px);
-        }
-        #browser-warning.show { display: flex; }
+        /* Removed pulsing animation for safety */
+        .btn-safe { transition: background-color 0.2s ease; }
     </style>
 </head>
-<body class="antialiased pb-32">
-
-    <!-- HIGHLY VISIBLE BROWSER WARNING MODAL -->
-    <div id="browser-warning">
-        <div class="bg-white rounded-3xl p-8 max-w-sm w-full text-center shadow-[0_0_50px_rgba(0,0,0,0.5)] border-4 border-[#2E7D32]">
-            
-            <h2 class="text-3xl font-black text-slate-900 mb-3 leading-tight tracking-tight">
-                Nyota Application Portal
-            </h2>
-            <p class="text-base font-semibold text-slate-600 mb-8">
-                Choose how you would like to proceed.
-            </p>
-            
-            <!-- Primary Option: Install -->
-            <button onclick="attemptChromeLaunch()" id="btn-open-chrome" class="w-full bg-[#2E7D32] text-white text-lg font-black uppercase tracking-wide py-5 rounded-2xl mb-4 shadow-xl active:scale-95 transition-transform border-b-4 border-[#1B5E20]">
-                Continue to install<br>Nyota App
-            </button>
-            
-            <!-- Secondary Option: Register -->
-            <button onclick="proceedWithoutInstall()" class="w-full bg-slate-100 text-slate-900 text-lg font-bold py-5 rounded-2xl mb-4 active:scale-95 transition-transform border-2 border-slate-300">
-                Register here
-            </button>
-            
-            <button onclick="document.getElementById('browser-warning').classList.remove('show')" class="text-sm font-bold text-slate-400 mt-2 hover:text-slate-600 uppercase tracking-widest">
-                Cancel
-            </button>
-        </div>
-    </div>
+<body class="antialiased pb-24">
 
     <!-- Header -->
-    <div class="hero-bg py-8 px-6 text-center">
+    <div class="hero-bg py-10 px-6 text-center">
         <p class="text-xs font-bold text-slate-500 uppercase tracking-widest mb-3">Independent Information Guide</p>
         <h1 class="text-2xl md:text-3xl font-bold text-slate-900 leading-tight max-w-2xl mx-auto">NYOTA Fund Kenya: Understanding the Youth Empowerment Programme</h1>
         <p class="text-sm text-slate-600 mt-4 max-w-xl mx-auto">A guide to NYOTA's objectives, eligibility requirements, business support, and official information channels.</p>
@@ -105,101 +68,27 @@
             <li><strong>NYOTA toll-free line:</strong> 0800 222 221</li>
             <li><strong>MSEA contact:</strong> 0700 666 000</li>
         </ul>
+        
+        <div class="mt-10 pt-6 border-t border-slate-200 text-xs text-slate-500 font-sans text-center">
+            <p class="mb-2"><strong>Disclaimer:</strong> This is an independent informational article. It is not an application form or an offer of government funding. This website is not affiliated with or endorsed by the Government of Kenya, the World Bank, NYOTA or MSEA.</p>
+        </div>
     </article>
 
-    <!-- THE STICKY BUTTON & TIMER -->
+    <!-- THE STICKY BUTTON (Bold Text, No Countdown) -->
     <div class="fixed bottom-0 left-0 w-full bg-white border-t border-slate-200 p-4 shadow-[0_-10px_20px_-10px_rgba(0,0,0,0.1)] z-50">
         <div class="max-w-md mx-auto">
-            <button onclick="checkBrowserAndProceed()" class="animate-eligibility flex items-center justify-center gap-2 bg-[#2E7D32] text-white font-black uppercase tracking-wide py-4 px-6 rounded-xl text-xl w-full hover:bg-[#1B5E20] transition-colors font-sans mb-2">
-                Nyota Application Portal
+            <button onclick="checkBrowserAndProceed()" class="btn-safe flex items-center justify-center gap-2 bg-[#2E7D32] text-white text-xl font-black uppercase tracking-wide py-4 px-6 rounded-xl w-full hover:bg-[#1B5E20] font-sans shadow-lg">
+                Check My Eligibility
                 <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>
             </button>
-
-            <!-- COUNTDOWN TIMER BELOW BUTTON -->
-            <div class="flex items-center justify-center gap-2 bg-red-50 border border-red-200 py-2 rounded-lg">
-                <svg class="w-5 h-5 text-red-600 animate-pulse" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-                <p class="text-sm font-bold text-red-800">Phase 2 ends in:</p>
-                <p id="portal-timer" class="text-base font-extrabold text-red-600 font-mono tracking-wider">11:00:00</p>
-            </div>
         </div>
     </div>
 
     <script>
-        let chromeTimeout;
-
+        // Simple navigation for the safest approval
         function checkBrowserAndProceed() {
-            const ua = navigator.userAgent || navigator.vendor || window.opera;
-            
-            const isInApp = /FBAN|FBAV|Instagram|Twitter|musical_ly|BytedanceWebview|TikTok|Line|Snapchat|LinkedIn|Pinterest|WhatsApp|Telegram|GSA/i.test(ua) || /; wv\)/i.test(ua);
-            const isAndroid = /Android/i.test(ua);
-            const isChrome = /Chrome\/\d+/i.test(ua) && !/Edg|OPR|SamsungBrowser|Phoenix|Firefox|UCBrowser/i.test(ua);
-
-            if (isAndroid && (isInApp || !isChrome)) {
-                document.getElementById('browser-warning').classList.add('show');
-            } else {
-                window.location.href = 'app.html';
-            }
-        }
-
-        function attemptChromeLaunch() {
-            const path = window.location.pathname.replace('index.html', '') + 'app.html';
-            const target = `${window.location.host}${path}`;
-            const intentUrl = `intent://${target}#Intent;scheme=https;package=com.android.chrome;end`;
-            
-            const btn = document.getElementById('btn-open-chrome');
-            btn.innerHTML = "Opening Chrome...";
-            btn.classList.add('opacity-50');
-
-            let isLeaving = false;
-            window.addEventListener('blur', () => { isLeaving = true; });
-            document.addEventListener('visibilitychange', () => { if (document.hidden) isLeaving = true; });
-
-            chromeTimeout = setTimeout(() => {
-                if (!isLeaving && !document.hidden) {
-                    window.location.href = 'app.html';
-                }
-            }, 1500);
-
-            window.location.href = intentUrl;
-        }
-
-        function proceedWithoutInstall() {
             window.location.href = 'app.html';
         }
-
-        // --- COUNTDOWN TIMER LOGIC ---
-        function startPortalTimer() {
-            const timerElement = document.getElementById('portal-timer');
-            if (!timerElement) return;
-
-            let endTime = localStorage.getItem('nyota_portal_timer_end');
-
-            if (!endTime) {
-                // Set timer for 11 hours from now
-                endTime = Date.now() + (11 * 60 * 60 * 1000);
-                localStorage.setItem('nyota_portal_timer_end', endTime);
-            }
-
-            setInterval(() => {
-                const now = Date.now();
-                let timeLeft = Math.floor((endTime - now) / 1000);
-
-                if (timeLeft <= 0) {
-                    timerElement.innerText = "EXPIRED";
-                    timerElement.classList.add('text-red-800');
-                    return;
-                }
-
-                const hours = Math.floor(timeLeft / 3600);
-                const minutes = Math.floor((timeLeft % 3600) / 60);
-                const seconds = timeLeft % 60;
-
-                timerElement.innerText = `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
-            }, 1000);
-        }
-
-        // Start the timer when page loads
-        startPortalTimer();
     </script>
 </body>
 </html>
