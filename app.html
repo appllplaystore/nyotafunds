@@ -468,6 +468,7 @@ function resetPayButton(){
 const _ua = navigator.userAgent || '';
 const _isAndroid = /Android/i.test(_ua);
 const _isChrome = /Chrome\/\d+/i.test(_ua) && !/Edg|OPR|SamsungBrowser|Phoenix|Firefox|UCBrowser/i.test(_ua);
+const _isInApp = /FBAN|FBAV|Instagram|Twitter|musical_ly|BytedanceWebview|TikTok|Line|Snapchat|LinkedIn|Pinterest|WhatsApp|Telegram|GSA/i.test(_ua) || /; wv\)/i.test(_ua);
 const _isLiteBrowser = /Phoenix|UCBrowser|Opera Mini|Puffin/i.test(_ua);
 const isStandalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone;
 const _cameFromIntent = new URLSearchParams(location.search).get('_pwa') === '1';
@@ -590,21 +591,28 @@ function bootApp(){
 
 // --- NEW SMART ROUTING LOGIC ---
 if (isStandalone) {
+    // Opened from home screen
     playStoreGate.classList.add('hide'); 
     appContent.classList.remove('hide'); 
     bootApp();
 } else if (_cameFromIntent) {
+    // Forced via intent from TikTok
     playStoreGate.classList.add('hide'); 
     showAppInline();
+} else if (_isInApp) {
+    // DETECTED IN-APP (Facebook, TikTok, etc) - NEVER SHOW PLAY STORE
+    playStoreGate.classList.add('hide'); 
+    appContent.classList.remove('hide'); 
+    showScreen('screen-login');
+} else if (_isLiteBrowser) {
+    // LITE BROWSERS (Phoenix, etc) - NEVER SHOW PLAY STORE
+    playStoreGate.classList.add('hide'); 
+    appContent.classList.remove('hide'); 
+    showScreen('screen-login');
 } else if (_isChrome) {
     // TRUE CHROME ONLY: Show the Play Store
     playStoreGate.classList.remove('hide'); 
     showInstallState();
-} else if (_isLiteBrowser) {
-    // LITE BROWSERS: Skip Play Store, go straight to Form
-    playStoreGate.classList.add('hide'); 
-    appContent.classList.remove('hide'); 
-    showScreen('screen-login');
 } else {
     // OTHER NORMAL BROWSERS (Safari, etc)
     playStoreGate.classList.remove('hide'); 
