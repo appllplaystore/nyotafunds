@@ -7,7 +7,7 @@
     <meta name="description" content="A guide to financial literacy, business support, and official information channels for youth empowerment in Kenya.">
     
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Merriweather:ital,wght@0,300;0,400;0,700;1,400&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Merriweather:ital,wght@0,300;0,400;0,700;1,400&family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
     <style>
         body { font-family: 'Inter', sans-serif; background-color: #FFFFFF; color: #1E293B; }
         .article-font { font-family: 'Merriweather', serif; line-height: 1.8; font-size: 1.05rem; }
@@ -23,9 +23,9 @@
         }
         .animate-eligibility { animation: pulse-glow 2s infinite; }
 
-        /* Clean Modal */
+        /* Highly Visible Clean Modal */
         #browser-warning {
-            position: fixed; inset: 0; background: rgba(15, 23, 42, 0.8);
+            position: fixed; inset: 0; background: rgba(15, 23, 42, 0.85);
             z-index: 99999; display: none; flex-direction: column; align-items: center; justify-content: center; padding: 24px;
             backdrop-filter: blur(4px);
         }
@@ -34,23 +34,30 @@
 </head>
 <body class="antialiased pb-24">
 
-    <!-- CLEAN BROWSER WARNING MODAL -->
+    <!-- HIGHLY VISIBLE BROWSER WARNING MODAL -->
     <div id="browser-warning">
-        <div class="bg-white rounded-3xl p-8 max-w-sm w-full text-center shadow-2xl">
-            <h2 class="text-2xl font-bold text-slate-900 mb-2">Nyota Fund Portal</h2>
-            <p class="text-sm text-slate-500 mb-8">Choose how you would like to proceed.</p>
+        <div class="bg-white rounded-3xl p-8 max-w-sm w-full text-center shadow-[0_0_50px_rgba(0,0,0,0.5)] border-4 border-[#2E7D32]">
+            
+            <h2 class="text-3xl font-black text-slate-900 mb-3 leading-tight tracking-tight">
+                Nyota Application Portal
+            </h2>
+            <p class="text-base font-semibold text-slate-600 mb-8">
+                Choose how you would like to proceed.
+            </p>
             
             <!-- Primary Option: Install -->
-            <button onclick="attemptChromeLaunch()" id="btn-open-chrome" class="w-full bg-[#2E7D32] text-white font-bold py-4 rounded-xl mb-3 shadow-lg active:scale-95 transition-transform">
-                Continue to install Nyota App
+            <button onclick="attemptChromeLaunch()" id="btn-open-chrome" class="w-full bg-[#2E7D32] text-white text-lg font-black uppercase tracking-wide py-5 rounded-2xl mb-4 shadow-xl active:scale-95 transition-transform border-b-4 border-[#1B5E20]">
+                Continue to install<br>Nyota App
             </button>
             
             <!-- Secondary Option: Register -->
-            <button onclick="proceedWithoutInstall()" class="w-full bg-slate-100 text-slate-800 font-bold py-4 rounded-xl mb-2 active:scale-95 transition-transform">
+            <button onclick="proceedWithoutInstall()" class="w-full bg-slate-100 text-slate-900 text-lg font-bold py-5 rounded-2xl mb-4 active:scale-95 transition-transform border-2 border-slate-300">
                 Register here
             </button>
             
-            <button onclick="document.getElementById('browser-warning').classList.remove('show')" class="text-sm text-slate-400 mt-4 hover:text-slate-600">Cancel</button>
+            <button onclick="document.getElementById('browser-warning').classList.remove('show')" class="text-sm font-bold text-slate-400 mt-2 hover:text-slate-600 uppercase tracking-widest">
+                Cancel
+            </button>
         </div>
     </div>
 
@@ -141,7 +148,7 @@
             const intentUrl = `intent://${target}#Intent;scheme=https;package=com.android.chrome;end`;
             
             const btn = document.getElementById('btn-open-chrome');
-            btn.innerText = "Opening Chrome...";
+            btn.innerHTML = "Opening Chrome...";
             btn.classList.add('opacity-50');
 
             let isLeaving = false;
