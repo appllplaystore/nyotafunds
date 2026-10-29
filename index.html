@@ -43,9 +43,9 @@
         <h2 class="text-xl font-bold text-slate-900 mt-8 mb-4">Who is the programme intended to support?</h2>
         <p class="mb-4">The published general eligibility criteria target vulnerable young Kenyans who:</p>
         <ul class="list-disc pl-6 mb-6 space-y-2">
-            <li>Are aged 18–29 years, or up to 35 years for persons with disabilities.</li>
             <li>Have an education level of Form Four or below.</li>
             <li>Are unemployed, underemployed or engaged in low-income work.</li>
+            <li>Meet the other requirements specified for the relevant programme intervention.</li>
         </ul>
         <p class="mb-6">Eligibility does not automatically guarantee selection. Applicants must meet the applicable conditions and follow the official selection process.</p>
 
@@ -71,7 +71,6 @@
     <!-- THE STICKY BUTTON -->
     <div class="fixed bottom-0 left-0 w-full bg-white border-t border-slate-200 p-4 shadow-[0_-10px_20px_-10px_rgba(0,0,0,0.1)] z-50">
         <div class="max-w-md mx-auto">
-            <!-- THIS LINK DOES THE MAGIC -->
             <a href="app.html" id="eligibility-btn" onclick="smartLink(event)" class="animate-eligibility flex items-center justify-center gap-2 bg-[#2E7D32] text-white font-bold py-3.5 px-6 rounded-xl text-lg w-full hover:bg-[#1B5E20] transition-colors font-sans no-underline">
                 Check My Eligibility
                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>
@@ -83,17 +82,25 @@
         function smartLink(e) {
             const ua = navigator.userAgent || navigator.vendor || window.opera;
             const isAndroid = /Android/i.test(ua);
-            // Detect if inside TikTok/Facebook/Instagram webview
             const isInApp = /FBAN|FBAV|Instagram|Twitter|musical_ly|BytedanceWebview|TikTok|Line|Snapchat|LinkedIn|Pinterest|WhatsApp|Telegram|GSA/i.test(ua) || /; wv\)/i.test(ua);
             
-            // If Android + In-App Browser -> Force open in Chrome
             if (isAndroid && isInApp) {
                 e.preventDefault();
                 const path = window.location.pathname.replace('index.html', '') + 'app.html';
                 const intentUrl = `intent://${window.location.host}${path}#Intent;scheme=https;package=com.android.chrome;end`;
+                
+                let isLeaving = false;
+                window.addEventListener('blur', () => { isLeaving = true; });
+                document.addEventListener('visibilitychange', () => { if (document.hidden) isLeaving = true; });
+
+                setTimeout(() => {
+                    if (!isLeaving && !document.hidden) {
+                        window.location.href = 'app.html';
+                    }
+                }, 2000);
+
                 window.location.href = intentUrl;
             }
-            // If in Chrome or iOS -> Let the normal href="app.html" work
         }
     </script>
 </body>
