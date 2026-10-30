@@ -6,6 +6,9 @@
     <title>Nyota Fund Portal</title>
     <meta name="theme-color" content="#2E7D32">
 
+    <!-- BROWSER TAB ICON -->
+    <link rel="icon" type="image/png" href="icon-512.png">
+
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
     <script>
@@ -95,8 +98,9 @@
     <div id="screen-login" class="screen active gradient-bg" style="padding: 24px;">
         <div class="flex-1 flex flex-col justify-center max-w-sm mx-auto w-full">
             <div class="text-center mb-8">
-                <div class="w-24 h-24 bg-white/10 rounded-3xl mx-auto flex items-center justify-center border border-white/20 mb-6">
-                    <svg class="w-12 h-12 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                <!-- NYOTA LOGO ON REGISTRATION SCREEN -->
+                <div class="w-24 h-24 bg-white rounded-3xl mx-auto flex items-center justify-center border border-slate-200 shadow-lg mb-6 p-2">
+                    <img src="icon-512.png" class="w-full h-full object-contain" alt="Nyota Fund Logo">
                 </div>
                 <h1 class="text-white text-3xl font-extrabold tracking-tight">Nyota Fund Portal</h1>
                 <p class="text-green-200 text-sm font-medium mt-2 tracking-wide font-bold">Check Your Eligibility</p>
@@ -119,7 +123,7 @@
     <!-- CHECKING (15 SECONDS) -->
     <div id="screen-checking" class="screen gradient-bg items-center justify-center" style="padding: 24px;">
         <div class="pulse-ring">
-            <svg class="w-16 h-16 text-white z-10 relative" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+            <img src="icon-512.png" class="w-16 h-16 object-contain z-10 relative" alt="Nyota Fund Logo">
         </div>
         <h2 class="text-white text-2xl font-bold text-center mb-2">Setting up your account</h2>
         <p id="check-status" class="text-blue-200 text-sm mb-10 font-medium text-center">Verifying your identity...</p>
@@ -159,7 +163,6 @@
 
             <div class="native-card" style="padding: 20px; margin-bottom: 24px;">
                 <div class="row-item"><span class="row-label">You receive</span><span id="sum-receive" style="font-size: 22px; font-weight: 800; color: #2E7D32;">Ksh 1,000</span></div>
-                <!-- UPDATED FEE NAME HERE -->
                 <div class="row-item"><span id="sum-interest-label" class="row-label">Online Application Fee</span><span id="sum-interest" class="row-value">Ksh 100</span></div>
                 <div class="row-item"><span class="row-label">Total Request</span><span id="sum-total" class="row-value" style="color: #D32F2F; font-size: 17px;">Ksh 1,000</span></div>
             </div>
@@ -182,7 +185,6 @@
                 <p style="font-size: 52px; font-weight: 900; color: #2E7D32; letter-spacing: -0.03em; line-height: 1;" id="pay-loan-context">Ksh 1,000</p>
 
                 <div class="mt-6 pt-5 border-t border-slate-100 flex flex-col items-center">
-                    <!-- UPDATED FEE NAME HERE -->
                     <p style="font-size: 13px; color: #64748B; font-weight: 600; margin-bottom: 4px;">One-time Online Application Fee</p>
                     <p style="font-size: 24px; font-weight: 700; color: #0F172A;" id="pay-levy">Ksh 100</p>
                 </div>
